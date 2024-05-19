@@ -138,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column( crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    Text("Hoş geldin,"),
+                    const Text("Hoş geldin,"),
                     Text(userName),
                   ],
                 ),
@@ -332,27 +332,26 @@ Future<void> barkodGonder() async {
           'GET', 'api/barcodes/code/$_scanBarcodeResult',
           token: globaltoken, context: context);
       Map<String, dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-      print(data);
       if (response.statusCode == 200) {
         BarcodeJson veri = BarcodeJson.fromJson(data);
         bool confirmed = await showDialog<bool>(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text('Barkod Taraması'),
+                  title: const Text('Barkod Taraması'),
                   content: Text('Ürün: ${veri.name}'),
                   actions: [
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pop(false);
                       },
-                      child: Text('Hayır'),
+                      child: const Text('Hayır'),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pop(true);
                       },
-                      child: Text('Evet'),
+                      child: const Text('Evet'),
                     ),
                   ],
                 );

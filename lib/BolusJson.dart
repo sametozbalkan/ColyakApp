@@ -124,15 +124,15 @@ class BolusReportJson {
     if (json['foodResponseList'] != null) {
       foodResponseList = <FoodResponseList>[];
       json['foodResponseList'].forEach((v) {
-        foodResponseList!.add(new FoodResponseList.fromJson(v));
+        foodResponseList!.add(FoodResponseList.fromJson(v));
       });
     }
-    bolus = json['bolus'] != null ? new Bolus.fromJson(json['bolus']) : null;
+    bolus = json['bolus'] != null ? Bolus.fromJson(json['bolus']) : null;
     dateTime = json['dateTime'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['userName'] = userName;
     if (foodResponseList != null) {
       data['foodResponseList'] =

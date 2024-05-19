@@ -1,5 +1,7 @@
 import 'package:colyakapp/HttpBuild.dart';
+import 'package:colyakapp/LoginScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class VerifyMail extends StatefulWidget {
   final String? verificationId;
@@ -24,12 +26,17 @@ class _VerifyMailState extends State<VerifyMail> {
           await sendRequest("POST", path, body: emailVerify, context: context);
 
       if (emailVer.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Kayıt başarılı!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
         Navigator.of(context).pushReplacementNamed("/loginscreen");
       } else {
         throw Exception("Email doğrulama başarısız oldu: ${emailVer.body}");
       }
     } catch (e) {
-      print("Hata: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Email doğrulama başarısız oldu: $e"),
@@ -54,7 +61,12 @@ class _VerifyMailState extends State<VerifyMail> {
               ),
               TextButton(
                 onPressed: () {
-
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
                 },
                 child: const Text('Evet'),
               ),
@@ -76,7 +88,7 @@ class _VerifyMailState extends State<VerifyMail> {
             onPressed: () async {
               bool shouldPop = await _onWillPop();
               if (shouldPop) {
-                Navigator.of(context).pop();
+                _onWillPop();
               }
             },
           ),
@@ -88,20 +100,47 @@ class _VerifyMailState extends State<VerifyMail> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  TextField(
-                    controller: oneTimeCodeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Tek Kullanımlık Kod',
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: TextField(
+                      onChanged: (_) => setState(() {}),
+                      controller: oneTimeCodeController,
+                      decoration: InputDecoration(
+                        labelText: "Tek Seferlik Kod",
+                        border: const OutlineInputBorder(),
+                        suffixIcon: oneTimeCodeController.text.isEmpty
+                            ? null
+                            : IconButton(
+                                icon: const Icon(Icons.cancel),
+                                onPressed: () {
+                                  oneTimeCodeController.clear();
+                                  setState(() {});
+                                },
+                              ),
+                      ),
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(6),
+                        FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: () async {
-                      await emailDogrula(
-                        widget.verificationId!,
-                        oneTimeCodeController.text,
-                        "api/users/verify/verify-email",
-                      );
+                      if (oneTimeCodeController.text.isNotEmpty) {
+                        await emailDogrula(
+                          widget.verificationId!,
+                          oneTimeCodeController.text,
+                          "api/users/verify/verify-email",
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Kod alanı boş!'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      }
                     },
                     child: const Text('Kaydı Tamamla'),
                   ),

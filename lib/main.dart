@@ -84,7 +84,8 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Yükleniyor"),
+            Text("Yükleniyor..."),
+            SizedBox(height: 5),
             CircularProgressIndicator(),
           ],
         ),

@@ -15,7 +15,7 @@ String storedPassword = "";
 Future<http.Response> sendRequest(
   String method,
   String path, {
-  Map<String, dynamic>? body,
+  dynamic body,
   String? extra,
   String? token,
   required BuildContext context,
@@ -27,11 +27,21 @@ Future<http.Response> sendRequest(
 
   try {
     final uri = Uri.parse("$genelUrl$path${extra ?? ''}");
-    final response = await http.Client().send(http.Request(method, uri)
-      ..headers.addAll(headers)
-      ..body = jsonEncode(body));
+    final request = http.Request(method, uri)
+      ..headers.addAll(headers);
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
+    if (body != null) {
+      if (body is String) {
+        request.body = body;
+        request.headers['Content-Type'] = 'text/plain';
+      } else {
+        request.body = jsonEncode(body);
+      }
+    }
+
+    final response = await http.Client().send(request);
+
+    if ((response.statusCode >= 200 && response.statusCode < 300) || response.statusCode == 619) {
       return http.Response.fromStream(response);
     } else if (response.statusCode == 401 || response.statusCode == 601) {
       globaltoken = await postRefreshToken(context);
@@ -43,9 +53,8 @@ Future<http.Response> sendRequest(
         token: globaltoken,
         context: context,
       );
-    } else if (response.statusCode == 619) {
-      return http.Response.fromStream(response);
     } else {
+      print(response.request);
       print('HTTP hata kodu: ${response.statusCode}');
       throw Exception('$method isteği başarısız oldu: ${response.statusCode}');
     }
@@ -54,6 +63,7 @@ Future<http.Response> sendRequest(
     rethrow;
   }
 }
+
 
 Future<void> checkAndLogin(BuildContext context) async {
   if (refreshToken.isNotEmpty) {

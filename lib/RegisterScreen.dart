@@ -151,18 +151,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (passwordController.text == passwordControllerRepeat.text) {
-                  await kayitOl(
-                    emailController.text,
-                    nameController.text,
-                    passwordController.text,
-                    "api/users/verify/create",
-                  );
+                if (passwordController.text.isNotEmpty &&
+                    emailController.text.isNotEmpty &&
+                    nameController.text.isNotEmpty &&
+                    passwordControllerRepeat.text.isNotEmpty) {
+                  if ((passwordController.text ==
+                      passwordControllerRepeat.text)) {
+                    await kayitOl(
+                      emailController.text,
+                      nameController.text,
+                      passwordController.text,
+                      "api/users/verify/create",
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Şifreler uyuşmuyor!'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Şifreler uyuşmuyor!'),
-                      duration: Duration(seconds: 1),
+                      content: Text('Boş alan bırakmayın!'),
+                      duration: Duration(seconds: 3),
                     ),
                   );
                 }

@@ -92,6 +92,35 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
     }
   }
 
+  Future<void> updateComment(int commentId, String comment) async {
+    try {
+
+      final response = await sendRequest('PUT', "api/comments/$commentId",
+          body: comment, token: globaltoken, context: context);
+
+      if (response.statusCode == 204) {
+        await initializeData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Yorum güncellendi!'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+        commentController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Yorum güncellenirken hata: ${response.statusCode}'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+        print(response.statusCode);
+      }
+    } catch (e) {
+      print('Error updating comment: $e');
+    }
+  }
+
   Future<void> toggleLike(int receiptId, String path) async {
     try {
       final Map<String, dynamic> likeDetails = {
@@ -347,51 +376,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                   Scaffold(
                       floatingActionButton: FloatingActionButton(
                         onPressed: () {
-                          showModalBottomSheet<dynamic>(
-                            isScrollControlled: true,
-                            context: context,
-                            builder: (BuildContext context) {
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                  bottom:
-                                      MediaQuery.of(context).viewInsets.bottom +
-                                          20,
-                                  left: 10,
-                                  right: 10,
-                                  top: 20,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    const Text('Yorum Ekle'),
-                                    const SizedBox(height: 10),
-                                    const Divider(),
-                                    TextField(
-                                      maxLines: null,
-                                      controller: commentController,
-                                      decoration: InputDecoration(
-                                        labelText: "Yorum yaz",
-                                        prefixIcon: const Icon(Icons.comment),
-                                        border: const OutlineInputBorder(),
-                                        suffixIcon: IconButton(
-                                          onPressed: () async {
-                                            await addComment(
-                                              widget.receipt.id!,
-                                              commentController.text,
-                                              "api/comments/add",
-                                            );
-                                            Navigator.pop(context);
-                                          },
-                                          icon: const Icon(Icons.send),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
+                          showModal();
                         },
                         child: const Icon(Icons.add),
                       ),
@@ -414,7 +399,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                       replies:
                                           commentReply[index].replyResponses!,
                                       commentId: commentResponse.commentId!,
-                                      comment: commentResponse.comment!,
+                                      comment: commentResponse.comment == null ? "null" : commentResponse.comment!,
                                       commentUser: commentResponse.userName!,
                                       createdTime: commentResponse.createdDate!,
                                     ),
@@ -462,18 +447,35 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                         ),
                                       ],
                                     ),
-                                    trailing:
-                                        commentResponse.userName == userName
-                                            ? IconButton(
-                                                icon: const Icon(Icons.delete),
-                                                onPressed: () async {
-                                                  await confirmDeleteComment(
-                                                    commentResponse.commentId!,
-                                                    "api/comments/",
-                                                  );
-                                                },
-                                              )
-                                            : null,
+                                    trailing: commentResponse.userName ==
+                                            userName
+                                        ? PopupMenuButton<String>(
+                                            icon: const Icon(Icons.more_vert),
+                                            onSelected: (String result) async {
+                                              if (result == 'delete') {
+                                                await confirmDeleteComment(
+                                                  commentResponse.commentId!,
+                                                  "api/comments/",
+                                                );
+                                              } else if (result == 'update') {
+                                                showModalUpdate(
+                                                    commentResponse);
+                                              }
+                                            },
+                                            itemBuilder:
+                                                (BuildContext context) =>
+                                                    <PopupMenuEntry<String>>[
+                                              const PopupMenuItem<String>(
+                                                value: 'update',
+                                                child: Text('Güncelle'),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'delete',
+                                                child: Text('Sil'),
+                                              ),
+                                            ],
+                                          )
+                                        : null,
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(bottom: 10),
@@ -503,6 +505,93 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void showModal() {
+    showModalBottomSheet<dynamic>(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            left: 10,
+            right: 10,
+            top: 20,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Text('Yorum Ekle'),
+              const SizedBox(height: 10),
+              const Divider(),
+              TextField(
+                maxLines: null,
+                controller: commentController,
+                decoration: InputDecoration(
+                  labelText: "Yorum yaz",
+                  prefixIcon: const Icon(Icons.comment),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    onPressed: () async {
+                      await addComment(widget.receipt.id!,
+                          commentController.text, "api/comments/add");
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.send),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void showModalUpdate(CommentResponse commentResponse) {
+    commentController.text = commentResponse.comment!;
+    showModalBottomSheet<dynamic>(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            left: 10,
+            right: 10,
+            top: 20,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Text('Yorumu Güncelle'),
+              const SizedBox(height: 10),
+              const Divider(),
+              TextField(
+                maxLines: null,
+                controller: commentController,
+                decoration: InputDecoration(
+                  labelText: "Yorum yaz",
+                  prefixIcon: const Icon(Icons.comment),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    onPressed: () async {
+                      await updateComment(
+                          commentResponse.commentId!, commentController.text);
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.send),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

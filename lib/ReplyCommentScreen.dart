@@ -50,6 +50,34 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
     }
   }
 
+  Future<void> updateReply(int replyId, String reply) async {
+    try {
+      final response = await sendRequest(
+          'PUT', "api/replies/$replyId?newReply=$reply",
+          token: globaltoken, context: context);
+
+      if (response.statusCode == 204) {
+        await initializeData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Yanıt güncellendi!'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+        replyYaz.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Yanıt güncellenirken hata: ${response.statusCode}'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error updating comment: $e');
+    }
+  }
+
   Future<void> replyGonder(int commentId, String reply) async {
     try {
       final replyDetails = {'commentId': commentId, 'reply': reply};
@@ -121,6 +149,12 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
           extra: replyId.toString(), token: globaltoken, context: context);
       if (response.statusCode == 204) {
         await initializeData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Yanıt silindi!'),
+            duration: Duration(seconds: 1),
+          ),
+        );
       } else {
         print(response.statusCode);
       }
@@ -214,6 +248,33 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
     );
   }
 
+  Future<void> confirmDeleteReply(index) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Yanıtı Sil'),
+          content: const Text('Bu yanıtı silmek istediğinizden emin misiniz?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Evet'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _deleteReply(allReplies[index].replyId!);
+              },
+            ),
+            TextButton(
+              child: const Text('Hayır'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildRepliesSection() {
     return Column(
       children: [
@@ -259,11 +320,27 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
                       ],
                     ),
                     trailing: allReplies[index].userName == userName
-                        ? IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () async {
-                              await replySil(allReplies[index].replyId!);
+                        ? PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert),
+                            onSelected: (String result) async {
+                              if (result == 'delete') {
+                                await confirmDeleteReply(index);
+                              } else if (result == 'update') {
+                                replyYaz.text = allReplies[index].reply!;
+                                await showModalUpdate(index);
+                              }
                             },
+                            itemBuilder: (BuildContext context) =>
+                                <PopupMenuEntry<String>>[
+                              const PopupMenuItem<String>(
+                                value: 'update',
+                                child: Text('Güncelle'),
+                              ),
+                              const PopupMenuItem<String>(
+                                value: 'delete',
+                                child: Text('Sil'),
+                              ),
+                            ],
                           )
                         : null,
                   ),
@@ -320,6 +397,49 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
         );
       },
       child: const Icon(Icons.add),
+    );
+  }
+
+  Future showModalUpdate(index) {
+    return showModalBottomSheet<dynamic>(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            left: 10,
+            right: 10,
+            top: 20,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Text('Yanıt Düzenle'),
+              const SizedBox(height: 10),
+              const Divider(),
+              TextField(
+                maxLines: null,
+                controller: replyYaz,
+                decoration: InputDecoration(
+                  labelText: "Yanıt yaz",
+                  prefixIcon: const Icon(Icons.comment),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    onPressed: () async {
+                      await updateReply(
+                          allReplies[index].replyId!, replyYaz.text);
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.send),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
