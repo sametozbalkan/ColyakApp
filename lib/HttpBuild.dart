@@ -54,7 +54,6 @@ Future<http.Response> sendRequest(
         context: context,
       );
     } else {
-      print(response.request);
       print('HTTP hata kodu: ${response.statusCode}');
       throw Exception('$method isteği başarısız oldu: ${response.statusCode}');
     }

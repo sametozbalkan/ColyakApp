@@ -94,7 +94,6 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
   Future<void> updateComment(int commentId, String comment) async {
     try {
-
       final response = await sendRequest('PUT', "api/comments/$commentId",
           body: comment, token: globaltoken, context: context);
 
@@ -376,7 +375,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                   Scaffold(
                       floatingActionButton: FloatingActionButton(
                         onPressed: () {
-                          showModal();
+                          showModal(false);
                         },
                         child: const Icon(Icons.add),
                       ),
@@ -399,7 +398,9 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                       replies:
                                           commentReply[index].replyResponses!,
                                       commentId: commentResponse.commentId!,
-                                      comment: commentResponse.comment == null ? "null" : commentResponse.comment!,
+                                      comment: commentResponse.comment == null
+                                          ? "null"
+                                          : commentResponse.comment!,
                                       commentUser: commentResponse.userName!,
                                       createdTime: commentResponse.createdDate!,
                                     ),
@@ -458,8 +459,9 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                                   "api/comments/",
                                                 );
                                               } else if (result == 'update') {
-                                                showModalUpdate(
-                                                    commentResponse);
+                                                showModal(true,
+                                                    commentResponse:
+                                                        commentResponse);
                                               }
                                             },
                                             itemBuilder:
@@ -508,51 +510,10 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
     );
   }
 
-  void showModal() {
-    showModalBottomSheet<dynamic>(
-      isScrollControlled: true,
-      context: context,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            left: 10,
-            right: 10,
-            top: 20,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Text('Yorum Ekle'),
-              const SizedBox(height: 10),
-              const Divider(),
-              TextField(
-                maxLines: null,
-                controller: commentController,
-                decoration: InputDecoration(
-                  labelText: "Yorum yaz",
-                  prefixIcon: const Icon(Icons.comment),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    onPressed: () async {
-                      await addComment(widget.receipt.id!,
-                          commentController.text, "api/comments/add");
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.send),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  void showModal(bool isUpdate, {CommentResponse? commentResponse}) {
+    commentController.text = isUpdate ? commentResponse!.comment! : '';
+    final String title = isUpdate ? 'Yorumu Güncelle' : 'Yorum Ekle';
 
-  void showModalUpdate(CommentResponse commentResponse) {
-    commentController.text = commentResponse.comment!;
     showModalBottomSheet<dynamic>(
       isScrollControlled: true,
       context: context,
@@ -568,7 +529,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Text('Yorumu Güncelle'),
+              Text(title),
               const SizedBox(height: 10),
               const Divider(),
               TextField(
@@ -580,8 +541,13 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     onPressed: () async {
-                      await updateComment(
-                          commentResponse.commentId!, commentController.text);
+                      if (isUpdate) {
+                        await updateComment(commentResponse!.commentId!,
+                            commentController.text);
+                      } else {
+                        await addComment(widget.receipt.id!,
+                            commentController.text, "api/comments/add");
+                      }
                       Navigator.pop(context);
                     },
                     icon: const Icon(Icons.send),
