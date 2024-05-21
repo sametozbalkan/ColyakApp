@@ -1,4 +1,3 @@
-
 import 'package:colyakapp/BolusJson.dart';
 import 'package:flutter/material.dart';
 
@@ -36,6 +35,19 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
     );
   }
 
+  String tarihDonusum(String gelenDate) {
+    DateTime dateTime = DateTime.parse(gelenDate);
+    String day = dateTime.day.toString().padLeft(2, '0');
+    String month = dateTime.month.toString().padLeft(2, '0');
+    String year = dateTime.year.toString();
+    String date = "$day/$month/$year";
+    String hour = dateTime.hour.toString().padLeft(2, '0');
+    String minute = dateTime.minute.toString().padLeft(2, '0');
+    String time = "$hour:$minute";
+    String total = "$date - $time";
+    return total;
+  }
+
   Widget _buildFoodItem(int foodIndex) {
     final food = widget.reportDetails.foodResponseList![foodIndex];
     return Card(
@@ -62,7 +74,7 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Haftalık Bolus Raporları"),
+        title: Text(tarihDonusum(widget.reportDetails.dateTime!)),
       ),
       body: SafeArea(
         child: Column(

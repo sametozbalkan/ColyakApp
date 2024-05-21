@@ -117,6 +117,23 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Bolus Raporları"),
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                if (_startDateController.text.isNotEmpty &&
+                    _endDateController.text.isNotEmpty) {
+                  _fetchReports();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Başlangıç veya bitiş tarihi boş olamaz!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              }),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -140,8 +157,7 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
                                 DateTime.now()
                                     .subtract(const Duration(days: 7)),
                                 (picked) {
-                              startDate =
-                                  picked;
+                              startDate = picked;
                             });
                           },
                         ),
@@ -167,10 +183,6 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
                         ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: _fetchReports,
                   ),
                 ],
               ),

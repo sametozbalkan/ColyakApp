@@ -35,9 +35,9 @@ class _ReceiptPageState extends State<ReceiptPage> {
     });
     try {
       await _fetchReceipts();
+      await _hazirYiyecekleriAl();
       await _fetchFavorites();
       await _loadImageBytes();
-      await _hazirYiyecekleriAl();
     } catch (e) {
       print("Critical error posting refresh token: $e");
     }

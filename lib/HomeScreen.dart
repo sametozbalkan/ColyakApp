@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.document_scanner),
-              title: const Text('Haftalık Bolus Raporu'),
+              title: const Text('Bolus Raporları'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -135,9 +135,9 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Column( crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     const Text("Hoş geldin,"),
                     Text(userName),
                   ],
@@ -308,6 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
   String _scanBarcodeResult = "";
 
   Future<void> scanBarcodeNormal() async {
@@ -326,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-Future<void> barkodGonder() async {
+  Future<void> barkodGonder() async {
     try {
       final response = await sendRequest(
           'GET', 'api/barcodes/code/$_scanBarcodeResult',
@@ -364,21 +365,22 @@ Future<void> barkodGonder() async {
             context,
             MaterialPageRoute(
               builder: (context) => BarcodeScanResult(
-                barcodeList: [veri],
+                barcode: veri,
               ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tekrar taramayı deneyin!'),
+              duration: Duration(seconds: 2),
             ),
           );
         }
       } else {
-        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Column(
-              children: [
-                const Text('Tekrar taramayı deneyin!'),
-                Text(response.statusCode.toString()),
-              ],
-            ),
+            content: Text('Ürün bulunamadı:  ${response.statusCode}'),
             duration: const Duration(seconds: 2),
           ),
         );
