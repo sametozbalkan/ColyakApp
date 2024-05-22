@@ -62,7 +62,7 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                "Tür: ${food.foodType! == "RECEPIPT" ? "Tarif" : "Hazır Yiyecek"}"),
+                "Tür: ${food.foodType! == "RECEIPT" ? "Tarif" : "Hazır Yiyecek"}"),
             Text("Karbonhidrat: ${food.carbonhydrate.toString()} gram"),
           ],
         ),
@@ -119,7 +119,7 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
                               widget.reportDetails.bolus!.bolusValue
                                   .toString()),
                           _buildInfoRow(
-                              "Toplam Karbonhidrat (g)",
+                              "Karbonhidrat (g)",
                               widget.reportDetails.bolus!.totalCarbonhydrate
                                   .toString()),
                         ],

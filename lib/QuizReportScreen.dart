@@ -40,7 +40,7 @@ class QuizReportScreen extends StatelessWidget {
 
             return Card(
               margin:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               child: ListTile(
                 title: Text(
                   "${index + 1}) ${questionList[index].question}?",

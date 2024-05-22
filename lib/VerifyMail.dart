@@ -1,5 +1,4 @@
 import 'package:colyakapp/HttpBuild.dart';
-import 'package:colyakapp/LoginScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -32,7 +31,8 @@ class _VerifyMailState extends State<VerifyMail> {
             duration: Duration(seconds: 2),
           ),
         );
-        Navigator.of(context).pushReplacementNamed("/loginscreen");
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            '/loginscreen', (Route<dynamic> route) => false);
       } else {
         throw Exception("Email doğrulama başarısız oldu: ${emailVer.body}");
       }
@@ -61,12 +61,8 @@ class _VerifyMailState extends State<VerifyMail> {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                  );
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/loginscreen', (Route<dynamic> route) => false);
                 },
                 child: const Text('Evet'),
               ),

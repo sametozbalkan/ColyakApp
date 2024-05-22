@@ -79,11 +79,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return  Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Image.asset("assets/images/colyak.png"),
             Text("Yükleniyor..."),
             SizedBox(height: 5),
             CircularProgressIndicator(),

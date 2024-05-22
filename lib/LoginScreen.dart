@@ -37,11 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  const Text(
-                    "Çölyak Diyabet",
-                    style: TextStyle(fontSize: 40),
-                    softWrap: true,
-                  ),
+                  Image.asset("assets/images/colyak.png"),
                   const Padding(
                     padding: EdgeInsets.all(20),
                     child: Text("Hoş Geldiniz",

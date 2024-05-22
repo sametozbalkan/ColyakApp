@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
-
 import 'package:colyakapp/BarcodeJson.dart';
 import 'package:colyakapp/BarcodeScanResult.dart';
 import 'package:colyakapp/BolusReportScreen.dart';
@@ -21,7 +19,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String result = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,12 +28,12 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: const Color(0xFFFF7A37).withOpacity(0.75),
+                color:  Colors.white38,
               ),
-              child: const Column(
+              child:  Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Çölyak Diyabet'),
+                  Expanded(child: Image.asset("assets/images/colyak.png")),
                 ],
               ),
             ),
@@ -118,6 +115,15 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Divider(),
             ),
             ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Ayarlar'),
+              onTap: () {},
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+              child: Divider(),
+            ),
+            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Çıkış Yap'),
               onTap: () {
@@ -134,173 +140,98 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Hoş geldin,"),
-                    Text(userName),
-                  ],
+                padding: const EdgeInsets.all(5),
+                child: Text(
+                  "Hoş geldin, $userName!",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 20),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(5),
                 child: Column(
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [Text("Özet"), Text("Detaylar")],
-                      ),
-                    ),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    GridView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3),
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MealScreen()),
+                            ).then((value) {
+                              if (value != null) {
+                                setState(() {});
+                              }
+                            });
+                          },
+                          child: const Card(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Column(
-                                  children: [Text("1500"), Text("Alınan")],
-                                ),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.width /
-                                                3,
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                3,
-                                        child: CustomPaint(
-                                          painter: ArchProgressPainter(
-                                              circularProgressSize:
-                                                  MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      3,
-                                              progress: 0.5),
-                                          child: const Center(
-                                              child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text("1000"),
-                                              Text("Kalan"),
-                                            ],
-                                          )),
-                                        )),
-                                  ],
-                                ),
-                                const Column(
-                                  children: [Text("2500"), Text("Hedef")],
-                                )
+                                Text("Öğün Ekle"),
                               ],
                             ),
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Text("Karbonhidrat"),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(0, 5, 0, 5),
-                                          child: LinearProgressIndicator(
-                                            value: 10,
-                                            minHeight: 6,
-                                          ),
-                                        ),
-                                        Text("15 / 150 g")
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Text("Protein"),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(0, 5, 0, 5),
-                                          child: LinearProgressIndicator(
-                                            value: 10,
-                                            minHeight: 6,
-                                          ),
-                                        ),
-                                        Text("32 / 125 g")
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Text("Yağ"),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(0, 5, 0, 5),
-                                          child: LinearProgressIndicator(
-                                            value: 10,
-                                            minHeight: 6,
-                                          ),
-                                        ),
-                                        Text("25 / 75 g")
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
+                        GestureDetector(
+                          onTap: () async {
+                            await scanBarcodeNormal();
+                            await barkodGonder();
+                          },
+                          child: const Card(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Barkod Tara"),
+                              ],
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () async {},
+                          child: const Card(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Çek"),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Card(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Çek"),
+                            ],
+                          ),
+                        ),
+                        const Card(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Çek"),
+                            ],
+                          ),
+                        ),
+                        const Card(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Çek"),
+                            ],
+                          ),
+                        )
+                      ],
+                    )
                   ],
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(10, 5, 0, 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text("Yapılabilecekler"),
-                  ],
-                ),
-              ),
-              Column(
-                children: [
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const MealScreen()),
-                        ).then((value) {
-                          if (value != null) {
-                            setState(() {});
-                          }
-                        });
-                      },
-                      child: const Text("Öğün Ekle")),
-                  ElevatedButton(
-                      onPressed: () async {
-                        await scanBarcodeNormal();
-                        await barkodGonder();
-                      },
-                      child: const Text("Barkod Tara")),
-                ],
               ),
             ],
           ),
@@ -388,112 +319,5 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print(e);
     }
-  }
-}
-
-class CircularProgressPainter extends CustomPainter {
-  final double circularProgressSize;
-  final double progress;
-  final onePercentageToRadian = 0.06283;
-
-  CircularProgressPainter({
-    required this.circularProgressSize,
-    required this.progress,
-  });
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paintBackhround = Paint()
-      ..strokeWidth = 16
-      ..color = Colors.grey
-      ..style = PaintingStyle.stroke;
-
-    final paintProgress = Paint()
-      ..strokeWidth = 12
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..color = Colors.green;
-
-    canvas.drawCircle(
-      Offset(circularProgressSize / 2, circularProgressSize / 2),
-      circularProgressSize / 2,
-      paintBackhround,
-    );
-
-    canvas.drawArc(
-      Rect.fromCenter(
-          center: Offset(circularProgressSize / 2, circularProgressSize / 2),
-          width: circularProgressSize,
-          height: circularProgressSize),
-      3 * pi / 2,
-      _convertPercentageToRadian(),
-      false,
-      paintProgress,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
-
-  double _convertPercentageToRadian() {
-    return onePercentageToRadian * progress * 100;
-  }
-}
-
-class ArchProgressPainter extends CustomPainter {
-  final double circularProgressSize;
-  final double progress;
-  final onePercentageToRadian = (3 * pi / 2) / 100;
-
-  ArchProgressPainter({
-    required this.circularProgressSize,
-    required this.progress,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paintBackhround = Paint()
-      ..strokeWidth = 16
-      ..color = const Color(0xFFFF7A37).withOpacity(0.25)
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-
-    final paintProgress = Paint()
-      ..strokeWidth = 12
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..color = const Color(0xFFFF7A37);
-
-    canvas.drawArc(
-      Rect.fromCenter(
-          center: Offset(circularProgressSize / 2, circularProgressSize / 2),
-          width: circularProgressSize,
-          height: circularProgressSize),
-      3 * pi / 4,
-      3 * pi / 2,
-      false,
-      paintBackhround,
-    );
-
-    canvas.drawArc(
-      Rect.fromCenter(
-          center: Offset(circularProgressSize / 2, circularProgressSize / 2),
-          width: circularProgressSize,
-          height: circularProgressSize),
-      3 * pi / 4,
-      _convertPercentageToRadian(),
-      false,
-      paintProgress,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
-
-  double _convertPercentageToRadian() {
-    return onePercentageToRadian * progress * 100;
   }
 }

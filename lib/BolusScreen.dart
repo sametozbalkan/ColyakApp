@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:colyakapp/BolusJson.dart';
+import 'package:colyakapp/ColyakIcons.dart';
 import 'package:colyakapp/HttpBuild.dart';
 import 'package:colyakapp/MealDetailScreen.dart';
 import 'package:colyakapp/MealScreen.dart';
@@ -202,7 +203,7 @@ class _BolusScreenState extends State<BolusScreen> {
                       ],
                     ),
                   ),
-                  leading: const Icon(Icons.access_time),
+                  leading: const Icon(Icons.access_time, size: 32),
                   subtitle: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -211,22 +212,22 @@ class _BolusScreenState extends State<BolusScreen> {
                   ),
                 ),
               ),
-              bolusCard("Kan Şekeri", kanSekeriController, Icons.abc,
+              bolusCard("Kan Şekeri", kanSekeriController, ColyakIcons.sugar_blood,
                   "Açlık kan şekeri"),
-              bolusCard("Hedef Kan Şekeri", hedefKanSekeriController, Icons.abc,
+              bolusCard("Hedef Kan Şekeri", hedefKanSekeriController, Icons.track_changes_outlined,
                   "Doktorun uygun gördüğü kan şekeri"),
               bolusCard(
                   "Karbonhidrat Miktarı (g)",
                   karbonhidratMiktariController,
-                  Icons.abc,
+                  ColyakIcons.carbohydrate,
                   "Öğünde alınan karbonhidrat miktarı"),
               bolusCard(
                   "İnsulin/Karbonhidrat Oranı",
                   insulinKarbonhidratOraniController,
-                  Icons.abc,
+                  Icons.percent,
                   "İnsulin/Karbonhidrat oranı"),
               bolusCard("IDF (İnsulin Duyarlılık Faktörü)", idfController,
-                  Icons.abc, "İnsulin Duyarlılık Faktörü"),
+                  ColyakIcons.idf, "İnsulin Duyarlılık Faktörü"),
             ],
           ),
         ),
@@ -264,7 +265,7 @@ class _BolusScreenState extends State<BolusScreen> {
             ],
           ),
         ),
-        leading: Icon(icon),
+        leading: Icon(icon, size: 32),
         subtitle: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
