@@ -9,15 +9,11 @@ import 'package:flutter/material.dart';
 class ReceiptDetailScreen extends StatefulWidget {
   final ReceiptJson receipt;
   final Uint8List imageBytes;
-  final bool isLiked;
-  final Function updateFavorites;
 
   const ReceiptDetailScreen({
     super.key,
     required this.receipt,
     required this.imageBytes,
-    required this.isLiked,
-    required this.updateFavorites,
   });
 
   @override
@@ -25,14 +21,12 @@ class ReceiptDetailScreen extends StatefulWidget {
 }
 
 class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
-  bool isLiked = false;
   List<CommentReplyJson> commentReply = [];
   TextEditingController commentController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    isLiked = widget.isLiked;
     initializeData();
   }
 
@@ -117,35 +111,6 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
       }
     } catch (e) {
       print('Error updating comment: $e');
-    }
-  }
-
-  Future<void> toggleLike(int receiptId, String path) async {
-    try {
-      final Map<String, dynamic> likeDetails = {
-        'receiptId': receiptId,
-      };
-
-      final response = await sendRequest('POST', path,
-          body: likeDetails, token: globaltoken, context: context);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        setState(() {
-          isLiked = !isLiked;
-        });
-        widget.updateFavorites();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                isLiked ? 'Favorilere eklendi!' : 'Favorilerden kaldırıldı!'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      } else {
-        print(response.statusCode);
-      }
-    } catch (e) {
-      print('Error toggling like: $e');
     }
   }
 
@@ -237,22 +202,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.receipt.receiptName.toString()),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              isLiked
-                  ? await toggleLike(widget.receipt.id!, "api/likes/unlike")
-                  : await toggleLike(widget.receipt.id!, "api/likes/like");
-            },
-            icon: Icon(
-              Icons.favorite,
-              color: isLiked ? Colors.red : Colors.black,
-            ),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: Text(widget.receipt.receiptName.toString())),
       body: DefaultTabController(
         length: 4,
         initialIndex: 0,
@@ -268,21 +218,41 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
               unselectedLabelColor: Colors.black,
               tabs: [
                 Tab(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
                     child: Text(
-                  "Malzeme\nListesi",
-                  textAlign: TextAlign.center,
-                )),
+                      "Malzeme\nListesi",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
                 Tab(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
                     child: Text(
-                  "Tarif\nDetayları",
-                  textAlign: TextAlign.center,
-                )),
+                      "Tarif\nDetayları",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
                 Tab(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
                     child: Text(
-                  "Besin\nDeğerleri",
-                  textAlign: TextAlign.center,
-                )),
-                Tab(text: 'Yorumlar'),
+                      "Besin\nDeğerleri",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                Tab(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      "Yorumlar",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
               ],
             ),
             Expanded(

@@ -85,9 +85,9 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset("assets/images/colyak.png"),
-            Text("Yükleniyor..."),
-            SizedBox(height: 5),
-            CircularProgressIndicator(),
+            const Text("Yükleniyor..."),
+            const SizedBox(height: 5),
+            const CircularProgressIndicator(),
           ],
         ),
       ),

@@ -25,8 +25,6 @@ class _BolusScreenState extends State<BolusScreen> {
   final TextEditingController idfController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
 
-  TimeOfDay time = const TimeOfDay(hour: 10, minute: 30);
-
   Future<void> sendBolus(BolusJson bolusJson) async {
     try {
       final response = await sendRequest('POST', 'api/meals/add',
@@ -43,11 +41,21 @@ class _BolusScreenState extends State<BolusScreen> {
     }
   }
 
-  double bolusValue = 0;
+  DateTime getSelectedDateTime() {
+    String time = timeController.text;
+    List<String> splitTime = time.split(':');
+    int hours = int.parse(splitTime[0]);
+    int minutes = int.parse(splitTime[1]);
+
+    DateTime now = DateTime.now();
+    DateTime selectedDate =
+        DateTime(now.year, now.month, now.day, hours, minutes);
+    return selectedDate;
+  }
+
   @override
   Widget build(BuildContext context) {
-    String hours = "";
-    String minute = "";
+    double bolusValue = 0;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Bolus Hesapla")),
@@ -78,14 +86,15 @@ class _BolusScreenState extends State<BolusScreen> {
               BolusJson bolusDegerleri = BolusJson(
                 foodList: bolusFoodList,
                 bolus: Bolus(
-                  bloodSugar: bloodSugar.round().toInt(),
-                  targetBloodSugar: targetBloodSugar.round().toInt(),
-                  insulinTolerateFactor: insulinTolerateFactor.round().toInt(),
-                  totalCarbonhydrate: totalCarbonhydrate.round().toInt(),
-                  insulinCarbonhydrateRatio:
-                      insulinCarbonhydrateRatio.round().toInt(),
-                  bolusValue: bolusValue.round().toInt(),
-                ),
+                    bloodSugar: bloodSugar.round().toInt(),
+                    targetBloodSugar: targetBloodSugar.round().toInt(),
+                    insulinTolerateFactor:
+                        insulinTolerateFactor.round().toInt(),
+                    totalCarbonhydrate: totalCarbonhydrate.round().toInt(),
+                    insulinCarbonhydrateRatio:
+                        insulinCarbonhydrateRatio.round().toInt(),
+                    bolusValue: bolusValue.round().toInt(),
+                    eatingTime: getSelectedDateTime()),
               );
               await sendBolus(bolusDegerleri);
               await showModalBottomSheet<dynamic>(
@@ -171,26 +180,26 @@ class _BolusScreenState extends State<BolusScreen> {
                         ),
                         const SizedBox(height: 5),
                         TextField(
+                          onTap: () async {
+                            String hours = "";
+                            String minute = "";
+                            TimeOfDay time =
+                                const TimeOfDay(hour: 0, minute: 0);
+                            TimeOfDay? newTime = await showTimePicker(
+                              context: context,
+                              initialTime: time,
+                            );
+                            if (newTime == null) return;
+                            setState(() {
+                              time = newTime;
+                              hours = time.hour.toString().padLeft(2, "0");
+                              minute = time.minute.toString().padLeft(2, "0");
+                              timeController.text = "$hours:$minute";
+                            });
+                          },
                           readOnly: true,
                           controller: timeController,
                           decoration: InputDecoration(
-                            suffixIcon: IconButton(
-                                onPressed: () async {
-                                  TimeOfDay? newTime = await showTimePicker(
-                                    context: context,
-                                    initialTime: time,
-                                  );
-                                  if (newTime == null) return;
-                                  setState(() {
-                                    time = newTime;
-                                    hours =
-                                        time.hour.toString().padLeft(2, "0");
-                                    minute =
-                                        time.minute.toString().padLeft(2, "0");
-                                    timeController.text = "$hours:$minute";
-                                  });
-                                },
-                                icon: const Icon(Icons.access_time)),
                             hintText: "Saat ve Dakika Seçin",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
@@ -199,7 +208,7 @@ class _BolusScreenState extends State<BolusScreen> {
                                 horizontal: 8.0, vertical: 12.0),
                           ),
                           keyboardType: TextInputType.number,
-                        ),
+                        )
                       ],
                     ),
                   ),
@@ -212,9 +221,12 @@ class _BolusScreenState extends State<BolusScreen> {
                   ),
                 ),
               ),
-              bolusCard("Kan Şekeri", kanSekeriController, ColyakIcons.sugar_blood,
-                  "Açlık kan şekeri"),
-              bolusCard("Hedef Kan Şekeri", hedefKanSekeriController, Icons.track_changes_outlined,
+              bolusCard("Kan Şekeri", kanSekeriController,
+                  ColyakIcons.sugar_blood, "Açlık kan şekeri"),
+              bolusCard(
+                  "Hedef Kan Şekeri",
+                  hedefKanSekeriController,
+                  Icons.track_changes_outlined,
                   "Doktorun uygun gördüğü kan şekeri"),
               bolusCard(
                   "Karbonhidrat Miktarı (g)",
@@ -277,11 +289,6 @@ class _BolusScreenState extends State<BolusScreen> {
   }
 }
 
-void main() {
-  runApp(const MaterialApp(
-    home: BolusScreen(),
-  ));
-}
 
 double? tryParseDouble(String? value) {
   if (value == null || value.isEmpty) {

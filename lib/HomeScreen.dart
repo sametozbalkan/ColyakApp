@@ -27,10 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(
-                color:  Colors.white38,
+              decoration: const BoxDecoration(
+                color: Colors.white38,
               ),
-              child:  Column(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(child: Image.asset("assets/images/colyak.png")),
@@ -255,6 +255,14 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _scanBarcodeResult = barcodeScanRes;
       });
+    }
+    if (barcodeScanRes == "-1") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Barkod bulunamadı!"),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 

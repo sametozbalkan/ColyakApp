@@ -95,8 +95,8 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
                               "Kullanıcı Adı", widget.reportDetails.userName!),
                           _buildInfoRow(
                               "Yeme Zamanı",
-                              widget.reportDetails.bolus!.eatingTime
-                                  .toString()),
+                              tarihDonusum(widget.reportDetails.bolus!.eatingTime!.toIso8601String())
+                             ),
                           _buildInfoRow(
                               "Kan Şekeri",
                               widget.reportDetails.bolus!.bloodSugar

@@ -144,43 +144,35 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
                 children: [
                   Expanded(
                     child: TextField(
+                      onTap: () {
+                        _selectDate(context, _startDateController,
+                            DateTime.now().subtract(const Duration(days: 7)),
+                            (picked) {
+                          startDate = picked;
+                        });
+                      },
                       readOnly: true,
                       controller: _startDateController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Başlangıç Tarihi',
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.calendar_today),
-                          onPressed: () {
-                            _selectDate(
-                                context,
-                                _startDateController,
-                                DateTime.now()
-                                    .subtract(const Duration(days: 7)),
-                                (picked) {
-                              startDate = picked;
-                            });
-                          },
-                        ),
+                        suffixIcon: Icon(Icons.calendar_today),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
+                      onTap: () {
+                        _selectDate(context, _endDateController, DateTime.now(),
+                            (picked) {
+                          endDate = picked.add(const Duration(days: 1));
+                        });
+                      },
                       readOnly: true,
                       controller: _endDateController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Bitiş Tarihi',
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.calendar_today),
-                          onPressed: () {
-                            _selectDate(
-                                context, _endDateController, DateTime.now(),
-                                (picked) {
-                              endDate = picked.add(const Duration(days: 1));
-                            });
-                          },
-                        ),
+                        suffixIcon: Icon(Icons.calendar_today),
                       ),
                     ),
                   ),

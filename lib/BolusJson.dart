@@ -68,7 +68,7 @@ class Bolus {
   int? totalCarbonhydrate;
   int? insulinCarbonhydrateRatio;
   int? bolusValue;
-  String? eatingTime;
+  DateTime? eatingTime;
 
   Bolus(
       {this.id,
@@ -88,7 +88,7 @@ class Bolus {
     totalCarbonhydrate = json['totalCarbonhydrate'];
     insulinCarbonhydrateRatio = json['insulinCarbonhydrateRatio'];
     bolusValue = json['bolusValue'];
-    eatingTime = json['eatingTime'];
+    eatingTime = json['eatingTime'] != null ? DateTime.parse(json['eatingTime']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -100,7 +100,7 @@ class Bolus {
     data['totalCarbonhydrate'] = totalCarbonhydrate;
     data['insulinCarbonhydrateRatio'] = insulinCarbonhydrateRatio;
     data['bolusValue'] = bolusValue;
-    data['eatingTime'] = eatingTime;
+    data['eatingTime'] = eatingTime?.toIso8601String();
     return data;
   }
 }

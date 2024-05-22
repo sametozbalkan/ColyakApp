@@ -178,10 +178,39 @@ class _ReceiptPageState extends State<ReceiptPage> {
     );
   }
 
+  Future<void> toggleLike(int receiptId, String path, bool isLiked) async {
+    try {
+      final Map<String, dynamic> likeDetails = {
+        'receiptId': receiptId,
+      };
+
+      final response = await sendRequest('POST', path,
+          body: likeDetails, token: globaltoken, context: context);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          isLiked = !isLiked;
+        });
+        _fetchFavorites();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                isLiked ? 'Favorilere eklendi!' : 'Favorilerden kaldırıldı!'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      } else {
+        print(response.statusCode);
+      }
+    } catch (e) {
+      print('Error toggling like: $e');
+    }
+  }
+
   Widget _buildGridView(List<ReceiptJson> receipts) {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, childAspectRatio: 0.80),
+          crossAxisCount: 2, childAspectRatio: 0.93),
       itemCount: receipts.length,
       itemBuilder: (context, index) {
         return _buildReceiptCard(receipts[index]);
@@ -202,50 +231,67 @@ class _ReceiptPageState extends State<ReceiptPage> {
             builder: (context) => ReceiptDetailScreen(
               receipt: receipt,
               imageBytes: imageBytesMap[imageUrl]!,
-              isLiked: isLiked,
-              updateFavorites: _fetchFavorites,
             ),
           ),
         );
       },
       child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (imageBytesMap.containsKey(imageUrl))
               Expanded(
-                flex: 6,
-                child: AspectRatio(
-                  aspectRatio: 4 / 3,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      topRight: Radius.circular(8),
+                flex: 7,
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                      ),
+                      child: Image.memory(
+                        imageBytesMap[imageUrl]!,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.fill,
+                      ),
                     ),
-                    child: Image.memory(
-                      imageBytesMap[imageUrl]!,
-                      fit: BoxFit.fill,
+                    Positioned(
+                      top: -1,
+                      right: -1,
+                      child: IconButton(
+                        onPressed: () async {
+                          isLiked
+                              ? await toggleLike(
+                                  receipt.id!, "api/likes/unlike", isLiked)
+                              : await toggleLike(
+                                  receipt.id!, "api/likes/like", isLiked);
+                        },
+                        icon: Icon(
+                          isLiked ? Icons.favorite : Icons.favorite_border,
+                          color: isLiked ? Colors.red : Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             Expanded(
-              flex: 4,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    receipt.receiptName!,
-                    softWrap: true,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 16),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                      "${receipt.nutritionalValuesList != null && receipt.nutritionalValuesList!.isNotEmpty ? receipt.nutritionalValuesList![0].carbohydrateAmount?.toInt() ?? '' : ''}g karbonhidrat",
-                      style: const TextStyle(fontSize: 13, color: Colors.black))
-                ],
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(receipt.receiptName!,
+                        softWrap: true,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16))
+                  ],
+                ),
               ),
             ),
           ],
