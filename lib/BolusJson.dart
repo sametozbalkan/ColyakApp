@@ -107,7 +107,7 @@ class Bolus {
 
 enum FoodType {
   RECEIPT,
-  READYFOOD
+  BARCODE
 }
 
 class BolusReportJson {

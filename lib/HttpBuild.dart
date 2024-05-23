@@ -41,7 +41,7 @@ Future<http.Response> sendRequest(
 
     final response = await http.Client().send(request);
 
-    if ((response.statusCode >= 200 && response.statusCode < 300) || response.statusCode == 619 || response.statusCode == 404) {
+    if ((response.statusCode >= 200 && response.statusCode < 300) || response.statusCode == 619 || response.statusCode == 404 || response.statusCode == 631) {
       return http.Response.fromStream(response);
     } else if (response.statusCode == 401 || response.statusCode == 601) {
       globaltoken = await postRefreshToken(context);

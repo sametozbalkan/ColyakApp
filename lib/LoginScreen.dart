@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  Image.asset("assets/images/colyak.png"),
+                  Image.asset("assets/images/colyak.png", height: 250, width: 250),
                   const Padding(
                     padding: EdgeInsets.all(20),
                     child: Text("Hoş Geldiniz",
@@ -146,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       var postLogin = await sendRequest("POST", "api/users/verify/login",
           body: loginDetails, context: context);
-print(postLogin.body);
+      print(postLogin.body);
       if (postLogin.statusCode == 200) {
         Map<String, dynamic> responseJson = json.decode(postLogin.body);
         globaltoken = responseJson['token'];
@@ -169,7 +169,17 @@ print(postLogin.body);
             builder: (context) => const HomePage(),
           ),
         );
-      } else if (postLogin.statusCode == 619) {
+      } else if (postLogin.statusCode == 631) {
+        ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Column(
+            children: [Text('Email veya şifre yanlış!')],
+          ),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      } 
+      else if (postLogin.statusCode == 619) {
         String verifId = postLogin.body;
         Navigator.pushReplacement(
           context,
@@ -177,7 +187,8 @@ print(postLogin.body);
             builder: (context) => VerifyMail(verificationId: verifId),
           ),
         );
-      } else {
+      } 
+      else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Column(

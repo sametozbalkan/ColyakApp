@@ -1,6 +1,7 @@
+import 'package:colyakapp/BarcodeJson.dart';
 import 'package:colyakapp/BolusJson.dart';
 import 'package:colyakapp/MealDetailScreen.dart';
-import 'package:colyakapp/ReceiptReadyFoodsJson.dart';
+import 'package:colyakapp/ReceiptJson.dart';
 import 'package:flutter/material.dart';
 
 class AddMealScreen extends StatefulWidget {
@@ -11,18 +12,18 @@ class AddMealScreen extends StatefulWidget {
 }
 
 List<ReceiptJson> receiptsMeal = [];
-List<ReadyFoodsJson> readyfoodsMeal = [];
+List<BarcodeJson> barcodesMeal = [];
 
 class _AddMealScreenState extends State<AddMealScreen> {
   List<ReceiptJson> filteredReceipts = [];
-  List<ReadyFoodsJson> filteredReadyFoods = [];
+  List<BarcodeJson> filteredBarcodes = [];
   TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     filteredReceipts = receiptsMeal;
-    filteredReadyFoods = readyfoodsMeal;
+    filteredBarcodes = barcodesMeal;
   }
 
   @override
@@ -38,9 +39,9 @@ class _AddMealScreenState extends State<AddMealScreen> {
           .where(
               (receipt) => receipt.receiptName!.toLowerCase().contains(query))
           .toList();
-      filteredReadyFoods = readyfoodsMeal
-          .where((readyFood) =>
-              readyFood.readyFoodName!.toLowerCase().contains(query))
+      filteredBarcodes = barcodesMeal
+          .where((barcode) =>
+              barcode.name!.toLowerCase().contains(query))
           .toList();
     });
   }
@@ -92,7 +93,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => MealDetailScreen(
-                                          receiptOrReadyFoods: FoodType.RECEIPT,
+                                          receiptOrBarcodes: FoodType.RECEIPT,
                                           receipt: filteredReceipts[index]),
                                     ),
                                   );
@@ -107,7 +108,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                         ),
                         ListView.builder(
                           shrinkWrap: true,
-                          itemCount: filteredReadyFoods.length,
+                          itemCount: filteredBarcodes.length,
                           itemBuilder: (context, index) {
                             return Card(
                               child: GestureDetector(
@@ -116,15 +117,15 @@ class _AddMealScreenState extends State<AddMealScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => MealDetailScreen(
-                                        receiptOrReadyFoods: FoodType.READYFOOD,
-                                        readyFoods: filteredReadyFoods[index],
+                                        receiptOrBarcodes: FoodType.BARCODE,
+                                        barcode: filteredBarcodes[index],
                                       ),
                                     ),
                                   ).then((value) => setState(() {}));
                                 },
                                 child: ListTile(
-                                    title: Text(filteredReadyFoods[index]
-                                        .readyFoodName!),
+                                    title: Text(filteredBarcodes[index]
+                                        .name!),
                                     trailing: const Icon(Icons.arrow_forward)),
                               ),
                             );

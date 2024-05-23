@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:colyakapp/AddMealScreen.dart';
-import 'package:colyakapp/ReceiptReadyFoodsJson.dart';
+import 'package:colyakapp/BarcodeJson.dart';
+import 'package:colyakapp/ReceiptJson.dart';
 import 'package:flutter/material.dart';
 import 'ReceiptDetailScreen.dart';
 import 'HttpBuild.dart';
@@ -35,7 +36,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
     });
     try {
       await _fetchReceipts();
-      await _hazirYiyecekleriAl();
+      await _barkodlariAl();
       await _fetchFavorites();
       await _loadImageBytes();
     } catch (e) {
@@ -49,14 +50,14 @@ class _ReceiptPageState extends State<ReceiptPage> {
     }
   }
 
-  Future<void> _hazirYiyecekleriAl() async {
-    var response = await sendRequest("GET", "api/ready-foods/getall",
+  Future<void> _barkodlariAl() async {
+    var response = await sendRequest("GET", "api/barcodes/all",
         token: globaltoken, context: context);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     if (mounted) {
       setState(() {
-        readyfoodsMeal =
-            data.map((json) => ReadyFoodsJson.fromJson(json)).toList();
+        barcodesMeal =
+            data.map((json) => BarcodeJson.fromJson(json)).toList();
       });
     }
   }

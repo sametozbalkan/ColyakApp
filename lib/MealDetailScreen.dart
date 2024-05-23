@@ -1,20 +1,21 @@
+import 'package:colyakapp/BarcodeJson.dart';
 import 'package:colyakapp/BolusJson.dart';
 import 'package:colyakapp/MealScreen.dart';
-import 'package:colyakapp/ReceiptReadyFoodsJson.dart';
+import 'package:colyakapp/ReceiptJson.dart';
 import 'package:flutter/material.dart';
 
 List<FoodListComplex> foodListComplex = [];
 
 class MealDetailScreen extends StatefulWidget {
-  final FoodType receiptOrReadyFoods;
+  final FoodType receiptOrBarcodes;
   final ReceiptJson? receipt;
-  final ReadyFoodsJson? readyFoods;
+  final BarcodeJson? barcode;
 
   const MealDetailScreen({
     super.key,
-    required this.receiptOrReadyFoods,
+    required this.receiptOrBarcodes,
     this.receipt,
-    this.readyFoods,
+    this.barcode,
   });
 
   @override
@@ -32,9 +33,13 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedType = widget.receiptOrReadyFoods == FoodType.RECEIPT
-        ? widget.receipt!.nutritionalValuesList!.first.type
-        : widget.readyFoods!.nutritionalValuesList!.first.type;
+    _selectedType = widget.receiptOrBarcodes == FoodType.RECEIPT
+        ? (widget.receipt!.nutritionalValuesList!.isEmpty
+            ? null
+            : widget.receipt!.nutritionalValuesList!.first.type)
+        : (widget.barcode!.nutritionalValuesList!.isEmpty
+            ? null
+            : widget.barcode!.nutritionalValuesList!.first.type);
     _calculateNutritionalValues();
   }
 
@@ -74,24 +79,22 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(widget.receipt?.receiptName ??
-              widget.readyFoods?.readyFoodName ??
-              "")),
+          title:
+              Text(widget.receipt?.receiptName ?? widget.barcode?.name ?? "")),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           if (_selectedType != null &&
-              (widget.receipt != null || widget.readyFoods != null)) {
+              (widget.receipt != null || widget.barcode != null)) {
             FoodListComplex _foodListComplex = FoodListComplex(
                 carbonhydrate: _totalCarbohydrate,
-                foodId: widget.readyFoods?.id ?? widget.receipt?.id,
-                foodName: widget.readyFoods?.readyFoodName ??
-                    widget.receipt?.receiptName,
-                foodType: widget.receiptOrReadyFoods.name,
+                foodId: widget.barcode?.id ?? widget.receipt?.id,
+                foodName: widget.barcode?.name ?? widget.receipt?.receiptName,
+                foodType: widget.receiptOrBarcodes.name,
                 type: _selectedType,
                 amount: _quantity);
             FoodList newItem = FoodList(
-              foodType: widget.receiptOrReadyFoods.name,
-              foodId: widget.readyFoods?.id ?? widget.receipt?.id,
+              foodType: widget.receiptOrBarcodes.name,
+              foodId: widget.barcode?.id ?? widget.receipt?.id,
               carbonhydrate: _totalCarbohydrate,
             );
             setState(() {
@@ -108,7 +111,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(
-                  'Lütfen bir tür seçin ve makbuz/hazır yiyecek null olmadığından emin olun',
+                  'Lütfen bir tür seçin!',
                 ),
               ),
             );
@@ -251,9 +254,9 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   }
 
   Widget _buildTypeButtons() {
-    var nutritionalValuesList = widget.receiptOrReadyFoods == FoodType.RECEIPT
+    var nutritionalValuesList = widget.receiptOrBarcodes == FoodType.RECEIPT
         ? widget.receipt!.nutritionalValuesList!
-        : widget.readyFoods!.nutritionalValuesList!;
+        : widget.barcode!.nutritionalValuesList!;
 
     return ListView.separated(
       separatorBuilder: (context, index) {

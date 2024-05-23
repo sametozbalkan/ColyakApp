@@ -123,37 +123,3 @@ class NutritionalValuesList {
     return data;
   }
 }
-
-class ReadyFoodsJson {
-  int? id;
-  String? readyFoodName;
-  bool? deleted;
-  List<NutritionalValuesList>? nutritionalValuesList;
-
-  ReadyFoodsJson(
-      {this.id, this.readyFoodName, this.deleted, this.nutritionalValuesList});
-
-  ReadyFoodsJson.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    readyFoodName = json['readyFoodName'];
-    deleted = json['deleted'];
-    if (json['nutritionalValuesList'] != null) {
-      nutritionalValuesList = <NutritionalValuesList>[];
-      json['nutritionalValuesList'].forEach((v) {
-        nutritionalValuesList!.add(NutritionalValuesList.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['readyFoodName'] = readyFoodName;
-    data['deleted'] = deleted;
-    if (nutritionalValuesList != null) {
-      data['nutritionalValuesList'] =
-          nutritionalValuesList!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}

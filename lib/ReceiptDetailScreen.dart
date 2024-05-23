@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:colyakapp/CommentReplyJson.dart';
 import 'package:colyakapp/HttpBuild.dart';
-import 'package:colyakapp/ReceiptReadyFoodsJson.dart';
+import 'package:colyakapp/ReceiptJson.dart';
 import 'package:colyakapp/ReplyCommentScreen.dart';
 import 'package:flutter/material.dart';
 

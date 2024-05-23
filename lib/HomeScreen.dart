@@ -5,6 +5,7 @@ import 'package:colyakapp/BolusReportScreen.dart';
 import 'package:colyakapp/HttpBuild.dart';
 import 'package:colyakapp/MealScreen.dart';
 import 'package:colyakapp/QuizScreen.dart';
+import 'package:colyakapp/ReceiptJson.dart';
 import 'package:colyakapp/Suggestion.dart';
 import 'package:colyakapp/UserGuides.dart';
 import 'package:flutter/material.dart';
@@ -19,23 +20,45 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  List<ReceiptJson> top5receipt = [];
+
+  Future<void> _top5receipts() async {
+    var response = await sendRequest("GET", "api/meals/report/top5receipts",
+        token: globaltoken, context: context);
+    var data = jsonDecode(utf8.decode(response.bodyBytes));
+
+    if (mounted) {
+      setState(() {
+        top5receipt = data.map((json) => ReceiptJson.fromJson(json)).toList();
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
+    try {
+      await _top5receipts();
+    } catch (e) {
+      print("Critical error posting refresh token: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
               decoration: const BoxDecoration(
                 color: Colors.white38,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(child: Image.asset("assets/images/colyak.png")),
-                ],
-              ),
+              child: Expanded(child: Image.asset("assets/images/colyak.png")),
             ),
             ListTile(
               leading: const Icon(Icons.document_scanner),
@@ -227,6 +250,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               Text("Çek"),
                             ],
                           ),
+                        ),
+                        ListView.builder(
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text(top5receipt[index].receiptName!),
+                            );
+                          },
+                          itemCount: top5receipt.length,
                         )
                       ],
                     )
