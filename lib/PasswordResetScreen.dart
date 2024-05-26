@@ -27,7 +27,8 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
             duration: Duration(seconds: 2),
           ),
         );
-        Navigator.of(context).pushReplacementNamed("/loginscreen");
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          "/loginscreen", (Route<dynamic> route) => false);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

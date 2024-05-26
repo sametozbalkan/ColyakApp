@@ -233,81 +233,97 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
-        child: ListView(
+        child: Column(
           children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.white38,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            Expanded(
+              child: ListView(
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  Expanded(child: Image.asset("assets/images/colyak.png")),
+                  DrawerHeader(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                            child: Image.asset("assets/images/colyak.png")),
+                      ],
+                    ),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.document_scanner),
+                    title: const Text('Bolus Raporları'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const BolusReportScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.quiz),
+                    title: const Text('Quizler'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const QuizScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.tips_and_updates),
+                    title: const Text('Öneri Yap'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Suggestion()),
+                      );
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.menu_book),
+                    title: const Text('Faydalı Bilgiler'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const UserGuides()),
+                      );
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.settings),
+                    title: const Text('Ayarlar'),
+                    onTap: () {},
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.logout),
+                    title: const Text('Çıkış Yap'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          "/loginscreen", (Route<dynamic> route) => false);
+                    },
+                  ),
                 ],
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.document_scanner),
-              title: const Text('Bolus Raporları'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const BolusReportScreen()),
-                );
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.quiz),
-              title: const Text('Quizler'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const QuizScreen()),
-                );
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.tips_and_updates),
-              title: const Text('Öneri Yap'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Suggestion()),
-                );
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.menu_book),
-              title: const Text('Faydalı Bilgiler'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const UserGuides()),
-                );
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Ayarlar'),
-              onTap: () {},
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Çıkış Yap'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).pushReplacementNamed("/loginscreen");
-              },
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                '© 2024 Çölyak Hastaları',
+                style: TextStyle(fontSize: 12, color: Colors.black87),
+              ),
             ),
           ],
         ),
@@ -339,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 1.5,
+                  childAspectRatio: 1.4,
                 ),
                 children: [
                   GestureDetector(
@@ -473,7 +489,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ListTile(
                           title: Text("Öğün Listem"),
                           subtitle: Text(
-                              "Bolus hesaplamak için yediklerini seçip öğün listeni oluştur."),
+                              "Bolus hesaplamak için yediklerini seçip öğün listeni oluştur"),
                           leading: Icon(Icons.restaurant),
                           trailing: Icon(Icons.arrow_forward_sharp),
                         ),

@@ -27,112 +27,106 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image.asset("assets/images/colyak.png",
+                  height: MediaQuery.of(context).size.width / 1.5,
+                  width: MediaQuery.of(context).size.width / 1.5),
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Text("Hoş Geldiniz",
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: TextField(
+                  onChanged: (_) => setState(() {}),
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: "Email",
+                    prefixIcon: const Icon(Icons.email),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: emailController.text.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.cancel),
+                            onPressed: () {
+                              emailController.clear();
+                              setState(() {});
+                            },
+                          ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: TextField(
+                  onChanged: (_) => setState(() {}),
+                  obscureText: isVisible,
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: "Şifre",
+                    prefixIcon: const Icon(Icons.password),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: passwordController.text.isNotEmpty
+                        ? IconButton(
+                            icon: isVisible
+                                ? const Icon(Icons.visibility_off)
+                                : const Icon(Icons.visibility),
+                            onPressed: () {
+                              setState(() => isVisible = !isVisible);
+                            },
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Image.asset("assets/images/colyak.png", height: 250, width: 250),
-                  const Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Text("Hoş Geldiniz",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: TextField(
-                      onChanged: (_) => setState(() {}),
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        labelText: "Email",
-                        prefixIcon: const Icon(Icons.email),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: emailController.text.isEmpty
-                            ? null
-                            : IconButton(
-                                icon: const Icon(Icons.cancel),
-                                onPressed: () {
-                                  emailController.clear();
-                                  setState(() {});
-                                },
-                              ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: TextField(
-                      onChanged: (_) => setState(() {}),
-                      obscureText: isVisible,
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                        labelText: "Şifre",
-                        prefixIcon: const Icon(Icons.password),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: passwordController.text.isNotEmpty
-                            ? IconButton(
-                                icon: isVisible
-                                    ? const Icon(Icons.visibility_off)
-                                    : const Icon(Icons.visibility),
-                                onPressed: () {
-                                  setState(() => isVisible = !isVisible);
-                                },
-                              )
-                            : null,
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, "/forgotpassword");
-                          },
-                          child: const Text("Şifrenizi mi unuttunuz?")),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Checkbox(
-                          value: isCheckboxChecked,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isCheckboxChecked = value!;
-                            });
-                          }),
-                      const Text("Beni Hatırla")
-                    ],
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _login(
-                          emailController.text, passwordController.text);
-                    },
-                    child: const Text("Giriş Yap"),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Henüz bir hesabınız yok mu?"),
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, "/register");
-                          },
-                          child: const Text("Kayıt Ol")),
-                    ],
-                  ),
+                children: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/forgotpassword");
+                      },
+                      child: const Text("Şifrenizi mi unuttunuz?")),
                 ],
               ),
-            ),
-          ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Checkbox(
+                      value: isCheckboxChecked,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isCheckboxChecked = value!;
+                        });
+                      }),
+                  const Text("Beni Hatırla")
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await _login(emailController.text, passwordController.text);
+                },
+                child: const Text("Giriş Yap"),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Henüz bir hesabınız yok mu?"),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/register");
+                      },
+                      child: const Text("Kayıt Ol")),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -171,15 +165,14 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else if (postLogin.statusCode == 631) {
         ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Column(
-            children: [Text('Email veya şifre yanlış!')],
+          const SnackBar(
+            content: Column(
+              children: [Text('Email veya şifre yanlış!')],
+            ),
+            duration: Duration(seconds: 2),
           ),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      } 
-      else if (postLogin.statusCode == 619) {
+        );
+      } else if (postLogin.statusCode == 619) {
         String verifId = postLogin.body;
         Navigator.pushReplacement(
           context,
@@ -187,8 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
             builder: (context) => VerifyMail(verificationId: verifId),
           ),
         );
-      } 
-      else {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Column(

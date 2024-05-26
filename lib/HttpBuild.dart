@@ -27,8 +27,7 @@ Future<http.Response> sendRequest(
 
   try {
     final uri = Uri.parse("$genelUrl$path${extra ?? ''}");
-    final request = http.Request(method, uri)
-      ..headers.addAll(headers);
+    final request = http.Request(method, uri)..headers.addAll(headers);
 
     if (body != null) {
       if (body is String) {
@@ -41,7 +40,10 @@ Future<http.Response> sendRequest(
 
     final response = await http.Client().send(request);
 
-    if ((response.statusCode >= 200 && response.statusCode < 300) || response.statusCode == 619 || response.statusCode == 404 || response.statusCode == 631) {
+    if ((response.statusCode >= 200 && response.statusCode < 300) ||
+        response.statusCode == 619 ||
+        response.statusCode == 404 ||
+        response.statusCode == 631) {
       return http.Response.fromStream(response);
     } else if (response.statusCode == 401 || response.statusCode == 601) {
       globaltoken = await postRefreshToken(context);
@@ -62,7 +64,6 @@ Future<http.Response> sendRequest(
     rethrow;
   }
 }
-
 
 Future<void> checkAndLogin(BuildContext context) async {
   if (refreshToken.isNotEmpty) {
@@ -87,7 +88,8 @@ Future<void> checkAndLogin(BuildContext context) async {
         );
       } else {
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pushReplacementNamed("/loginscreen");
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              "/loginscreen", (Route<dynamic> route) => false);
         });
       }
     } catch (e) {
@@ -95,7 +97,8 @@ Future<void> checkAndLogin(BuildContext context) async {
     }
   } else {
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      Navigator.of(context).pushReplacementNamed("/loginscreen");
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          "/loginscreen", (Route<dynamic> route) => false);
     });
   }
 }

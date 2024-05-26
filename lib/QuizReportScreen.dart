@@ -17,8 +17,10 @@ class QuizReportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-            '/homepage', (Route<dynamic> route) => false);
+        Navigator.of(context)
+          ..pop()
+          ..pop()
+          ..pop();
         return false;
       },
       child: Scaffold(
@@ -26,8 +28,10 @@ class QuizReportScreen extends StatelessWidget {
           title: Text(topicName),
           leading: IconButton(
             onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/homepage', (Route<dynamic> route) => false);
+              Navigator.of(context)
+                ..pop()
+                ..pop()
+                ..pop();
             },
             icon: const Icon(Icons.arrow_back),
           ),
@@ -39,8 +43,7 @@ class QuizReportScreen extends StatelessWidget {
             final correctAnswer = questionList[index].correctAnswer;
 
             return Card(
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               child: ListTile(
                 title: Text(
                   "${index + 1}) ${questionList[index].question}?",

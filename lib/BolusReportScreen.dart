@@ -29,28 +29,29 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
 
   String tarihDonusum(String gelenDate) {
     DateTime dateTime = DateTime.parse(gelenDate);
-    String day = dateTime.day.toString().padLeft(2, '0');
-    String month = dateTime.month.toString().padLeft(2, '0');
-    String year = dateTime.year.toString();
-    String date = "$day/$month/$year";
-    String hour = dateTime.hour.toString().padLeft(2, '0');
-    String minute = dateTime.minute.toString().padLeft(2, '0');
-    String time = "$hour:$minute";
-    String total = "$date - $time";
-    return total;
+    return DateFormat('dd/MM/yyyy - HH:mm').format(dateTime);
   }
 
   Future<void> raporCek(String start, String end) async {
-    var response = await sendRequest(
-        "GET", "api/meals/report/$storedEmail/$start/$end",
-        token: globaltoken, context: context);
-    List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-    if (mounted) {
-      setState(() {
-        reportList =
-            data.map((json) => BolusReportJson.fromJson(json)).toList();
-        bolusReportList = reportList.reversed.toList();
-      });
+    try {
+      var response = await sendRequest(
+          "GET", "api/meals/report/$storedEmail/$start/$end",
+          token: globaltoken, context: context);
+      List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (mounted) {
+        setState(() {
+          reportList =
+              data.map((json) => BolusReportJson.fromJson(json)).toList();
+          bolusReportList = reportList.reversed.toList();
+        });
+      }
+    } catch (e) {
+      print(e);
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -59,10 +60,11 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
       isLoading = true;
     });
     try {
-      var now = DateTime.now().add(const Duration(days: 1));
+      var now = DateTime.now();
       var lastWeek = now.subtract(const Duration(days: 7));
       var dateFormat = DateFormat('yyyy-MM-dd');
-      await raporCek(dateFormat.format(lastWeek), dateFormat.format(now));
+      await raporCek(dateFormat.format(lastWeek),
+          dateFormat.format(now.add(const Duration(days: 1))));
     } catch (e) {
       print(e);
     }
@@ -85,7 +87,7 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
       firstDate: DateTime(2020),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != initialDate) {
+    if (picked != null) {
       setState(() {
         controller.text = DateFormat('yyyy-MM-dd').format(picked);
         onDateChanged(picked);
@@ -99,8 +101,10 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
         isLoading = true;
       });
       try {
-        await raporCek(DateFormat('yyyy-MM-dd').format(startDate!),
-            DateFormat('yyyy-MM-dd').format(endDate!));
+        await raporCek(
+            DateFormat('yyyy-MM-dd').format(startDate!),
+            DateFormat('yyyy-MM-dd')
+                .format(endDate!.add(const Duration(days: 1))));
       } catch (e) {
         print(e);
       }
@@ -109,6 +113,13 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
           isLoading = false;
         });
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Başlangıç veya bitiş tarihi boş olamaz!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -119,20 +130,9 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
         title: const Text("Bolus Raporları"),
         actions: [
           IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                if (_startDateController.text.isNotEmpty &&
-                    _endDateController.text.isNotEmpty) {
-                  _fetchReports();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Başlangıç veya bitiş tarihi boş olamaz!'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
-              }),
+            icon: const Icon(Icons.refresh),
+            onPressed: _fetchReports,
+          ),
         ],
       ),
       body: SafeArea(
@@ -145,8 +145,12 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
                   Expanded(
                     child: TextField(
                       onTap: () {
-                        _selectDate(context, _startDateController,
-                            DateTime.now().subtract(const Duration(days: 7)),
+                        _selectDate(
+                            context,
+                            _startDateController,
+                            startDate ??
+                                DateTime.now()
+                                    .subtract(const Duration(days: 7)),
                             (picked) {
                           startDate = picked;
                         });
@@ -163,9 +167,9 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
                   Expanded(
                     child: TextField(
                       onTap: () {
-                        _selectDate(context, _endDateController, DateTime.now(),
-                            (picked) {
-                          endDate = picked.add(const Duration(days: 1));
+                        _selectDate(context, _endDateController,
+                            endDate ?? DateTime.now(), (picked) {
+                          endDate = picked;
                         });
                       },
                       readOnly: true,
@@ -207,19 +211,19 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
                                     MaterialPageRoute(
                                       builder: (context) =>
                                           BolusReportDetailScreen(
-                                              reportDetails:
-                                                  bolusReportList[index]),
+                                        reportDetails: bolusReportList[index],
+                                      ),
                                     ),
                                   );
                                 },
                                 child: Card(
                                   child: ListTile(
-                                      title: Text(
-                                        tarihDonusum(
-                                            bolusReportList[index].dateTime!),
-                                      ),
-                                      trailing:
-                                          const Icon(Icons.arrow_forward)),
+                                    title: Text(
+                                      tarihDonusum(
+                                          bolusReportList[index].dateTime!),
+                                    ),
+                                    trailing: const Icon(Icons.arrow_forward),
+                                  ),
                                 ),
                               );
                             },

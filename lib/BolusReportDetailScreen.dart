@@ -1,5 +1,6 @@
 import 'package:colyakapp/BolusJson.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class BolusReportDetailScreen extends StatefulWidget {
   final BolusReportJson reportDetails;
@@ -37,15 +38,7 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
 
   String tarihDonusum(String gelenDate) {
     DateTime dateTime = DateTime.parse(gelenDate);
-    String day = dateTime.day.toString().padLeft(2, '0');
-    String month = dateTime.month.toString().padLeft(2, '0');
-    String year = dateTime.year.toString();
-    String date = "$day/$month/$year";
-    String hour = dateTime.hour.toString().padLeft(2, '0');
-    String minute = dateTime.minute.toString().padLeft(2, '0');
-    String time = "$hour:$minute";
-    String total = "$date - $time";
-    return total;
+    return DateFormat('dd/MM/yyyy - HH:mm').format(dateTime);
   }
 
   Widget _buildFoodItem(int foodIndex) {
@@ -72,6 +65,7 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bolus = widget.reportDetails.bolus;
     return Scaffold(
       appBar: AppBar(
         title: Text(tarihDonusum(widget.reportDetails.dateTime!)),
@@ -95,36 +89,22 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
                               "Kullanıcı Adı", widget.reportDetails.userName!),
                           _buildInfoRow(
                               "Yeme Zamanı",
-                              widget.reportDetails.bolus!.eatingTime != null
-                                  ? tarihDonusum(widget
-                                      .reportDetails.bolus!.eatingTime!
-                                      .toIso8601String())
+                              bolus!.eatingTime != null
+                                  ? tarihDonusum(
+                                      bolus.eatingTime!.toIso8601String())
                                   : "Yok"),
                           _buildInfoRow(
-                              "Kan Şekeri",
-                              widget.reportDetails.bolus!.bloodSugar
-                                  .toString()),
+                              "Kan Şekeri", bolus.bloodSugar.toString()),
+                          _buildInfoRow("Hedef Kan Şekeri",
+                              bolus.targetBloodSugar.toString()),
+                          _buildInfoRow("İnsülin/Karbonhidrat Oranı",
+                              bolus.insulinCarbonhydrateRatio.toString()),
+                          _buildInfoRow("İnsülin Tolerans Faktörü",
+                              bolus.insulinTolerateFactor.toString()),
+                          _buildInfoRow("Karbonhidrat (g)",
+                              bolus.totalCarbonhydrate.toString()),
                           _buildInfoRow(
-                              "Hedef Kan Şekeri",
-                              widget.reportDetails.bolus!.targetBloodSugar
-                                  .toString()),
-                          _buildInfoRow(
-                              "İnsülin/Karbonhidrat Oranı",
-                              widget.reportDetails.bolus!
-                                  .insulinCarbonhydrateRatio
-                                  .toString()),
-                          _buildInfoRow(
-                              "İnsülin Tolerans Faktörü",
-                              widget.reportDetails.bolus!.insulinTolerateFactor
-                                  .toString()),
-                          _buildInfoRow(
-                              "Karbonhidrat (g)",
-                              widget.reportDetails.bolus!.totalCarbonhydrate
-                                  .toString()),
-                          _buildInfoRow(
-                              "Bolus",
-                              widget.reportDetails.bolus!.bolusValue
-                                  .toString()),
+                              "Bolus Miktarı", bolus.bolusValue.toString()),
                         ],
                       ),
                     ),
@@ -145,7 +125,7 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
                 itemCount: widget.reportDetails.foodResponseList?.length ?? 0,
                 itemBuilder: (context, foodIndex) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 5, right: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
                     child: _buildFoodItem(foodIndex),
                   );
                 },

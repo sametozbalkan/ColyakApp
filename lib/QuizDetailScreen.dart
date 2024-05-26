@@ -51,9 +51,11 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
       }
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<http.Response> quizSoruGonder(
@@ -114,7 +116,7 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
                       _chosenAnswers.clear();
                       _loadImageBytes(_currentQuestionIndex);
                     } else {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => QuizReportScreen(

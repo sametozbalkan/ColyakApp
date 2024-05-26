@@ -84,10 +84,10 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/images/colyak.png", height: 250, width: 250),
-            const SizedBox(height: 10),
-            const Text("Yükleniyor..."),
-            const SizedBox(height: 5),
+            Image.asset("assets/images/colyak.png",
+                height: MediaQuery.of(context).size.width / 1.5,
+                width: MediaQuery.of(context).size.width / 1.5),
+            const SizedBox(height: 20),
             const CircularProgressIndicator(),
           ],
         ),
