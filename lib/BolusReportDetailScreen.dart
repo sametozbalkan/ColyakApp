@@ -62,7 +62,7 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                "Tür: ${food.foodType! == "RECEIPT" ? "Tarif" : "Hazır Yiyecek"}"),
+                "Tür: ${food.foodType! == "RECEIPT" ? "Tarif" : "Hazır Gıda"}"),
             Text("Karbonhidrat: ${food.carbonhydrate.toString()} gram"),
           ],
         ),
@@ -95,11 +95,18 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
                               "Kullanıcı Adı", widget.reportDetails.userName!),
                           _buildInfoRow(
                               "Yeme Zamanı",
-                              widget.reportDetails.bolus!.eatingTime != null ? tarihDonusum(widget.reportDetails.bolus!.eatingTime!.toIso8601String()) : "Yok"
-                             ),
+                              widget.reportDetails.bolus!.eatingTime != null
+                                  ? tarihDonusum(widget
+                                      .reportDetails.bolus!.eatingTime!
+                                      .toIso8601String())
+                                  : "Yok"),
                           _buildInfoRow(
                               "Kan Şekeri",
                               widget.reportDetails.bolus!.bloodSugar
+                                  .toString()),
+                          _buildInfoRow(
+                              "Hedef Kan Şekeri",
+                              widget.reportDetails.bolus!.targetBloodSugar
                                   .toString()),
                           _buildInfoRow(
                               "İnsülin/Karbonhidrat Oranı",
@@ -111,16 +118,12 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
                               widget.reportDetails.bolus!.insulinTolerateFactor
                                   .toString()),
                           _buildInfoRow(
-                              "Hedef Kan Şekeri",
-                              widget.reportDetails.bolus!.targetBloodSugar
+                              "Karbonhidrat (g)",
+                              widget.reportDetails.bolus!.totalCarbonhydrate
                                   .toString()),
                           _buildInfoRow(
                               "Bolus",
                               widget.reportDetails.bolus!.bolusValue
-                                  .toString()),
-                          _buildInfoRow(
-                              "Karbonhidrat (g)",
-                              widget.reportDetails.bolus!.totalCarbonhydrate
                                   .toString()),
                         ],
                       ),

@@ -27,9 +27,11 @@ class _QuizScreenState extends State<QuizScreen> {
       isLoading = true;
     });
     await quizAl("api/quiz/all");
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> quizAl(String path) async {
@@ -88,10 +90,4 @@ class _QuizScreenState extends State<QuizScreen> {
             ),
     );
   }
-}
-
-void main() {
-  runApp(const MaterialApp(
-    home: QuizScreen(),
-  ));
 }

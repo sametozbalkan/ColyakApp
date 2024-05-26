@@ -12,10 +12,10 @@ class MealScreen extends StatefulWidget {
 }
 
 List<FoodList> bolusFoodList = [];
-double totalCarb = 0;
-double _totalCarb = 0;
 
 class _MealScreenState extends State<MealScreen> {
+  double totalCarb = 0;
+  double _totalCarb = 0;
   @override
   void initState() {
     super.initState();
@@ -53,25 +53,6 @@ class _MealScreenState extends State<MealScreen> {
                     }));
               },
               icon: const Icon(Icons.add))
-        ],
-      ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          foodListComplex.isNotEmpty
-              ? FloatingActionButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const BolusScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text("BOLUS"),
-                )
-              : const SizedBox(),
-          const SizedBox(height: 10),
         ],
       ),
       body: SafeArea(

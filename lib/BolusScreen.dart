@@ -25,6 +25,16 @@ class _BolusScreenState extends State<BolusScreen> {
   final TextEditingController idfController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
 
+  @override
+  void dispose() {
+    super.dispose();
+    kanSekeriController.dispose();
+    hedefKanSekeriController.dispose();
+    insulinKarbonhidratOraniController.dispose();
+    idfController.dispose();
+    timeController.dispose();
+  }
+
   Future<void> sendBolus(BolusJson bolusJson) async {
     try {
       final response = await sendRequest('POST', 'api/meals/add',
@@ -162,85 +172,90 @@ class _BolusScreenState extends State<BolusScreen> {
         },
         child: const Icon(Icons.send),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Card(
-                child: ListTile(
-                  title: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Yemek Saati",
-                          style: TextStyle(
-                              fontSize: 16.0, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 5),
-                        TextField(
-                          onTap: () async {
-                            String hours = "";
-                            String minute = "";
-                            TimeOfDay time =
-                                const TimeOfDay(hour: 0, minute: 0);
-                            TimeOfDay? newTime = await showTimePicker(
-                              context: context,
-                              initialTime: time,
-                            );
-                            if (newTime == null) return;
-                            setState(() {
-                              time = newTime;
-                              hours = time.hour.toString().padLeft(2, "0");
-                              minute = time.minute.toString().padLeft(2, "0");
-                              timeController.text = "$hours:$minute";
-                            });
-                          },
-                          readOnly: true,
-                          controller: timeController,
-                          decoration: InputDecoration(
-                            hintText: "Saat ve Dakika Seçin",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 8.0, vertical: 12.0),
+      body: GestureDetector(
+        onTap: () {
+          WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
+        },
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Card(
+                  child: ListTile(
+                    title: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Yemek Saati",
+                            style: TextStyle(
+                                fontSize: 16.0, fontWeight: FontWeight.bold),
                           ),
-                          keyboardType: TextInputType.number,
-                        )
+                          const SizedBox(height: 5),
+                          TextField(
+                            onTap: () async {
+                              String hours = "";
+                              String minute = "";
+                              TimeOfDay time =
+                                  const TimeOfDay(hour: 0, minute: 0);
+                              TimeOfDay? newTime = await showTimePicker(
+                                context: context,
+                                initialTime: time,
+                              );
+                              if (newTime == null) return;
+                              setState(() {
+                                time = newTime;
+                                hours = time.hour.toString().padLeft(2, "0");
+                                minute = time.minute.toString().padLeft(2, "0");
+                                timeController.text = "$hours:$minute";
+                              });
+                            },
+                            readOnly: true,
+                            controller: timeController,
+                            decoration: InputDecoration(
+                              hintText: "Saat ve Dakika Seçin",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 12.0),
+                            ),
+                            keyboardType: TextInputType.number,
+                          )
+                        ],
+                      ),
+                    ),
+                    leading: const Icon(Icons.access_time, size: 32),
+                    subtitle: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Yemeği yediğin zaman"),
                       ],
                     ),
                   ),
-                  leading: const Icon(Icons.access_time, size: 32),
-                  subtitle: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Yemeği yediğin zaman"),
-                    ],
-                  ),
                 ),
-              ),
-              bolusCard("Kan Şekeri", kanSekeriController,
-                  ColyakIcons.sugar_blood, "Açlık kan şekeri"),
-              bolusCard(
-                  "Hedef Kan Şekeri",
-                  hedefKanSekeriController,
-                  Icons.track_changes_outlined,
-                  "Doktorun uygun gördüğü kan şekeri"),
-              bolusCard(
-                  "Karbonhidrat Miktarı (g)",
-                  karbonhidratMiktariController,
-                  ColyakIcons.carbohydrate,
-                  "Öğünde alınan karbonhidrat miktarı"),
-              bolusCard(
-                  "İnsulin/Karbonhidrat Oranı",
-                  insulinKarbonhidratOraniController,
-                  Icons.percent,
-                  "İnsulin/Karbonhidrat oranı"),
-              bolusCard("IDF (İnsulin Duyarlılık Faktörü)", idfController,
-                  ColyakIcons.idf, "İnsulin Duyarlılık Faktörü"),
-            ],
+                bolusCard("Kan Şekeri", kanSekeriController,
+                    ColyakIcons.sugar_blood, "Açlık kan şekeri"),
+                bolusCard(
+                    "Hedef Kan Şekeri",
+                    hedefKanSekeriController,
+                    Icons.track_changes_outlined,
+                    "Doktorun uygun gördüğü kan şekeri"),
+                bolusCard(
+                    "Karbonhidrat Miktarı (g)",
+                    karbonhidratMiktariController,
+                    ColyakIcons.carbohydrate,
+                    "Öğünde alınan karbonhidrat miktarı"),
+                bolusCard(
+                    "İnsulin/Karbonhidrat Oranı",
+                    insulinKarbonhidratOraniController,
+                    Icons.percent,
+                    "İnsulin/Karbonhidrat oranı"),
+                bolusCard("IDF (İnsulin Duyarlılık Faktörü)", idfController,
+                    ColyakIcons.idf, "İnsulin Duyarlılık Faktörü"),
+              ],
+            ),
           ),
         ),
       ),
@@ -288,7 +303,6 @@ class _BolusScreenState extends State<BolusScreen> {
     );
   }
 }
-
 
 double? tryParseDouble(String? value) {
   if (value == null || value.isEmpty) {
