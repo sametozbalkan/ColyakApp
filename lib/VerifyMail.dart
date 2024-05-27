@@ -10,6 +10,17 @@ class VerifyMail extends StatefulWidget {
   State<VerifyMail> createState() => _VerifyMailState();
 }
 
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
 class _VerifyMailState extends State<VerifyMail> {
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
   final List<TextEditingController> _controllers =
@@ -33,8 +44,11 @@ class _VerifyMailState extends State<VerifyMail> {
             duration: Duration(seconds: 2),
           ),
         );
-        Navigator.of(context).pushNamedAndRemoveUntil(
-            '/loginscreen', (Route<dynamic> route) => false);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/loginscreen',
+          (route) => false,
+        );
       } else {
         throw Exception("Email doğrulama başarısız oldu: ${emailVer.body}");
       }
@@ -63,9 +77,10 @@ class _VerifyMailState extends State<VerifyMail> {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.popUntil(
+                  Navigator.pushNamedAndRemoveUntil(
                     context,
-                    ModalRoute.withName('/loginscreen'),
+                    '/loginscreen',
+                    (route) => false,
                   );
                 },
                 child: const Text('Evet'),
@@ -82,7 +97,6 @@ class _VerifyMailState extends State<VerifyMail> {
     } else if (value.isEmpty && index > 0) {
       FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
     }
-    setState(() {});
   }
 
   String get _verificationCode =>
@@ -130,13 +144,11 @@ class _VerifyMailState extends State<VerifyMail> {
                           maxLength: 1,
                           textAlign: TextAlign.center,
                           onChanged: (value) {
-                            value = value.toUpperCase();
                             _onCodeChanged(value, index);
                           },
                           inputFormatters: [
+                            UpperCaseTextFormatter(),
                             LengthLimitingTextInputFormatter(1),
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'[A-Za-z0-9]')),
                           ],
                           decoration: const InputDecoration(
                             counterText: "",

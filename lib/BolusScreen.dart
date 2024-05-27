@@ -25,6 +25,19 @@ class _BolusScreenState extends State<BolusScreen> {
   final TextEditingController idfController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
 
+  final ValueNotifier<bool> isFormComplete = ValueNotifier(false);
+
+  @override
+  void initState() {
+    super.initState();
+    kanSekeriController.addListener(checkFormCompletion);
+    hedefKanSekeriController.addListener(checkFormCompletion);
+    insulinKarbonhidratOraniController.addListener(checkFormCompletion);
+    idfController.addListener(checkFormCompletion);
+    timeController.addListener(checkFormCompletion);
+    karbonhidratMiktariController.addListener(checkFormCompletion);
+  }
+
   @override
   void dispose() {
     kanSekeriController.dispose();
@@ -34,6 +47,16 @@ class _BolusScreenState extends State<BolusScreen> {
     timeController.dispose();
     karbonhidratMiktariController.dispose();
     super.dispose();
+  }
+
+  void checkFormCompletion() {
+    bool isComplete = kanSekeriController.text.isNotEmpty &&
+        hedefKanSekeriController.text.isNotEmpty &&
+        insulinKarbonhidratOraniController.text.isNotEmpty &&
+        idfController.text.isNotEmpty &&
+        karbonhidratMiktariController.text.isNotEmpty &&
+        timeController.text.isNotEmpty;
+    isFormComplete.value = isComplete;
   }
 
   Future<void> sendBolus(BolusJson bolusJson) async {
@@ -46,7 +69,7 @@ class _BolusScreenState extends State<BolusScreen> {
             BolusJson.fromJson(json.decode(response.body));
         print('Response received: ${responseBolusJson.toJson()}');
       } else {
-        throw Exception('Failed to send data');
+        throw Exception('Rapor gönderilirken hata!');
       }
     } catch (e) {
       print('Hata: $e');
@@ -67,9 +90,16 @@ class _BolusScreenState extends State<BolusScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Bolus Hesapla")),
-      floatingActionButton: FloatingActionButton(
-        onPressed: calculateAndSendBolus,
-        child: const Icon(Icons.send),
+      floatingActionButton: ValueListenableBuilder<bool>(
+        valueListenable: isFormComplete,
+        builder: (context, isComplete, child) {
+          return isComplete
+              ? FloatingActionButton(
+                  onPressed: calculateAndSendBolus,
+                  child: const Icon(Icons.send),
+                )
+              : Container();
+        },
       ),
       body: GestureDetector(
         onTap: () =>

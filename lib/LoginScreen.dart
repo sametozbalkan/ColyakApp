@@ -146,9 +146,9 @@ class _LoginScreenState extends State<LoginScreen> {
         globaltoken = responseJson['token'];
         refreshToken = responseJson['refreshToken'];
         userName = responseJson['userName'];
+        storedEmail = email;
+        storedPassword = password;
         if (isCheckboxChecked) {
-          storedEmail = email;
-          storedPassword = password;
           await saveTokensToPrefs(globaltoken, refreshToken, userName,
               storedEmail: storedEmail,
               storedPassword: storedPassword,

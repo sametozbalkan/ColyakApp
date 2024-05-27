@@ -327,10 +327,15 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(20),
-                child: Text(
-                  "Hoş geldin, $userName!",
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 20),
+                child: Row( mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.person),
+                    Text(
+                      " Hoş geldin, $userName!",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
+                  ],
                 ),
               ),
               const Padding(
