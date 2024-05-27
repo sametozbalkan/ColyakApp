@@ -79,14 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
     } on PlatformException {
       barcodeScanRes = "Failed to get platform version.";
     }
-    if (barcodeScanRes == "-1") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Barkod bulunamadı!"),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
     return barcodeScanRes;
   }
 

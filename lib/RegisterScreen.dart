@@ -56,133 +56,138 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Kayıt Ekranı')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextField(
-                onChanged: (_) => setState(() {}),
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: "İsim",
-                  prefixIcon: const Icon(Icons.person),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: nameController.text.isEmpty
-                      ? null
-                      : IconButton(
-                          icon: const Icon(Icons.cancel),
-                          onPressed: () {
-                            nameController.clear();
-                            setState(() {});
-                          },
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Image.asset("assets/images/colyak.png",
+                  height: MediaQuery.of(context).size.width / 1.5,
+                  width: MediaQuery.of(context).size.width / 1.5),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
+                child: TextField(
+                  onChanged: (_) => setState(() {}),
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: "İsim",
+                    prefixIcon: const Icon(Icons.person),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: nameController.text.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.cancel),
+                            onPressed: () {
+                              nameController.clear();
+                              setState(() {});
+                            },
+                          ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
+                child: TextField(
+                  onChanged: (_) => setState(() {}),
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: "Email",
+                    prefixIcon: const Icon(Icons.email),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: emailController.text.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.cancel),
+                            onPressed: () {
+                              emailController.clear();
+                              setState(() {});
+                            },
+                          ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
+                child: TextField(
+                  onChanged: (_) => setState(() {}),
+                  obscureText: isVisible,
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: "Şifre",
+                    prefixIcon: const Icon(Icons.password),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: passwordController.text.isNotEmpty
+                        ? IconButton(
+                            icon: isVisible
+                                ? const Icon(Icons.visibility_off)
+                                : const Icon(Icons.visibility),
+                            onPressed: () {
+                              setState(() => isVisible = !isVisible);
+                            },
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
+                child: TextField(
+                  onChanged: (_) => setState(() {}),
+                  obscureText: isVisibleRepeat,
+                  controller: passwordControllerRepeat,
+                  decoration: InputDecoration(
+                    labelText: "Şifre Tekrar",
+                    prefixIcon: const Icon(Icons.password),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: passwordControllerRepeat.text.isNotEmpty
+                        ? IconButton(
+                            icon: isVisibleRepeat
+                                ? const Icon(Icons.visibility_off)
+                                : const Icon(Icons.visibility),
+                            onPressed: () {
+                              setState(
+                                  () => isVisibleRepeat = !isVisibleRepeat);
+                            },
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (passwordController.text.isNotEmpty &&
+                      emailController.text.isNotEmpty &&
+                      nameController.text.isNotEmpty &&
+                      passwordControllerRepeat.text.isNotEmpty) {
+                    if ((passwordController.text ==
+                        passwordControllerRepeat.text)) {
+                      await kayitOl(
+                        emailController.text,
+                        nameController.text,
+                        passwordController.text,
+                        "api/users/verify/create",
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Şifreler uyuşmuyor!'),
+                          duration: Duration(seconds: 1),
                         ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextField(
-                onChanged: (_) => setState(() {}),
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  prefixIcon: const Icon(Icons.email),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: emailController.text.isEmpty
-                      ? null
-                      : IconButton(
-                          icon: const Icon(Icons.cancel),
-                          onPressed: () {
-                            emailController.clear();
-                            setState(() {});
-                          },
-                        ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextField(
-                onChanged: (_) => setState(() {}),
-                obscureText: isVisible,
-                controller: passwordController,
-                decoration: InputDecoration(
-                  labelText: "Şifre",
-                  prefixIcon: const Icon(Icons.password),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: passwordController.text.isNotEmpty
-                      ? IconButton(
-                          icon: isVisible
-                              ? const Icon(Icons.visibility_off)
-                              : const Icon(Icons.visibility),
-                          onPressed: () {
-                            setState(() => isVisible = !isVisible);
-                          },
-                        )
-                      : null,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextField(
-                onChanged: (_) => setState(() {}),
-                obscureText: isVisibleRepeat,
-                controller: passwordControllerRepeat,
-                decoration: InputDecoration(
-                  labelText: "Şifre Tekrar",
-                  prefixIcon: const Icon(Icons.password),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: passwordControllerRepeat.text.isNotEmpty
-                      ? IconButton(
-                          icon: isVisibleRepeat
-                              ? const Icon(Icons.visibility_off)
-                              : const Icon(Icons.visibility),
-                          onPressed: () {
-                            setState(() => isVisibleRepeat = !isVisibleRepeat);
-                          },
-                        )
-                      : null,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (passwordController.text.isNotEmpty &&
-                    emailController.text.isNotEmpty &&
-                    nameController.text.isNotEmpty &&
-                    passwordControllerRepeat.text.isNotEmpty) {
-                  if ((passwordController.text ==
-                      passwordControllerRepeat.text)) {
-                    await kayitOl(
-                      emailController.text,
-                      nameController.text,
-                      passwordController.text,
-                      "api/users/verify/create",
-                    );
+                      );
+                    }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Şifreler uyuşmuyor!'),
-                        duration: Duration(seconds: 1),
+                        content: Text('Boş alan bırakmayın!'),
+                        duration: Duration(seconds: 3),
                       ),
                     );
                   }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Boş alan bırakmayın!'),
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                }
-              },
-              child: const Text('Kayıt Ol'),
-            ),
-          ],
+                },
+                child: const Text('Kayıt Ol'),
+              ),
+            ],
+          ),
         ),
       ),
     );

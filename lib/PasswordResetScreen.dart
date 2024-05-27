@@ -1,4 +1,3 @@
-
 import 'package:colyakapp/HttpBuild.dart';
 import 'package:flutter/material.dart';
 
@@ -14,11 +13,8 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
   Future<void> forgotPassword(String email) async {
     try {
-      final response = await sendRequest(
-        'POST',
-        'api/users/verify/x0/',
-        body: {'email': email}, context: context
-      );
+      final response = await sendRequest('POST', 'api/users/verify/x0/',
+          body: {'email': email}, context: context);
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -28,7 +24,14 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
           ),
         );
         Navigator.of(context).pushNamedAndRemoveUntil(
-          "/loginscreen", (Route<dynamic> route) => false);
+            "/loginscreen", (Route<dynamic> route) => false);
+      } else if (response.statusCode == 404) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email formatı yanlış veya bulunamadı!'),
+            duration: Duration(seconds: 1),
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -45,14 +48,15 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Şifre Sıfırlama")
-      ),
-      body: SafeArea(
-        child: Center(
+      appBar: AppBar(title: const Text("Şifre Sıfırlama")),
+      body: Center(
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Image.asset("assets/images/colyak.png",
+                  height: MediaQuery.of(context).size.width / 1.5,
+                  width: MediaQuery.of(context).size.width / 1.5),
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: TextField(

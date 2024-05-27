@@ -228,7 +228,7 @@ class _BolusScreenState extends State<BolusScreen> {
 class TimePickerCard extends StatelessWidget {
   final TextEditingController controller;
 
-  const TimePickerCard({Key? key, required this.controller}) : super(key: key);
+  const TimePickerCard({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -289,12 +289,12 @@ class BolusCard extends StatelessWidget {
   final String information;
 
   const BolusCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.controller,
     required this.icon,
     required this.information,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

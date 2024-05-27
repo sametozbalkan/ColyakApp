@@ -11,7 +11,9 @@ class VerifyMail extends StatefulWidget {
 }
 
 class _VerifyMailState extends State<VerifyMail> {
-  TextEditingController oneTimeCodeController = TextEditingController();
+  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
+  final List<TextEditingController> _controllers =
+      List.generate(6, (index) => TextEditingController());
 
   Future<void> emailDogrula(
       String verificationId, String oneTimeCode, String path) async {
@@ -61,8 +63,10 @@ class _VerifyMailState extends State<VerifyMail> {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/loginscreen', (Route<dynamic> route) => false);
+                  Navigator.popUntil(
+                    context,
+                    ModalRoute.withName('/loginscreen'),
+                  );
                 },
                 child: const Text('Evet'),
               ),
@@ -71,6 +75,18 @@ class _VerifyMailState extends State<VerifyMail> {
         ) ??
         false;
   }
+
+  void _onCodeChanged(String value, int index) {
+    if (value.isNotEmpty && index < 5) {
+      FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+    } else if (value.isEmpty && index > 0) {
+      FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+    }
+    setState(() {});
+  }
+
+  String get _verificationCode =>
+      _controllers.map((controller) => controller.text).join();
 
   @override
   Widget build(BuildContext context) {
@@ -89,59 +105,69 @@ class _VerifyMailState extends State<VerifyMail> {
             },
           ),
         ),
-        body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: TextField(
-                      onChanged: (_) => setState(() {}),
-                      controller: oneTimeCodeController,
-                      decoration: InputDecoration(
-                        labelText: "Tek Seferlik Kod",
-                        border: const OutlineInputBorder(),
-                        suffixIcon: oneTimeCodeController.text.isEmpty
-                            ? null
-                            : IconButton(
-                                icon: const Icon(Icons.cancel),
-                                onPressed: () {
-                                  oneTimeCodeController.clear();
-                                  setState(() {});
-                                },
-                              ),
-                      ),
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(6),
-                        FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (oneTimeCodeController.text.isNotEmpty) {
-                        await emailDogrula(
-                          widget.verificationId!,
-                          oneTimeCodeController.text,
-                          "api/users/verify/verify-email",
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Kod alanı boş!'),
-                            duration: Duration(seconds: 1),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Image.asset("assets/images/colyak.png",
+                    height: MediaQuery.of(context).size.width / 1.5,
+                    width: MediaQuery.of(context).size.width / 1.5),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("Tek Seferlik Email Onay Kodu"),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(6, (index) {
+                      return SizedBox(
+                        width: 50,
+                        child: TextField(
+                          controller: _controllers[index],
+                          focusNode: _focusNodes[index],
+                          maxLength: 1,
+                          textAlign: TextAlign.center,
+                          onChanged: (value) {
+                            value = value.toUpperCase();
+                            _onCodeChanged(value, index);
+                          },
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(1),
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[A-Za-z0-9]')),
+                          ],
+                          decoration: const InputDecoration(
+                            counterText: "",
+                            border: OutlineInputBorder(),
                           ),
-                        );
-                      }
-                    },
-                    child: const Text('Kaydı Tamamla'),
+                        ),
+                      );
+                    }),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_verificationCode.length == 6) {
+                      await emailDogrula(
+                        widget.verificationId!,
+                        _verificationCode,
+                        "api/users/verify/verify-email",
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Kod alanı eksik!'),
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('Kaydı Tamamla'),
+                ),
+              ],
             ),
           ),
         ),
