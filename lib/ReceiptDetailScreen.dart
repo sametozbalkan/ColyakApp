@@ -210,7 +210,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
           children: <Widget>[
             AspectRatio(
               aspectRatio: 4 / 3,
-              child: Image.memory(widget.imageBytes, fit: BoxFit.fill),
+              child: Image.memory(widget.imageBytes, fit: BoxFit.fitWidth),
             ),
             const TabBar(
               indicatorColor: Color(0xFFFF7A37),

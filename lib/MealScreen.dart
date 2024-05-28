@@ -16,6 +16,7 @@ List<FoodList> bolusFoodList = [];
 class _MealScreenState extends State<MealScreen> {
   double totalCarb = 0;
   double _totalCarb = 0;
+
   @override
   void initState() {
     super.initState();
@@ -25,10 +26,51 @@ class _MealScreenState extends State<MealScreen> {
   }
 
   void carbHesapla() {
+    _totalCarb = 0;
     for (var item in bolusFoodList) {
-      _totalCarb += item.carbonhydrate!;
-      totalCarb = _totalCarb;
+      _totalCarb += item.carbonhydrate ?? 0.0;
     }
+    setState(() {
+      totalCarb = _totalCarb;
+    });
+  }
+
+  void _updateCarb(FoodListComplex foodItem, int quantityChange) {
+    setState(() {
+      int currentAmount = foodItem.amount ?? 0;
+      double currentCarb = foodItem.carbonhydrate ?? 0.0;
+
+      int newAmount = currentAmount + quantityChange;
+      double newCarb =
+          currentCarb + (currentCarb / currentAmount) * quantityChange;
+
+      if (newAmount <= 0) {
+        foodListComplex.remove(foodItem);
+        bolusFoodList
+            .removeWhere((element) => element.foodId == foodItem.foodId);
+      } else {
+        foodItem.amount = newAmount;
+        foodItem.carbonhydrate = newCarb;
+
+        var bolusItemIndex = bolusFoodList.indexWhere(
+          (element) => element.foodId == foodItem.foodId,
+        );
+
+        if (bolusItemIndex != -1) {
+          double bolusCarb = bolusFoodList[bolusItemIndex].carbonhydrate ?? 0.0;
+          bolusFoodList[bolusItemIndex].carbonhydrate =
+              bolusCarb + (bolusCarb / currentAmount) * quantityChange;
+        } else {
+          bolusFoodList.add(FoodList(
+            foodType: foodItem.type,
+            foodId: foodItem.foodId,
+            carbonhydrate: newCarb,
+          ));
+        }
+      }
+      carbHesapla();
+      karbonhidratMiktariController.text = totalCarb.toStringAsFixed(2);
+    });
   }
 
   @override
@@ -38,21 +80,22 @@ class _MealScreenState extends State<MealScreen> {
         title: const Text("Öğün Ekranı"),
         actions: [
           IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddMealScreen(),
-                  ),
-                ).then((value) => setState(() {
-                      totalCarb = 0;
-                      _totalCarb = 0;
-                      carbHesapla();
-                      karbonhidratMiktariController.text =
-                          totalCarb.toStringAsFixed(2);
-                    }));
-              },
-              icon: const Icon(Icons.add))
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AddMealScreen(),
+                ),
+              ).then((value) => setState(() {
+                    totalCarb = 0;
+                    _totalCarb = 0;
+                    carbHesapla();
+                    karbonhidratMiktariController.text =
+                        totalCarb.toStringAsFixed(2);
+                  }));
+            },
+            icon: const Icon(Icons.add),
+          ),
         ],
       ),
       body: SafeArea(
@@ -69,7 +112,7 @@ class _MealScreenState extends State<MealScreen> {
                         totalCarb.toStringAsFixed(2),
                         style: const TextStyle(fontSize: 40),
                       ),
-                      const Text("g")
+                      const Text("g"),
                     ],
                   ),
                   const Text("Toplam Karbonhidrat Miktarı"),
@@ -79,13 +122,13 @@ class _MealScreenState extends State<MealScreen> {
             const Padding(
               padding: EdgeInsets.all(10),
               child: Text(
-                "Öğün Listem:",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                "Öğün Listem",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
             Expanded(
               child: foodListComplex.isEmpty
-                  ? const Center(child: Text("Liste boş"))
+                  ? const Center(child: Text("Liste boş!"))
                   : ListView.builder(
                       itemCount: foodListComplex.length,
                       itemBuilder: (context, index) {
@@ -94,26 +137,25 @@ class _MealScreenState extends State<MealScreen> {
                           title: Text(
                               "${foodItem.amount} x ${foodItem.type} ${foodItem.foodName!}"),
                           subtitle: Text(
-                              'Karbonhidrat: ${foodItem.carbonhydrate} gram'),
-                          trailing: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                foodListComplex.removeAt(index);
-                                bolusFoodList.removeAt(index);
-                                totalCarb = 0;
-                                _totalCarb = 0;
-                                carbHesapla();
-                                karbonhidratMiktariController.text =
-                                    totalCarb.toStringAsFixed(2);
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Listeden kaldırıldı!'),
-                                  duration: Duration(seconds: 1),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.delete),
+                              'Karbonhidrat: ${foodItem.carbonhydrate?.toStringAsFixed(2)} gram'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove),
+                                onPressed: () {
+                                  if (foodItem.amount! >= 1) {
+                                    _updateCarb(foodItem, -1);
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                onPressed: () {
+                                  _updateCarb(foodItem, 1);
+                                },
+                              ),
+                            ],
                           ),
                         );
                       },

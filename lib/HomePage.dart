@@ -37,11 +37,11 @@ class _HomePageState extends State<HomePage> {
             label: 'Ana Sayfa',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.message),
+            icon: Icon(Icons.restaurant),
             label: 'Tarifler',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.medical_information),
             label: 'Bolus',
           ),
         ],

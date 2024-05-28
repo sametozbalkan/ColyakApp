@@ -74,12 +74,12 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> getAll() async {
-    refreshToken = (await getStoredToken('refresh_token')) ?? '';
-    userName = (await getStoredToken('userName')) ?? '';
     isCheckboxChecked = (await getStoredBool('isChecked')) ?? false;
-    storedEmail = (await getStoredToken('storedEmail')) ?? '';
-    storedPassword = (await getStoredToken('storedPassword')) ?? '';
     if (isCheckboxChecked) {
+      refreshToken = (await getStoredToken('refresh_token')) ?? '';
+      userName = (await getStoredToken('userName')) ?? '';
+      storedEmail = (await getStoredToken('storedEmail')) ?? '';
+      storedPassword = (await getStoredToken('storedPassword')) ?? '';
       emailController.text = storedEmail;
       passwordController.text = storedPassword;
     }

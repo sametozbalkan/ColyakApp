@@ -15,7 +15,7 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -194,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     imageBytesMap[imageUrl]!,
                     width: double.infinity,
                     height: double.infinity,
-                    fit: BoxFit.fill,
+                    fit: BoxFit.fitWidth,
                   ),
                 ),
               ),
@@ -487,7 +487,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title: Text("Öğün Listem"),
                           subtitle: Text(
                               "Bolus hesaplamak için yediklerini seçip öğün listeni oluştur"),
-                          leading: Icon(Icons.restaurant),
+                          leading: Icon(Icons.fastfood),
                           trailing: Icon(Icons.arrow_forward_sharp),
                         ),
                       ),

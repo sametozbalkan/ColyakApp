@@ -34,17 +34,18 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   void initState() {
     super.initState();
     _selectedType = widget.receiptOrBarcodes == FoodType.RECEIPT
-        ? (widget.receipt!.nutritionalValuesList!.isEmpty
+        ? (widget.receipt?.nutritionalValuesList?.isEmpty ?? true
             ? null
             : widget.receipt!.nutritionalValuesList!.first.type)
-        : (widget.barcode!.nutritionalValuesList!.isEmpty
+        : (widget.barcode?.nutritionalValuesList?.isEmpty ?? true
             ? null
             : widget.barcode!.nutritionalValuesList!.first.type);
     _calculateNutritionalValues();
   }
 
   void _calculateNutritionalValues() {
-    if (_selectedType == null || widget.receipt == null) {
+    if (_selectedType == null ||
+        (widget.receipt == null && widget.barcode == null)) {
       setState(() {
         _totalCarbohydrate = 0;
         _totalCalories = 0;
@@ -57,12 +58,16 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
       double totalProtein = 0;
       double totalFat = 0;
 
-      for (var item in widget.receipt!.nutritionalValuesList!) {
+      var nutritionalValuesList = widget.receiptOrBarcodes == FoodType.RECEIPT
+          ? widget.receipt!.nutritionalValuesList!
+          : widget.barcode!.nutritionalValuesList!;
+
+      for (var item in nutritionalValuesList) {
         if (item.type == _selectedType) {
-          totalCarb += item.carbohydrateAmount!;
-          totalCalories += item.calorieAmount!;
-          totalProtein += item.proteinAmount!;
-          totalFat += item.fatAmount!;
+          totalCarb += item.carbohydrateAmount ?? 0;
+          totalCalories += item.calorieAmount ?? 0;
+          totalProtein += item.proteinAmount ?? 0;
+          totalFat += item.fatAmount ?? 0;
         }
       }
 
@@ -71,6 +76,60 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         _totalCalories = totalCalories * _quantity;
         _totalProtein = totalProtein * _quantity;
         _totalFat = totalFat * _quantity;
+      });
+    }
+  }
+
+  void _addOrUpdateFoodList() {
+    var foodId = widget.barcode?.id ?? widget.receipt?.id;
+    var foodName = widget.barcode?.name ?? widget.receipt?.receiptName;
+
+    if (foodId == null || foodName == null || _selectedType == null) {
+      return;
+    }
+
+    var existingItemIndex = foodListComplex.indexWhere(
+      (element) => element.foodId == foodId && element.type == _selectedType,
+    );
+
+    if (existingItemIndex != -1) {
+      setState(() {
+        foodListComplex[existingItemIndex].amount =
+            (foodListComplex[existingItemIndex].amount ?? 0) + _quantity;
+        foodListComplex[existingItemIndex].carbonhydrate =
+            (foodListComplex[existingItemIndex].carbonhydrate ?? 0) +
+                _totalCarbohydrate;
+      });
+
+      var existingBolusItemIndex = bolusFoodList.indexWhere(
+        (element) => element.foodId == foodId,
+      );
+      if (existingBolusItemIndex != -1) {
+        setState(() {
+          bolusFoodList[existingBolusItemIndex].carbonhydrate =
+              (bolusFoodList[existingBolusItemIndex].carbonhydrate ?? 0) +
+                  _totalCarbohydrate;
+        });
+      }
+    } else {
+      FoodListComplex _foodListComplex = FoodListComplex(
+        carbonhydrate: _totalCarbohydrate,
+        foodId: foodId,
+        foodName: foodName,
+        foodType: widget.receiptOrBarcodes.name,
+        type: _selectedType,
+        amount: _quantity,
+      );
+
+      FoodList newItem = FoodList(
+        foodType: widget.receiptOrBarcodes.name,
+        foodId: foodId,
+        carbonhydrate: _totalCarbohydrate,
+      );
+
+      setState(() {
+        foodListComplex.add(_foodListComplex);
+        bolusFoodList.add(newItem);
       });
     }
   }
@@ -85,22 +144,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         onPressed: () {
           if (_selectedType != null &&
               (widget.receipt != null || widget.barcode != null)) {
-            FoodListComplex _foodListComplex = FoodListComplex(
-                carbonhydrate: _totalCarbohydrate,
-                foodId: widget.barcode?.id ?? widget.receipt?.id,
-                foodName: widget.barcode?.name ?? widget.receipt?.receiptName,
-                foodType: widget.receiptOrBarcodes.name,
-                type: _selectedType,
-                amount: _quantity);
-            FoodList newItem = FoodList(
-              foodType: widget.receiptOrBarcodes.name,
-              foodId: widget.barcode?.id ?? widget.receipt?.id,
-              carbonhydrate: _totalCarbohydrate,
-            );
-            setState(() {
-              foodListComplex.add(_foodListComplex);
-              bolusFoodList.add(newItem);
-            });
+            _addOrUpdateFoodList();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Listeye eklendi!'),
@@ -211,7 +255,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "Öğün Listem:",
+                  "Öğün Listem",
                   style: TextStyle(fontSize: 16),
                 ),
               ],
@@ -227,8 +271,8 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                 return ListTile(
                   title: Text(
                       "${foodItem.amount} x ${foodItem.type} ${foodItem.foodName!}"),
-                  subtitle:
-                      Text('Karbonhidrat: ${foodItem.carbonhydrate} gram'),
+                  subtitle: Text(
+                      'Karbonhidrat: ${foodItem.carbonhydrate?.toStringAsFixed(2)} gram'),
                   trailing: IconButton(
                     onPressed: () {
                       setState(() {
@@ -255,8 +299,8 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
 
   Widget _buildTypeButtons() {
     var nutritionalValuesList = widget.receiptOrBarcodes == FoodType.RECEIPT
-        ? widget.receipt!.nutritionalValuesList!
-        : widget.barcode!.nutritionalValuesList!;
+        ? widget.receipt?.nutritionalValuesList ?? []
+        : widget.barcode?.nutritionalValuesList ?? [];
 
     return ListView.separated(
       separatorBuilder: (context, index) {
@@ -280,7 +324,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                 : Colors.white,
           ),
           child: Text(
-            item.type!,
+            item.type ?? "",
             style: TextStyle(
               color: _selectedType == item.type
                   ? Colors.white

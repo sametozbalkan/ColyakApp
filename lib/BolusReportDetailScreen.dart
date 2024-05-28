@@ -56,7 +56,7 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
           children: [
             Text(
                 "Tür: ${food.foodType! == "RECEIPT" ? "Tarif" : "Hazır Gıda"}"),
-            Text("Karbonhidrat: ${food.carbonhydrate.toString()} gram"),
+            Text("Karbonhidrat: ${food.carbonhydrate?.toStringAsFixed(2)} gram"),
           ],
         ),
       ),
@@ -110,13 +110,15 @@ class _BolusReportDetailScreenState extends State<BolusReportDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "Yiyecek Listesi:",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  )
+                  widget.reportDetails.foodResponseList!.isNotEmpty
+                      ? const Text(
+                          "Yiyecek Listesi:",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        )
+                      : Container()
                 ],
               ),
             ),

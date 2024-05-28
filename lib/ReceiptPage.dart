@@ -257,7 +257,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
                         imageBytesMap[imageUrl]!,
                         width: double.infinity,
                         height: double.infinity,
-                        fit: BoxFit.fill,
+                        fit: BoxFit.fitWidth,
                       ),
                     ),
                     Positioned(
