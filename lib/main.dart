@@ -27,6 +27,8 @@ class MyApp extends StatelessWidget {
           floatingActionButtonTheme: const FloatingActionButtonThemeData(
               backgroundColor: Color(0xFFFF7A37),
               foregroundColor: Colors.white),
+          //cardTheme: const CardTheme(color: Colors.white, elevation: 4),
+          //dividerTheme: const DividerThemeData(color: Colors.grey),
           elevatedButtonTheme: const ElevatedButtonThemeData(
               style: ButtonStyle(
                   backgroundColor: WidgetStatePropertyAll(Color(0xFFFF7A37)),

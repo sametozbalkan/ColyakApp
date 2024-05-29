@@ -379,47 +379,75 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                       initializeData();
                                     }));
                               },
-                              child: Column(
+                              child: Stack(
                                 children: [
-                                  ListTile(
-                                    title: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
+                                  Column(
+                                    children: [
+                                      ListTile(
+                                        title: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    commentResponse!.userName
+                                                        .toString(),
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  timeSince(DateTime.parse(
+                                                      commentResponse
+                                                          .createdDate!)),
+                                                ),
+                                              ],
+                                            ),
+                                            const Divider(),
+                                            Row(
+                                              children: [
+                                                Flexible(
+                                                  child: Text(
+                                                    commentResponse.comment
+                                                        .toString(),
+                                                    softWrap: true,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 10),
+                                        child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                              MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              commentResponse!.userName
-                                                  .toString(),
+                                              replyCount > 0
+                                                  ? 'Yanıtlar: $replyCount'
+                                                  : "Yanıt Yok",
                                               style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              timeSince(DateTime.parse(
-                                                  commentResponse
-                                                      .createdDate!)),
+                                                  color: Colors.black54),
                                             ),
                                           ],
                                         ),
-                                        const Divider(),
-                                        Row(
-                                          children: [
-                                            Flexible(
-                                              child: Text(
-                                                commentResponse.comment
-                                                    .toString(),
-                                                softWrap: true,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    trailing: commentResponse.userName ==
-                                            userName
+                                      ),
+                                    ],
+                                  ),
+                                  Positioned(
+                                    bottom: 8,
+                                    right: 8,
+                                    child: commentResponse.userName == userName
                                         ? PopupMenuButton<String>(
                                             icon: const Icon(Icons.more_vert),
                                             onSelected: (String result) async {
@@ -447,23 +475,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                               ),
                                             ],
                                           )
-                                        : null,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          replyCount > 0
-                                              ? 'Yanıtlar: $replyCount'
-                                              : "Yanıt Yok",
-                                          style: const TextStyle(
-                                              color: Colors.black54),
-                                        ),
-                                      ],
-                                    ),
+                                        : Container(),
                                   ),
                                 ],
                               ),

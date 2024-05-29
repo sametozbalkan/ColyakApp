@@ -300,50 +300,69 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
               return Padding(
                 padding: const EdgeInsets.only(right: 5, left: 5, bottom: 5),
                 child: Card(
-                  child: ListTile(
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Stack(children: [
+                    Column(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              allReplies[index].userName.toString(),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(timeSince(createdAt))
-                          ],
+                        ListTile(
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    allReplies[index].userName.toString(),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(timeSince(createdAt))
+                                ],
+                              ),
+                              const Divider(),
+                              allReplies[index].userName != userName
+                                  ? Text(allReplies[index].reply.toString(),
+                                      softWrap: true)
+                                  : Padding(
+                                      padding: const EdgeInsets.only(right: 16),
+                                      child: Text(
+                                          allReplies[index].reply.toString(),
+                                          softWrap: true),
+                                    )
+                            ],
+                          ),
                         ),
-                        const Divider(),
-                        Text(allReplies[index].reply.toString(), softWrap: true)
                       ],
                     ),
-                    trailing: allReplies[index].userName == userName
-                        ? PopupMenuButton<String>(
-                            icon: const Icon(Icons.more_vert),
-                            onSelected: (String result) async {
-                              if (result == 'delete') {
-                                await confirmDeleteReply(index);
-                              } else if (result == 'update') {
-                                replyYaz.text = allReplies[index].reply!;
-                                await showModalUpdate(index);
-                              }
-                            },
-                            itemBuilder: (BuildContext context) =>
-                                <PopupMenuEntry<String>>[
-                              const PopupMenuItem<String>(
-                                value: 'update',
-                                child: Text('Güncelle'),
-                              ),
-                              const PopupMenuItem<String>(
-                                value: 'delete',
-                                child: Text('Sil'),
-                              ),
-                            ],
-                          )
-                        : null,
-                  ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: allReplies[index].userName == userName
+                          ? PopupMenuButton<String>(
+                              icon: const Icon(Icons.more_vert),
+                              onSelected: (String result) async {
+                                if (result == 'delete') {
+                                  await confirmDeleteReply(index);
+                                } else if (result == 'update') {
+                                  replyYaz.text = allReplies[index].reply!;
+                                  await showModalUpdate(index);
+                                }
+                              },
+                              itemBuilder: (BuildContext context) =>
+                                  <PopupMenuEntry<String>>[
+                                const PopupMenuItem<String>(
+                                  value: 'update',
+                                  child: Text('Güncelle'),
+                                ),
+                                const PopupMenuItem<String>(
+                                  value: 'delete',
+                                  child: Text('Sil'),
+                                ),
+                              ],
+                            )
+                          : Container(),
+                    ),
+                  ]),
                 ),
               );
             },
