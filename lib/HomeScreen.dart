@@ -7,9 +7,11 @@ import 'package:colyakapp/MealScreen.dart';
 import 'package:colyakapp/QuizScreen.dart';
 import 'package:colyakapp/ReceiptDetailScreen.dart';
 import 'package:colyakapp/ReceiptJson.dart';
+import 'package:colyakapp/SettingsScreen.dart';
 import 'package:colyakapp/Suggestion.dart';
 import 'package:colyakapp/UserGuides.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
@@ -338,12 +340,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       (context) => const Suggestion()),
                   _buildDrawerItem(Icons.menu_book, 'Faydalı Bilgiler',
                       (context) => const UserGuides()),
-                  _buildDrawerItem(
-                      Icons.settings, 'Ayarlar', (context) => Container()),
+                  _buildDrawerItem(Icons.settings, 'Ayarlar',
+                      (context) => const SettingsScreen()),
                   _buildDrawerItem(Icons.logout, 'Çıkış Yap', (context) {
                     Navigator.pop(context);
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                        "/loginscreen", (Route<dynamic> route) => false);
+                    SchedulerBinding.instance.addPostFrameCallback((_) {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          "/loginscreen", (Route<dynamic> route) => false);
+                    });
                     return Container();
                   }),
                 ],
@@ -497,13 +501,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildDrawerItem(
       IconData icon, String title, Widget Function(BuildContext) builder) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(builder: builder));
-      },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 5),
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(title),
+        onTap: () {
+          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: builder));
+        },
+      ),
     );
   }
 
