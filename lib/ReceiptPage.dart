@@ -22,32 +22,49 @@ class _ReceiptPageState extends State<ReceiptPage> {
   Map<String, Uint8List?> imageBytesMap = {};
   List<ReceiptJson> filteredReceipts = [];
   List<ReceiptJson> filteredFavorites = [];
-  bool isLoading = false;
+  ScrollController _scrollController = ScrollController();
+  int _loadedItemCount = 8;
+  int _loadedImageCount = 8;
 
   @override
   void initState() {
     super.initState();
     initializeData();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> initializeData() async {
-    setState(() {
-      isLoading = true;
-    });
     try {
-      await _fetchReceipts();
-      await _barkodlariAl();
-      await _fetchFavorites();
+      await Future.wait([
+        _fetchReceipts(),
+        _barkodlariAl(),
+        _fetchFavorites(),
+      ]);
       await _loadImageBytes();
     } catch (e) {
       print("Critical error posting refresh token: $e");
     }
+  }
 
-    if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
+  void _onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _loadMore();
     }
+  }
+
+  void _loadMore() {
+    setState(() {
+      _loadedItemCount += 8;
+      _loadedImageCount += 8;
+    });
+    _loadImageBytes();
   }
 
   Future<void> _barkodlariAl() async {
@@ -56,8 +73,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     if (mounted) {
       setState(() {
-        barcodesMeal =
-            data.map((json) => BarcodeJson.fromJson(json)).toList();
+        barcodesMeal = data.map((json) => BarcodeJson.fromJson(json)).toList();
       });
     }
   }
@@ -88,22 +104,29 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   Future<void> _loadImageBytes() async {
-    for (ReceiptJson receipt in filteredReceipts) {
+    List<Future<void>> futures = [];
+    for (int i = 0; i < _loadedImageCount && i < filteredReceipts.length; i++) {
+      ReceiptJson receipt = filteredReceipts[i];
       int imageId = receipt.imageId ?? 0;
       String imageUrl =
           "https://api.colyakdiyabet.com.tr/api/image/get/$imageId";
       if (!imageBytesMap.containsKey(imageUrl)) {
-        var response = await http.get(Uri.parse(imageUrl));
-        if (response.statusCode == 200) {
-          if (mounted) {
-            setState(() {
-              imageBytesMap[imageUrl] = response.bodyBytes;
-            });
-          }
-        } else {
-          print('Resim alınamadı. Hata kodu: ${response.statusCode}');
-        }
+        futures.add(_fetchImage(imageUrl));
       }
+    }
+    await Future.wait(futures);
+  }
+
+  Future<void> _fetchImage(String imageUrl) async {
+    var response = await http.get(Uri.parse(imageUrl));
+    if (response.statusCode == 200) {
+      if (mounted) {
+        setState(() {
+          imageBytesMap[imageUrl] = response.bodyBytes;
+        });
+      }
+    } else {
+      print('Resim alınamadı. Hata kodu: ${response.statusCode}');
     }
   }
 
@@ -112,70 +135,67 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   TextEditingController searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Tarifler')),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : DefaultTabController(
-              length: 2,
-              initialIndex: 0,
-              child: Column(
+      body: DefaultTabController(
+        length: 2,
+        initialIndex: 0,
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(5),
+              child: TextField(
+                controller: searchController,
+                decoration: const InputDecoration(
+                  labelText: "Ara",
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    filteredReceipts = receipts.where((receipt) {
+                      return receipt.receiptName!
+                          .toLowerCase()
+                          .contains(value.toLowerCase());
+                    }).toList();
+                    filteredFavorites = favoriler.where((receipt) {
+                      return receipt.receiptName!
+                          .toLowerCase()
+                          .contains(value.toLowerCase());
+                    }).toList();
+                  });
+                },
+              ),
+            ),
+            const TabBar(
+              indicatorColor: Color(0xFFFF7A37),
+              labelColor: Color(0xFFFF7A37),
+              unselectedLabelColor: Colors.black,
+              tabs: [
+                Tab(text: 'Tarifler'),
+                Tab(text: 'Favorilerim'),
+              ],
+            ),
+            Expanded(
+              child: TabBarView(
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: TextField(
-                      controller: searchController,
-                      decoration: const InputDecoration(
-                        labelText: "Ara",
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          filteredReceipts = receipts.where((receipt) {
-                            return receipt.receiptName!
-                                .toLowerCase()
-                                .contains(value.toLowerCase());
-                          }).toList();
-                          filteredFavorites = favoriler.where((receipt) {
-                            return receipt.receiptName!
-                                .toLowerCase()
-                                .contains(value.toLowerCase());
-                          }).toList();
-                        });
-                      },
-                    ),
+                  RefreshIndicator(
+                    onRefresh: _refreshData,
+                    child: _buildGridView(filteredReceipts),
                   ),
-                  const TabBar(
-                    indicatorColor: Color(0xFFFF7A37),
-                    labelColor: Color(0xFFFF7A37),
-                    unselectedLabelColor: Colors.black,
-                    tabs: [
-                      Tab(text: 'Tarifler'),
-                      Tab(text: 'Favorilerim'),
-                    ],
-                  ),
-                  Expanded(
-                    child: TabBarView(
-                      children: <Widget>[
-                        RefreshIndicator(
-                          onRefresh: _refreshData,
-                          child: _buildGridView(filteredReceipts),
-                        ),
-                        RefreshIndicator(
-                          onRefresh: _refreshData,
-                          child: _buildGridView(filteredFavorites),
-                        ),
-                      ],
-                    ),
+                  RefreshIndicator(
+                    onRefresh: _refreshData,
+                    child: _buildGridView(filteredFavorites),
                   ),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -192,7 +212,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
         setState(() {
           isLiked = !isLiked;
         });
-        _fetchFavorites();
+        await _fetchFavorites();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -210,9 +230,12 @@ class _ReceiptPageState extends State<ReceiptPage> {
 
   Widget _buildGridView(List<ReceiptJson> receipts) {
     return GridView.builder(
+      controller: _scrollController,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, childAspectRatio: 0.93),
-      itemCount: receipts.length,
+          crossAxisCount: 2, childAspectRatio: 0.91),
+      itemCount: receipts.length < _loadedItemCount
+          ? receipts.length
+          : _loadedItemCount,
       itemBuilder: (context, index) {
         return _buildReceiptCard(receipts[index]);
       },
@@ -223,18 +246,19 @@ class _ReceiptPageState extends State<ReceiptPage> {
     String imageUrl =
         "https://api.colyakdiyabet.com.tr/api/image/get/${receipt.imageId}";
     bool isLiked = favoriler.any((favorite) => favorite.id == receipt.id);
-
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ReceiptDetailScreen(
-              receipt: receipt,
-              imageBytes: imageBytesMap[imageUrl]!,
+        if (imageBytesMap.containsKey(imageUrl)) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ReceiptDetailScreen(
+                receipt: receipt,
+                imageBytes: imageBytesMap[imageUrl]!,
+              ),
             ),
-          ),
-        );
+          );
+        }
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -243,43 +267,44 @@ class _ReceiptPageState extends State<ReceiptPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (imageBytesMap.containsKey(imageUrl))
-              Expanded(
-                flex: 7,
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(8),
-                        topRight: Radius.circular(8),
-                      ),
-                      child: Image.memory(
-                        imageBytesMap[imageUrl]!,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.fitWidth,
+            Expanded(
+              flex: 7,
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      topRight: Radius.circular(8),
+                    ),
+                    child: imageBytesMap.containsKey(imageUrl)
+                        ? Image.memory(
+                            imageBytesMap[imageUrl]!,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.fitWidth,
+                          )
+                        : const Center(child: CircularProgressIndicator()),
+                  ),
+                  Positioned(
+                    top: -1,
+                    right: -1,
+                    child: IconButton(
+                      onPressed: () async {
+                        isLiked
+                            ? await toggleLike(
+                                receipt.id!, "api/likes/unlike", isLiked)
+                            : await toggleLike(
+                                receipt.id!, "api/likes/like", isLiked);
+                      },
+                      icon: Icon(
+                        isLiked ? Icons.favorite : Icons.favorite_border,
+                        color: isLiked ? Colors.red : Colors.white,
                       ),
                     ),
-                    Positioned(
-                      top: -1,
-                      right: -1,
-                      child: IconButton(
-                        onPressed: () async {
-                          isLiked
-                              ? await toggleLike(
-                                  receipt.id!, "api/likes/unlike", isLiked)
-                              : await toggleLike(
-                                  receipt.id!, "api/likes/like", isLiked);
-                        },
-                        icon: Icon(
-                          isLiked ? Icons.favorite : Icons.favorite_border,
-                          color: isLiked ? Colors.red : Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
             Expanded(
               flex: 3,
               child: Padding(
@@ -290,6 +315,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
                     Text(receipt.receiptName!,
                         softWrap: true,
                         textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 16))
                   ],
                 ),

@@ -140,9 +140,9 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       var postLogin = await sendRequest("POST", "api/users/verify/login",
           body: loginDetails, context: context);
-      print(postLogin.body);
       if (postLogin.statusCode == 200) {
-        Map<String, dynamic> responseJson = json.decode(postLogin.body);
+        Map<String, dynamic> responseJson = jsonDecode(utf8.decode(postLogin.bodyBytes));
+        print(responseJson);
         globaltoken = responseJson['token'];
         refreshToken = responseJson['refreshToken'];
         userName = responseJson['userName'];

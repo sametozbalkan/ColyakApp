@@ -75,7 +75,7 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
     final response = await quizSoruGonder(questionId, chosenAnswer);
 
     if (response.statusCode == 200) {
-      final responseData = json.decode(utf8.decode(response.bodyBytes));
+      final responseData = jsonDecode(utf8.decode(response.bodyBytes));
       final bool correct = responseData['correct'];
       final String correctAnswer = responseData['correctAnswer'];
 

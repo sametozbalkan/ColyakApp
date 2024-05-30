@@ -12,6 +12,8 @@ String userName = "";
 String storedEmail = "";
 String storedPassword = "";
 
+final http.Client client = http.Client();
+
 Future<http.Response> sendRequest(
   String method,
   String path, {
@@ -38,7 +40,7 @@ Future<http.Response> sendRequest(
       }
     }
 
-    final response = await http.Client().send(request);
+    final response = await client.send(request);
 
     if ((response.statusCode >= 200 && response.statusCode < 300) ||
         response.statusCode == 619 ||
@@ -80,7 +82,7 @@ Future<void> checkAndLogin(BuildContext context) async {
 
       if (response.statusCode == 200) {
         print(response.body);
-        var data = jsonDecode(utf8.decode(response.bodyBytes));
+        var data = jsonDecode(response.body);
         globaltoken = data["token"];
         Navigator.pushReplacement(
           context,

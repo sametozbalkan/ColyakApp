@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:colyakapp/BolusJson.dart';
 import 'package:colyakapp/ColyakIcons.dart';
 import 'package:colyakapp/HttpBuild.dart';
@@ -45,7 +44,7 @@ class _BolusScreenState extends State<BolusScreen> {
     insulinKarbonhidratOraniController.dispose();
     idfController.dispose();
     timeController.dispose();
-    karbonhidratMiktariController.dispose();
+    //karbonhidratMiktariController.dispose();
     super.dispose();
   }
 
@@ -65,9 +64,7 @@ class _BolusScreenState extends State<BolusScreen> {
           body: bolusJson.toJson(), token: globaltoken, context: context);
 
       if (response.statusCode == 201) {
-        BolusJson responseBolusJson =
-            BolusJson.fromJson(json.decode(response.body));
-        print('Response received: ${responseBolusJson.toJson()}');
+        print("Başarılı");
       } else {
         throw Exception('Rapor gönderilirken hata!');
       }
