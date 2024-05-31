@@ -112,10 +112,9 @@ Future<String> postRefreshToken(BuildContext context) async {
 
     if (postRefreshTokenResponse.statusCode == 200) {
       final responseJson =
-          jsonDecode(utf8.decode(postRefreshTokenResponse.bodyBytes));
+          jsonDecode(postRefreshTokenResponse.body);
       print(postRefreshTokenResponse.body);
       globaltoken = responseJson['token'];
-      userName = responseJson['userName'];
       await saveTokensToPrefs(globaltoken, refreshToken, userName);
       return globaltoken;
     } else if (postRefreshTokenResponse.statusCode == 602) {

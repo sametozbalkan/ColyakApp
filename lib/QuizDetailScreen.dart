@@ -72,7 +72,7 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
       _isProcessing = true;
     });
 
-    final response = await quizSoruGonder(questionId, chosenAnswer);
+    final response = await quizSoruGonder(questionId, chosenAnswer, context);
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(utf8.decode(response.bodyBytes));
@@ -129,20 +129,18 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
   }
 
   Future<http.Response> quizSoruGonder(
-      int questionId, String chosenAnswer) async {
+      int questionId, String chosenAnswer, BuildContext context) async {
     final quizDetails = {
       "questionId": questionId,
       "chosenAnswer": chosenAnswer,
     };
 
-    return await http.post(
-      Uri.parse("${genelUrl}api/user-answer/submit-answer"),
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        'Authorization': 'Bearer $globaltoken',
-      },
-      body: json.encode(quizDetails),
+    return await sendRequest(
+      'POST',
+      'api/user-answer/submit-answer',
+      body: quizDetails,
+      token: globaltoken,
+      context: context,
     );
   }
 

@@ -17,7 +17,7 @@ List<BarcodeJson> barcodesMeal = [];
 class _AddMealScreenState extends State<AddMealScreen> {
   List<ReceiptJson> filteredReceipts = [];
   List<BarcodeJson> filteredBarcodes = [];
-  TextEditingController searchController = TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -33,17 +33,52 @@ class _AddMealScreenState extends State<AddMealScreen> {
   }
 
   void search(String value) {
-    String query = value.toLowerCase();
+    final query = value.toLowerCase();
     setState(() {
       filteredReceipts = receiptsMeal
-          .where(
-              (receipt) => receipt.receiptName!.toLowerCase().contains(query))
+          .where((receipt) =>
+              receipt.receiptName?.toLowerCase().contains(query) ?? false)
           .toList();
       filteredBarcodes = barcodesMeal
-          .where((barcode) =>
-              barcode.name!.toLowerCase().contains(query))
+          .where(
+              (barcode) => barcode.name?.toLowerCase().contains(query) ?? false)
           .toList();
     });
+  }
+
+  Widget _buildSearchField() {
+    return Padding(
+      padding: const EdgeInsets.all(5),
+      child: TextField(
+        controller: searchController,
+        decoration: const InputDecoration(
+          labelText: "Ara",
+          prefixIcon: Icon(Icons.search),
+          border: OutlineInputBorder(),
+        ),
+        onChanged: search,
+      ),
+    );
+  }
+
+  Widget _buildListView<T>(
+      List<T> items, String Function(T) getName, void Function(T) onTap) {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return Card(
+          child: GestureDetector(
+            onTap: () => onTap(item),
+            child: ListTile(
+              title: Text(getName(item)),
+              trailing: const Icon(Icons.arrow_forward),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -52,18 +87,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
       appBar: AppBar(title: const Text("Öğün Seç")),
       body: Column(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(5),
-            child: TextField(
-              controller: searchController,
-              decoration: const InputDecoration(
-                labelText: "Ara",
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
-              ),
-              onChanged: search,
-            ),
-          ),
+          _buildSearchField(),
           DefaultTabController(
             length: 2,
             initialIndex: 0,
@@ -82,53 +106,34 @@ class _AddMealScreenState extends State<AddMealScreen> {
                   Expanded(
                     child: TabBarView(
                       children: <Widget>[
-                        ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: filteredReceipts.length,
-                          itemBuilder: (context, index) {
-                            return Card(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MealDetailScreen(
-                                          receiptOrBarcodes: FoodType.RECEIPT,
-                                          receipt: filteredReceipts[index]),
-                                    ),
-                                  );
-                                },
-                                child: ListTile(
-                                    title: Text(
-                                        filteredReceipts[index].receiptName!),
-                                    trailing: const Icon(Icons.arrow_forward)),
+                        _buildListView<ReceiptJson>(
+                          filteredReceipts,
+                          (receipt) => receipt.receiptName!,
+                          (receipt) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MealDetailScreen(
+                                  receiptOrBarcodes: FoodType.RECEIPT,
+                                  receipt: receipt,
+                                ),
                               ),
                             );
                           },
                         ),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: filteredBarcodes.length,
-                          itemBuilder: (context, index) {
-                            return Card(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MealDetailScreen(
-                                        receiptOrBarcodes: FoodType.BARCODE,
-                                        barcode: filteredBarcodes[index],
-                                      ),
-                                    ),
-                                  ).then((value) => setState(() {}));
-                                },
-                                child: ListTile(
-                                    title: Text(filteredBarcodes[index]
-                                        .name!),
-                                    trailing: const Icon(Icons.arrow_forward)),
+                        _buildListView<BarcodeJson>(
+                          filteredBarcodes,
+                          (barcode) => barcode.name!,
+                          (barcode) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MealDetailScreen(
+                                  receiptOrBarcodes: FoodType.BARCODE,
+                                  barcode: barcode,
+                                ),
                               ),
-                            );
+                            ).then((value) => setState(() {}));
                           },
                         ),
                       ],
