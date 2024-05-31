@@ -12,6 +12,13 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   bool isVisible = true;
   bool isVisibleRepeat = true;
+
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordControllerRepeat =
+      TextEditingController();
+
   Future<void> kayitOl(
       String email, String name, String password, String path) async {
     Map<String, dynamic> kayitDetay = {
@@ -25,7 +32,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           await sendRequest('POST', path, body: kayitDetay, context: context);
 
       if (kaydolResponse.statusCode == 201) {
-        print(kaydolResponse.body);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -37,7 +43,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         throw Exception('Kayıt işlemi başarısız oldu');
       }
     } catch (e) {
-      print('Hata: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Kayıt işlemi başarısız oldu'),
@@ -47,10 +52,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController passwordControllerRepeat = TextEditingController();
+  Widget buildTextField({
+    required String labelText,
+    required IconData prefixIcon,
+    required TextEditingController controller,
+    bool obscureText = false,
+    void Function()? onSuffixIconPressed,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
+      child: TextField(
+        onChanged: (_) => setState(() {}),
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: labelText,
+          prefixIcon: Icon(prefixIcon),
+          border: const OutlineInputBorder(),
+          suffixIcon: controller.text.isEmpty
+              ? null
+              : IconButton(
+                  icon: obscureText
+                      ? const Icon(Icons.visibility_off)
+                      : const Icon(Icons.cancel),
+                  onPressed: onSuffixIconPressed ??
+                      () {
+                        controller.clear();
+                        setState(() {});
+                      },
+                ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,98 +94,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              Image.asset("assets/images/colyak.png",
-                  height: MediaQuery.of(context).size.width / 1.5,
-                  width: MediaQuery.of(context).size.width / 1.5),
+              Image.asset(
+                "assets/images/colyak.png",
+                height: MediaQuery.of(context).size.width / 1.5,
+                width: MediaQuery.of(context).size.width / 1.5,
+              ),
               const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
-                child: TextField(
-                  onChanged: (_) => setState(() {}),
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: "İsim",
-                    prefixIcon: const Icon(Icons.person),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: nameController.text.isEmpty
-                        ? null
-                        : IconButton(
-                            icon: const Icon(Icons.cancel),
-                            onPressed: () {
-                              nameController.clear();
-                              setState(() {});
-                            },
-                          ),
-                  ),
-                ),
+              buildTextField(
+                labelText: "İsim",
+                prefixIcon: Icons.person,
+                controller: nameController,
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
-                child: TextField(
-                  onChanged: (_) => setState(() {}),
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: "Email",
-                    prefixIcon: const Icon(Icons.email),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: emailController.text.isEmpty
-                        ? null
-                        : IconButton(
-                            icon: const Icon(Icons.cancel),
-                            onPressed: () {
-                              emailController.clear();
-                              setState(() {});
-                            },
-                          ),
-                  ),
-                ),
+              buildTextField(
+                labelText: "Email",
+                prefixIcon: Icons.email,
+                controller: emailController,
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
-                child: TextField(
-                  onChanged: (_) => setState(() {}),
-                  obscureText: isVisible,
-                  controller: passwordController,
-                  decoration: InputDecoration(
-                    labelText: "Şifre",
-                    prefixIcon: const Icon(Icons.password),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: passwordController.text.isNotEmpty
-                        ? IconButton(
-                            icon: isVisible
-                                ? const Icon(Icons.visibility_off)
-                                : const Icon(Icons.visibility),
-                            onPressed: () {
-                              setState(() => isVisible = !isVisible);
-                            },
-                          )
-                        : null,
-                  ),
-                ),
+              buildTextField(
+                labelText: "Şifre",
+                prefixIcon: Icons.password,
+                controller: passwordController,
+                obscureText: isVisible,
+                onSuffixIconPressed: () {
+                  setState(() => isVisible = !isVisible);
+                },
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
-                child: TextField(
-                  onChanged: (_) => setState(() {}),
-                  obscureText: isVisibleRepeat,
-                  controller: passwordControllerRepeat,
-                  decoration: InputDecoration(
-                    labelText: "Şifre Tekrar",
-                    prefixIcon: const Icon(Icons.password),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: passwordControllerRepeat.text.isNotEmpty
-                        ? IconButton(
-                            icon: isVisibleRepeat
-                                ? const Icon(Icons.visibility_off)
-                                : const Icon(Icons.visibility),
-                            onPressed: () {
-                              setState(
-                                  () => isVisibleRepeat = !isVisibleRepeat);
-                            },
-                          )
-                        : null,
-                  ),
-                ),
+              buildTextField(
+                labelText: "Şifre Tekrar",
+                prefixIcon: Icons.password,
+                controller: passwordControllerRepeat,
+                obscureText: isVisibleRepeat,
+                onSuffixIconPressed: () {
+                  setState(() => isVisibleRepeat = !isVisibleRepeat);
+                },
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -159,20 +134,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       emailController.text.isNotEmpty &&
                       nameController.text.isNotEmpty &&
                       passwordControllerRepeat.text.isNotEmpty) {
-                    if ((passwordController.text ==
-                        passwordControllerRepeat.text)) {
-                      await kayitOl(
-                        emailController.text,
-                        nameController.text,
-                        passwordController.text,
-                        "api/users/verify/create",
+                    if (passwordController.text.length < 8) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Şifre en az 8 karakter olmalıdır!'),
+                          duration: Duration(seconds: 1),
+                        ),
                       );
-                    } else {
+                    } else if (passwordController.text !=
+                        passwordControllerRepeat.text) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Şifreler uyuşmuyor!'),
                           duration: Duration(seconds: 1),
                         ),
+                      );
+                    } else {
+                      await kayitOl(
+                        emailController.text,
+                        nameController.text,
+                        passwordController.text,
+                        "api/users/verify/create",
                       );
                     }
                   } else {
