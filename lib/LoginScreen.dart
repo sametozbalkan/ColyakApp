@@ -138,23 +138,23 @@ class _LoginScreenState extends State<LoginScreen> {
       'password': password,
     };
     try {
-      var postLogin = await sendRequest("POST", "api/users/verify/login",
-          body: loginDetails, context: context);
+      var postLogin = await HttpBuildService.sendRequest("POST", "api/users/verify/login",
+          body: loginDetails);
       if (postLogin.statusCode == 200) {
         Map<String, dynamic> responseJson = jsonDecode(utf8.decode(postLogin.bodyBytes));
         print(responseJson);
-        globaltoken = responseJson['token'];
-        refreshToken = responseJson['refreshToken'];
-        userName = responseJson['userName'];
-        storedEmail = email;
-        storedPassword = password;
+        HttpBuildService.globaltoken = responseJson['token'];
+        HttpBuildService.refreshToken = responseJson['refreshToken'];
+        HttpBuildService.userName = responseJson['userName'];
+        HttpBuildService.storedEmail = email;
+        HttpBuildService.storedPassword = password;
         if (isCheckboxChecked) {
-          await saveTokensToPrefs(globaltoken, refreshToken, userName,
-              storedEmail: storedEmail,
-              storedPassword: storedPassword,
+          await HttpBuildService.saveTokensToPrefs(HttpBuildService.globaltoken, HttpBuildService.refreshToken, HttpBuildService.userName,
+              storedEmail: HttpBuildService.storedEmail,
+              storedPassword: HttpBuildService.storedPassword,
               isChecked: isCheckboxChecked);
         } else {
-          await saveTokensToPrefs(globaltoken, refreshToken, userName,
+          await HttpBuildService.saveTokensToPrefs(HttpBuildService.globaltoken, HttpBuildService.refreshToken, HttpBuildService.userName,
               isChecked: isCheckboxChecked);
         }
         Navigator.pushReplacement(

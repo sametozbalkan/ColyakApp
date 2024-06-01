@@ -15,12 +15,12 @@ class _SuggestionState extends State<Suggestion> {
   void suggestionGonder(String suggestion) async {
     try {
       final suggestionDetails = {'suggestion': suggestion};
-      final response = await sendRequest(
+      final response = await HttpBuildService.sendRequest(
         'POST',
         'api/suggestions/add',
         body: suggestionDetails,
-        token: globaltoken,
-        context: context,
+        token: true
+       
       );
 
       if (response.statusCode == 200) {

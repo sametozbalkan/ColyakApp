@@ -60,8 +60,8 @@ class _BolusScreenState extends State<BolusScreen> {
 
   Future<void> sendBolus(BolusJson bolusJson) async {
     try {
-      final response = await sendRequest('POST', 'api/meals/add',
-          body: bolusJson.toJson(), token: globaltoken, context: context);
+      final response = await HttpBuildService.sendRequest('POST', 'api/meals/add',
+          body: bolusJson.toJson(), token: true);
 
       if (response.statusCode == 201) {
         print("Başarılı");

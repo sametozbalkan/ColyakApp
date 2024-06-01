@@ -13,8 +13,8 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
   Future<void> forgotPassword(String email) async {
     try {
-      final response = await sendRequest('POST', 'api/users/verify/x0/',
-          body: {'email': email}, context: context);
+      final response = await HttpBuildService.sendRequest('POST', 'api/users/verify/x0/',
+          body: {'email': email});
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(

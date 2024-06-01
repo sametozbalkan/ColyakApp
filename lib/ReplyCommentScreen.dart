@@ -34,9 +34,9 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
 
   Future<void> initializeData() async {
     try {
-      final response = await sendRequest(
+      final response = await HttpBuildService.sendRequest(
           'GET', 'api/replies/comments/${widget.commentId}',
-          token: globaltoken, context: context);
+          token: true);
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       if (mounted) {
         setState(() {
@@ -52,9 +52,9 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
 
   Future<void> updateReply(int replyId, String reply) async {
     try {
-      final response = await sendRequest(
+      final response = await HttpBuildService.sendRequest(
           'PUT', "api/replies/$replyId?newReply=$reply",
-          token: globaltoken, context: context);
+          token: true);
 
       if (response.statusCode == 204) {
         await initializeData();
@@ -81,8 +81,8 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
   Future<void> replyGonder(int commentId, String reply) async {
     try {
       final replyDetails = {'commentId': commentId, 'reply': reply};
-      final response = await sendRequest('POST', 'api/replies/add',
-          body: replyDetails, token: globaltoken, context: context);
+      final response = await HttpBuildService.sendRequest('POST', 'api/replies/add',
+          body: replyDetails, token: true);
 
       if (response.statusCode == 200) {
         await initializeData();
@@ -145,8 +145,8 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
 
   Future<void> _deleteReply(int replyId) async {
     try {
-      final response = await sendRequest('DELETE', 'api/replies/',
-          extra: replyId.toString(), token: globaltoken, context: context);
+      final response = await HttpBuildService.sendRequest('DELETE', 'api/replies/',
+          extra: replyId.toString(), token: true);
       if (response.statusCode == 204) {
         await initializeData();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -320,7 +320,7 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
                                 ],
                               ),
                               const Divider(),
-                              allReplies[index].userName != userName
+                              allReplies[index].userName != HttpBuildService.userName
                                   ? Text(allReplies[index].reply.toString(),
                                       softWrap: true)
                                   : Padding(
@@ -337,7 +337,7 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
                     Positioned(
                       bottom: 0,
                       right: 0,
-                      child: allReplies[index].userName == userName
+                      child: allReplies[index].userName == HttpBuildService.userName
                           ? PopupMenuButton<String>(
                               icon: const Icon(Icons.more_vert),
                               onSelected: (String result) async {

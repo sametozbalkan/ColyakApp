@@ -26,6 +26,33 @@ class _VerifyMailState extends State<VerifyMail> {
   final List<TextEditingController> _controllers =
       List.generate(6, (index) => TextEditingController());
 
+  @override
+  void initState() {
+    super.initState();
+    _controllers[0].addListener(_handlePaste);
+  }
+
+  @override
+  void dispose() {
+    _controllers[0].removeListener(_handlePaste);
+    for (var controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _handlePaste() {
+    Clipboard.getData('text/plain').then((clipboadData) {
+      if (clipboadData != null && clipboadData.text!.length == 6) {
+        String pastedText = clipboadData.text!;
+        for (int i = 0; i < 6; i++) {
+          _controllers[i].text = pastedText[i];
+        }
+        FocusScope.of(context).unfocus();
+      }
+    });
+  }
+
   Future<void> emailDogrula(
       String verificationId, String oneTimeCode, String path) async {
     Map<String, String> emailVerify = {
@@ -35,7 +62,7 @@ class _VerifyMailState extends State<VerifyMail> {
 
     try {
       var emailVer =
-          await sendRequest("POST", path, body: emailVerify, context: context);
+          await HttpBuildService.sendRequest("POST", path, body: emailVerify);
 
       if (emailVer.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(

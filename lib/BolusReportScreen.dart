@@ -34,9 +34,9 @@ class _BolusReportScreenState extends State<BolusReportScreen> {
 
   Future<void> raporCek(String start, String end) async {
     try {
-      var response = await sendRequest(
-          "GET", "api/meals/report/$storedEmail/$start/$end",
-          token: globaltoken, context: context);
+      var response = await HttpBuildService.sendRequest(
+          "GET", "api/meals/report/${HttpBuildService.storedEmail}/$start/$end",
+          token: true);
       List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       if (mounted) {
         setState(() {

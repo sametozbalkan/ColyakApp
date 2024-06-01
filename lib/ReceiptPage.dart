@@ -68,8 +68,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   Future<void> _barkodlariAl() async {
-    var response = await sendRequest("GET", "api/barcodes/all",
-        token: globaltoken, context: context);
+    var response = await HttpBuildService.sendRequest("GET", "api/barcodes/all",
+        token: true);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     if (mounted) {
       setState(() {
@@ -79,8 +79,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   Future<void> _fetchReceipts() async {
-    var response = await sendRequest("GET", "api/receipts/getAll/all",
-        token: globaltoken, context: context);
+    var response = await HttpBuildService.sendRequest("GET", "api/receipts/getAll/all",
+        token: true);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     if (mounted) {
       setState(() {
@@ -92,8 +92,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   Future<void> _fetchFavorites() async {
-    var response = await sendRequest("GET", "api/likes/favoriteList",
-        token: globaltoken, context: context);
+    var response = await HttpBuildService.sendRequest("GET", "api/likes/favoriteList",
+        token: true);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     if (mounted) {
       setState(() {
@@ -205,8 +205,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
         'receiptId': receiptId,
       };
 
-      final response = await sendRequest('POST', path,
-          body: likeDetails, token: globaltoken, context: context);
+      final response = await HttpBuildService.sendRequest('POST', path,
+          body: likeDetails, token: true);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         setState(() {

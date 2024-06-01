@@ -63,8 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _top5receipts() async {
-    var response = await sendRequest("GET", "api/meals/report/top5receipts",
-        token: globaltoken, context: context);
+    var response = await HttpBuildService.sendRequest("GET", "api/meals/report/top5receipts",
+        token: true);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     if (mounted) {
       setState(() {
@@ -87,8 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> barkodGonder(BuildContext context, String barcode) async {
     try {
-      final response = await sendRequest('GET', 'api/barcodes/code/$barcode',
-          token: globaltoken, context: context);
+      final response = await HttpBuildService.sendRequest('GET', 'api/barcodes/code/$barcode',
+          token: true);
       if (response.statusCode == 200) {
         BarcodeJson veri =
             BarcodeJson.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
@@ -190,9 +190,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _validateAndSubmitBarcode(
       BuildContext context, String correctedBarcode) async {
     try {
-      final response = await sendRequest(
+      final response = await HttpBuildService.sendRequest(
           'GET', 'api/barcodes/code/$correctedBarcode',
-          token: globaltoken, context: context);
+          token: true);
       if (response.statusCode == 200) {
         BarcodeJson veri =
             BarcodeJson.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
@@ -373,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.person, size: 48),
-                      Text(" Hoş geldin, \n $userName",
+                      Text(" Hoş geldin, \n ${HttpBuildService.userName}",
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18)),
@@ -584,12 +584,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void suggestionGonder(String suggestion) async {
     try {
       final suggestionDetails = {'suggestion': suggestion};
-      final response = await sendRequest(
+      final response = await HttpBuildService.sendRequest(
         'POST',
         'api/suggestions/add',
         body: suggestionDetails,
-        token: globaltoken,
-        context: context,
+        token: true,
+        
       );
 
       if (response.statusCode == 200) {

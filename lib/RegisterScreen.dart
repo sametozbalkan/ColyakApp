@@ -29,7 +29,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       var kaydolResponse =
-          await sendRequest('POST', path, body: kayitDetay, context: context);
+          await HttpBuildService.sendRequest('POST', path, body: kayitDetay);
 
       if (kaydolResponse.statusCode == 201) {
         Navigator.pushReplacement(

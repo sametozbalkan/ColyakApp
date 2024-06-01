@@ -33,8 +33,8 @@ class _UserGuidesState extends State<UserGuides> {
 
   Future<void> quizAl() async {
     try {
-      final response = await sendRequest('GET', "api/image/get/pdfListData2",
-          token: globaltoken, context: context);
+      final response = await HttpBuildService.sendRequest('GET', "api/image/get/pdfListData2",
+          token: true);
 
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       setState(() {

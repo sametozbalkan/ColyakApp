@@ -36,9 +36,9 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
   Future<void> commentAl(String path) async {
     try {
-      final response = await sendRequest(
+      final response = await HttpBuildService.sendRequest(
           'GET', path + widget.receipt.id.toString(),
-          token: globaltoken, context: context);
+          token: true);
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
         setState(() {
@@ -60,8 +60,8 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
         'comment': comment,
       };
 
-      final response = await sendRequest('POST', path,
-          body: commentDetails, token: globaltoken, context: context);
+      final response = await HttpBuildService.sendRequest('POST', path,
+          body: commentDetails, token: true);
 
       if (response.statusCode == 201) {
         await initializeData();
@@ -88,8 +88,8 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
   Future<void> updateComment(int commentId, String comment) async {
     try {
-      final response = await sendRequest('PUT', "api/comments/$commentId",
-          body: comment, token: globaltoken, context: context);
+      final response = await HttpBuildService.sendRequest('PUT', "api/comments/$commentId",
+          body: comment, token: true);
 
       if (response.statusCode == 204) {
         await initializeData();
@@ -116,8 +116,8 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
   Future<void> deleteComment(int commentId, String path) async {
     try {
-      final response = await sendRequest('DELETE', path + commentId.toString(),
-          token: globaltoken, context: context);
+      final response = await HttpBuildService.sendRequest('DELETE', path + commentId.toString(),
+          token: true);
 
       if (response.statusCode == 204) {
         initializeData();
@@ -447,7 +447,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                   Positioned(
                                     bottom: 8,
                                     right: 8,
-                                    child: commentResponse.userName == userName
+                                    child: commentResponse.userName == HttpBuildService.userName
                                         ? PopupMenuButton<String>(
                                             icon: const Icon(Icons.more_vert),
                                             onSelected: (String result) async {

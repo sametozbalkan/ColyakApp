@@ -135,12 +135,12 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
       "chosenAnswer": chosenAnswer,
     };
 
-    return await sendRequest(
+    return await HttpBuildService.sendRequest(
       'POST',
       'api/user-answer/submit-answer',
       body: quizDetails,
-      token: globaltoken,
-      context: context,
+      token: true,
+      
     );
   }
 

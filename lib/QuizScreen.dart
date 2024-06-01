@@ -37,7 +37,7 @@ class _QuizScreenState extends State<QuizScreen> {
   Future<void> quizAl(String path) async {
     try {
       final response =
-          await sendRequest('GET', path, token: globaltoken, context: context);
+          await HttpBuildService.sendRequest('GET', path, token: true);
 
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       setState(() {
