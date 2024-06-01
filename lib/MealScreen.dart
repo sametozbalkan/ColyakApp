@@ -130,9 +130,13 @@ class _MealScreenState extends State<MealScreen> {
               child: foodListComplex.isEmpty
                   ? const Center(child: Text("Liste boş!"))
                   : ListView.builder(
-                      itemCount: foodListComplex.length,
+                      itemCount: foodListComplex.length * 2 - 1,
                       itemBuilder: (context, index) {
-                        FoodListComplex foodItem = foodListComplex[index];
+                        if (index.isOdd) {
+                          return const Divider(endIndent: 10, indent: 10);
+                        }
+                        int itemIndex = index ~/ 2;
+                        FoodListComplex foodItem = foodListComplex[itemIndex];
                         return ListTile(
                           title: Text(
                               "${foodItem.amount} x ${foodItem.type} ${foodItem.foodName!}"),

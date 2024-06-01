@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       routes: {
         '/loginscreen': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),

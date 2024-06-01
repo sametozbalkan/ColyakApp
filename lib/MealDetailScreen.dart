@@ -151,9 +151,6 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                 duration: Duration(seconds: 1),
               ),
             );
-            Future.delayed(const Duration(seconds: 1), () {
-              Navigator.of(context).pop();
-            });
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(

@@ -141,6 +141,9 @@ class HttpBuildService {
 
   static Future<String> postRefreshToken() async {
     refreshToken = (await getStoredToken('refresh_token')) ?? '';
+    if (refreshToken.isEmpty) {
+      throw Exception("Refresh token is null or empty.");
+    }
     final refTokenDetails = {'refreshToken': refreshToken};
 
     try {
@@ -155,7 +158,12 @@ class HttpBuildService {
         await saveTokensToPrefs(globaltoken, refreshToken, userName);
         return globaltoken;
       } else if (postRefreshTokenResponse.statusCode == 602) {
-        await showSessionExpiredDialog(navigatorKey.currentContext!);
+        final context = navigatorKey.currentContext;
+        if (context != null) {
+          await showSessionExpiredDialog(context);
+        } else {
+          throw Exception("Navigator context is null.");
+        }
         return "";
       } else {
         print(
