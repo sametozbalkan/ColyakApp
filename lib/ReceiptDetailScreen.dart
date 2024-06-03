@@ -88,7 +88,8 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
   Future<void> updateComment(int commentId, String comment) async {
     try {
-      final response = await HttpBuildService.sendRequest('PUT', "api/comments/$commentId",
+      final response = await HttpBuildService.sendRequest(
+          'PUT', "api/comments/$commentId",
           body: comment, token: true);
 
       if (response.statusCode == 204) {
@@ -116,7 +117,8 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
   Future<void> deleteComment(int commentId, String path) async {
     try {
-      final response = await HttpBuildService.sendRequest('DELETE', path + commentId.toString(),
+      final response = await HttpBuildService.sendRequest(
+          'DELETE', path + commentId.toString(),
           token: true);
 
       if (response.statusCode == 204) {
@@ -447,7 +449,8 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                   Positioned(
                                     bottom: 8,
                                     right: 8,
-                                    child: commentResponse.userName == HttpBuildService.userName
+                                    child: commentResponse.userName ==
+                                            HttpBuildService.userName
                                         ? PopupMenuButton<String>(
                                             icon: const Icon(Icons.more_vert),
                                             onSelected: (String result) async {
@@ -467,11 +470,27 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                                     <PopupMenuEntry<String>>[
                                               const PopupMenuItem<String>(
                                                 value: 'update',
-                                                child: Text('Güncelle'),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(Icons.edit),
+                                                    SizedBox(width: 5),
+                                                    Text('Güncelle'),
+                                                  ],
+                                                ),
                                               ),
                                               const PopupMenuItem<String>(
                                                 value: 'delete',
-                                                child: Text('Sil'),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(Icons.delete),
+                                                    SizedBox(width: 5),
+                                                    Text('Sil'),
+                                                  ],
+                                                ),
                                               ),
                                             ],
                                           )

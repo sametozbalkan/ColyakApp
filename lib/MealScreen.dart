@@ -137,29 +137,56 @@ class _MealScreenState extends State<MealScreen> {
                         }
                         int itemIndex = index ~/ 2;
                         FoodListComplex foodItem = foodListComplex[itemIndex];
-                        return ListTile(
-                          title: Text(
-                              "${foodItem.amount} x ${foodItem.type} ${foodItem.foodName!}"),
-                          subtitle: Text(
-                              'Karbonhidrat: ${foodItem.carbonhydrate?.toStringAsFixed(2)} gram'),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.remove),
-                                onPressed: () {
-                                  if (foodItem.amount! >= 1) {
-                                    _updateCarb(foodItem, -1);
-                                  }
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.add),
-                                onPressed: () {
-                                  _updateCarb(foodItem, 1);
-                                },
-                              ),
-                            ],
+                        return Dismissible(
+                          key: UniqueKey(),
+                          onDismissed: (direction) {
+                            setState(() {
+                              foodListComplex.removeAt(itemIndex);
+                              bolusFoodList.removeWhere((element) =>
+                                  element.foodId == foodItem.foodId && element.carbonhydrate == foodItem.carbonhydrate);
+                              carbHesapla();
+                              karbonhidratMiktariController.text =
+                                  totalCarb.toStringAsFixed(2);
+                            });
+                          },
+                          background: Container(
+                            color: Colors.red,
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child:
+                                const Icon(Icons.delete, color: Colors.white),
+                          ),
+                          secondaryBackground: Container(
+                            color: Colors.red,
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child:
+                                const Icon(Icons.delete, color: Colors.white),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                                "${foodItem.amount} x ${foodItem.type} ${foodItem.foodName!}"),
+                            subtitle: Text(
+                                'Karbonhidrat: ${foodItem.carbonhydrate?.toStringAsFixed(2)} gram'),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove),
+                                  onPressed: () {
+                                    if (foodItem.amount! >= 1) {
+                                      _updateCarb(foodItem, -1);
+                                    }
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: () {
+                                    _updateCarb(foodItem, 1);
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },

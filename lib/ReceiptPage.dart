@@ -3,12 +3,11 @@ import 'dart:typed_data';
 import 'package:colyakapp/AddMealScreen.dart';
 import 'package:colyakapp/BarcodeJson.dart';
 import 'package:colyakapp/ReceiptJson.dart';
+import 'package:colyakapp/Shimmer.dart';
 import 'package:flutter/material.dart';
 import 'ReceiptDetailScreen.dart';
 import 'HttpBuild.dart';
 import 'package:http/http.dart' as http;
-
-List<ReceiptJson> favoriler = [];
 
 class ReceiptPage extends StatefulWidget {
   const ReceiptPage({super.key});
@@ -18,24 +17,24 @@ class ReceiptPage extends StatefulWidget {
 }
 
 class _ReceiptPageState extends State<ReceiptPage> {
+  List<ReceiptJson> favoriler = [];
   List<ReceiptJson> receipts = [];
   Map<String, Uint8List?> imageBytesMap = {};
   List<ReceiptJson> filteredReceipts = [];
   List<ReceiptJson> filteredFavorites = [];
-  ScrollController _scrollController = ScrollController();
+  ScrollController scrollController = ScrollController();
   int _loadedItemCount = 8;
-  int _loadedImageCount = 8;
 
   @override
   void initState() {
     super.initState();
     initializeData();
-    _scrollController.addListener(_onScroll);
+    scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -53,8 +52,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
       _loadMore();
     }
   }
@@ -62,7 +61,6 @@ class _ReceiptPageState extends State<ReceiptPage> {
   void _loadMore() {
     setState(() {
       _loadedItemCount += 8;
-      _loadedImageCount += 8;
     });
     _loadImageBytes();
   }
@@ -79,7 +77,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   Future<void> _fetchReceipts() async {
-    var response = await HttpBuildService.sendRequest("GET", "api/receipts/getAll/all",
+    var response = await HttpBuildService.sendRequest(
+        "GET", "api/receipts/getAll/all",
         token: true);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     if (mounted) {
@@ -92,7 +91,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   Future<void> _fetchFavorites() async {
-    var response = await HttpBuildService.sendRequest("GET", "api/likes/favoriteList",
+    var response = await HttpBuildService.sendRequest(
+        "GET", "api/likes/favoriteList",
         token: true);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     if (mounted) {
@@ -105,7 +105,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
 
   Future<void> _loadImageBytes() async {
     List<Future<void>> futures = [];
-    for (int i = 0; i < _loadedImageCount && i < filteredReceipts.length; i++) {
+    for (int i = 0; i < _loadedItemCount && i < filteredReceipts.length; i++) {
       ReceiptJson receipt = filteredReceipts[i];
       int imageId = receipt.imageId ?? 0;
       String imageUrl =
@@ -166,7 +166,9 @@ class _ReceiptPageState extends State<ReceiptPage> {
                           .toLowerCase()
                           .contains(value.toLowerCase());
                     }).toList();
+                    _loadedItemCount = 8;
                   });
+                  _loadImageBytes();
                 },
               ),
             ),
@@ -183,11 +185,17 @@ class _ReceiptPageState extends State<ReceiptPage> {
               child: TabBarView(
                 children: <Widget>[
                   RefreshIndicator(
-                    onRefresh: _refreshData,
+                    onRefresh: () async {
+                      searchController.clear();
+                      await _refreshData();
+                    },
                     child: _buildGridView(filteredReceipts),
                   ),
                   RefreshIndicator(
-                    onRefresh: _refreshData,
+                    onRefresh: () async {
+                      searchController.clear();
+                      await _refreshData();
+                    },
                     child: _buildGridView(filteredFavorites),
                   ),
                 ],
@@ -230,7 +238,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
 
   Widget _buildGridView(List<ReceiptJson> receipts) {
     return GridView.builder(
-      controller: _scrollController,
+      controller: scrollController,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, childAspectRatio: 0.91),
       itemCount: receipts.length < _loadedItemCount
@@ -283,7 +291,13 @@ class _ReceiptPageState extends State<ReceiptPage> {
                             height: double.infinity,
                             fit: BoxFit.fitWidth,
                           )
-                        : const Center(child: CircularProgressIndicator()),
+                        : Shimmer(
+                          child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            color: Colors.grey.shade300,
+                          ),
+                        ),
                   ),
                   Positioned(
                     top: -1,

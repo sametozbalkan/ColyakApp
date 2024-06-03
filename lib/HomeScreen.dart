@@ -8,6 +8,7 @@ import 'package:colyakapp/QuizScreen.dart';
 import 'package:colyakapp/ReceiptDetailScreen.dart';
 import 'package:colyakapp/ReceiptJson.dart';
 import 'package:colyakapp/SettingsScreen.dart';
+import 'package:colyakapp/Shimmer.dart';
 import 'package:colyakapp/Suggestion.dart';
 import 'package:colyakapp/UserGuides.dart';
 import 'package:flutter/material.dart';
@@ -25,17 +26,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
-  bool _showLeftArrow = false;
-  bool _showRightArrow = false;
   List<ReceiptJson> receipts = [];
   Map<String, Uint8List?> imageBytesMap = {};
-  bool _imagesLoaded = false;
   String barcodeScanRes = "";
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_scrollListener);
     initializeData();
   }
 
@@ -43,14 +40,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void _scrollListener() {
-    setState(() {
-      _showLeftArrow = _scrollController.offset > 0;
-      _showRightArrow =
-          _scrollController.offset < _scrollController.position.maxScrollExtent;
-    });
   }
 
   Future<void> initializeData() async {
@@ -63,7 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _top5receipts() async {
-    var response = await HttpBuildService.sendRequest("GET", "api/meals/report/top5receipts",
+    var response = await HttpBuildService.sendRequest(
+        "GET", "api/meals/report/top5receipts",
         token: true);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     if (mounted) {
@@ -81,13 +71,13 @@ class _HomeScreenState extends State<HomeScreen> {
     } on PlatformException {
       barcodeScanRes = "Failed to get platform version.";
     }
-    print(barcodeScanRes);
     return barcodeScanRes;
   }
 
   Future<void> barkodGonder(BuildContext context, String barcode) async {
     try {
-      final response = await HttpBuildService.sendRequest('GET', 'api/barcodes/code/$barcode',
+      final response = await HttpBuildService.sendRequest(
+          'GET', 'api/barcodes/code/$barcode',
           token: true);
       if (response.statusCode == 200) {
         BarcodeJson veri =
@@ -252,11 +242,6 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
     }
-    if (mounted) {
-      setState(() {
-        _imagesLoaded = true;
-      });
-    }
   }
 
   Widget _buildReceiptCard(ReceiptJson receipt) {
@@ -288,6 +273,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.fitWidth,
+                  ),
+                ),
+              )
+            else
+              Expanded(
+                flex: 7,
+                child: Shimmer(
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.grey.shade300,
                   ),
                 ),
               ),
@@ -429,37 +425,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height / 3.7,
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: _imagesLoaded
-                              ? GridView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 1),
-                                  controller: _scrollController,
-                                  itemCount: receipts.length,
-                                  itemBuilder: (context, index) {
-                                    return _buildReceiptCard(receipts[index]);
-                                  },
-                                )
-                              : const Center(
-                                  child: CircularProgressIndicator()),
-                        ),
-                        Positioned(
-                            left: 0,
-                            top: 0,
-                            bottom: 0,
-                            child: _buildArrowButton(
-                                Icons.arrow_back, _showLeftArrow, -1)),
-                        Positioned(
-                            right: 0,
-                            top: 0,
-                            bottom: 0,
-                            child: _buildArrowButton(
-                                Icons.arrow_forward, _showRightArrow, 1)),
-                      ],
+                    child: GridView.builder(
+                      scrollDirection: Axis.horizontal,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 1),
+                      controller: _scrollController,
+                      itemCount: receipts.length,
+                      itemBuilder: (context, index) {
+                        return _buildReceiptCard(receipts[index]);
+                      },
                     ),
                   ),
                 ],
@@ -589,7 +564,6 @@ class _HomeScreenState extends State<HomeScreen> {
         'api/suggestions/add',
         body: suggestionDetails,
         token: true,
-        
       );
 
       if (response.statusCode == 200) {
