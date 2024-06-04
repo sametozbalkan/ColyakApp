@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
               surfaceTintColor: Colors.white,
               color: Colors.white,
               titleTextStyle: TextStyle(
-                  color: Colors.black, fontSize: 22, fontFamily: "Poppins"),
+                  color: Colors.black, fontSize: 22, fontFamily: "Urbanist"),
               centerTitle: true),
           fontFamily: "Poppins",
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF7A37))

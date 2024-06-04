@@ -250,11 +250,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(
+        if (imageBytesMap.containsKey(imageUrl)) {
+          Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ReceiptDetailScreen(
-                    receipt: receipt, imageBytes: imageBytesMap[imageUrl]!)));
+              builder: (context) => ReceiptDetailScreen(
+                receipt: receipt,
+                imageBytes: imageBytesMap[imageUrl]!,
+              ),
+            ),
+          );
+        }
       },
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

@@ -46,10 +46,10 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
               data.map((json) => CommentReplyJson.fromJson(json)).toList();
         });
       } else {
-        print(response.statusCode);
+        debugPrint('Error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching comments: $e');
+      debugPrint('Error fetching comments: $e');
     }
   }
 
@@ -65,24 +65,14 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
       if (response.statusCode == 201) {
         await initializeData();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Yorum eklendi!'),
-            duration: Duration(seconds: 1),
-          ),
-        );
+        showSnackBar('Yorum eklendi!');
         commentController.clear();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Yorum eklenirken hata: ${response.statusCode}'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-        print(response.statusCode);
+        showSnackBar('Yorum eklenirken hata: ${response.statusCode}');
+        debugPrint('Error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error adding comment: $e');
+      debugPrint('Error adding comment: $e');
     }
   }
 
@@ -94,24 +84,14 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
       if (response.statusCode == 204) {
         await initializeData();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Yorum güncellendi!'),
-            duration: Duration(seconds: 1),
-          ),
-        );
+        showSnackBar('Yorum güncellendi!');
         commentController.clear();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Yorum güncellenirken hata: ${response.statusCode}'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-        print(response.statusCode);
+        showSnackBar('Yorum güncellenirken hata: ${response.statusCode}');
+        debugPrint('Error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error updating comment: $e');
+      debugPrint('Error updating comment: $e');
     }
   }
 
@@ -123,24 +103,23 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
       if (response.statusCode == 204) {
         initializeData();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Yorum silindi!'),
-            duration: Duration(seconds: 1),
-          ),
-        );
+        showSnackBar('Yorum silindi!');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Yorum silinirken hata: ${response.statusCode}'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-        print(response.statusCode);
+        showSnackBar('Yorum silinirken hata: ${response.statusCode}');
+        debugPrint('Error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error deleting comment: $e');
+      debugPrint('Error deleting comment: $e');
     }
+  }
+
+  void showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 1),
+      ),
+    );
   }
 
   Future<void> confirmDeleteComment(int commentId, String path) async {
@@ -214,298 +193,335 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
               aspectRatio: 4 / 3,
               child: Image.memory(widget.imageBytes, fit: BoxFit.fitWidth),
             ),
-            const TabBar(
-              indicatorColor: Color(0xFFFF7A37),
-              labelColor: Color(0xFFFF7A37),
-              unselectedLabelColor: Colors.black,
-              tabs: [
-                Tab(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      "Malzeme\nListesi",
-                      textAlign: TextAlign.center,
+            Container(
+              decoration: const BoxDecoration(color: Color(0xFFFFF1EC)),
+              child: const TabBar(
+                indicatorColor: Color(0xFFFF7A37),
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelColor: Colors.black,
+                unselectedLabelColor: Colors.black,
+                tabs: [
+                  Tab(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Malzeme\nListesi",
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                ),
-                Tab(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      "Tarif\nDetayları",
-                      textAlign: TextAlign.center,
+                  Tab(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Tarif\nDetayları",
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                ),
-                Tab(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      "Besin\nDeğerleri",
-                      textAlign: TextAlign.center,
+                  Tab(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Besin\nDeğerleri",
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                ),
-                Tab(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      "Yorumlar",
-                      textAlign: TextAlign.center,
+                  Tab(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Yorumlar",
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             Expanded(
               child: TabBarView(
                 children: <Widget>[
-                  ListView.builder(
-                    itemCount: widget.receipt.receiptItems!.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                  "${widget.receipt.receiptItems![index].productName}"),
-                            ),
-                            Text(
-                                "${widget.receipt.receiptItems![index].unit! % 1 == 0 ? widget.receipt.receiptItems![index].unit!.toInt().toString() : widget.receipt.receiptItems![index].unit!.toStringAsFixed(1)} ${widget.receipt.receiptItems![index].type}")
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  ListView.builder(
-                    itemCount: widget.receipt.receiptDetails!.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(
-                            "${index + 1}- ${widget.receipt.receiptDetails![index]}."),
-                      );
-                    },
-                  ),
-                  ListView.builder(
-                    itemCount: widget.receipt.nutritionalValuesList?.length,
-                    itemBuilder: (context, index) {
-                      final nutritionalValue =
-                          widget.receipt.nutritionalValuesList![index];
-                      return Card(
-                        child: ListTile(
-                          title: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(nutritionalValue.type ?? ""),
-                                ],
-                              ),
-                              const Divider(),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text("Kalori (kcal):"),
-                                  Text(nutritionalValue.calorieAmount
-                                      .toString()),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text("Karbonhidrat (g):"),
-                                  Text(nutritionalValue.carbohydrateAmount
-                                      .toString()),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text("Protein (g):"),
-                                  Text(nutritionalValue.proteinAmount
-                                      .toString()),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text("Yağ (g):"),
-                                  Text(nutritionalValue.fatAmount.toString()),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  Scaffold(
-                      floatingActionButton: FloatingActionButton(
-                        onPressed: () {
-                          showModal(false);
-                        },
-                        child: const Icon(Icons.add),
-                      ),
-                      body: ListView.builder(
-                        itemCount: commentReply.length,
-                        itemBuilder: (context, index) {
-                          final commentResponse =
-                              commentReply[index].commentResponse;
-                          final replyResponses =
-                              commentReply[index].replyResponses;
-                          final replyCount = replyResponses?.length ?? 0;
-
-                          return Card(
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ReplyCommentScreen(
-                                      replies:
-                                          commentReply[index].replyResponses!,
-                                      commentId: commentResponse.commentId!,
-                                      comment: commentResponse.comment == null
-                                          ? "null"
-                                          : commentResponse.comment!,
-                                      commentUser: commentResponse.userName!,
-                                      createdTime: commentResponse.createdDate!,
-                                    ),
-                                  ),
-                                ).then((value) => setState(() {
-                                      initializeData();
-                                    }));
-                              },
-                              child: Stack(
-                                children: [
-                                  Column(
-                                    children: [
-                                      ListTile(
-                                        title: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    commentResponse!.userName
-                                                        .toString(),
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Text(
-                                                  timeSince(DateTime.parse(
-                                                      commentResponse
-                                                          .createdDate!)),
-                                                ),
-                                              ],
-                                            ),
-                                            const Divider(),
-                                            Row(
-                                              children: [
-                                                Flexible(
-                                                  child: Text(
-                                                    commentResponse.comment
-                                                        .toString(),
-                                                    softWrap: true,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 10),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              replyCount > 0
-                                                  ? 'Yanıtlar: $replyCount'
-                                                  : "Yanıt Yok",
-                                              style: const TextStyle(
-                                                  color: Colors.black54),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Positioned(
-                                    bottom: 8,
-                                    right: 8,
-                                    child: commentResponse.userName ==
-                                            HttpBuildService.userName
-                                        ? PopupMenuButton<String>(
-                                            icon: const Icon(Icons.more_vert),
-                                            onSelected: (String result) async {
-                                              if (result == 'delete') {
-                                                await confirmDeleteComment(
-                                                  commentResponse.commentId!,
-                                                  "api/comments/",
-                                                );
-                                              } else if (result == 'update') {
-                                                showModal(true,
-                                                    commentResponse:
-                                                        commentResponse);
-                                              }
-                                            },
-                                            itemBuilder:
-                                                (BuildContext context) =>
-                                                    <PopupMenuEntry<String>>[
-                                              const PopupMenuItem<String>(
-                                                value: 'update',
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Icon(Icons.edit),
-                                                    SizedBox(width: 5),
-                                                    Text('Güncelle'),
-                                                  ],
-                                                ),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: 'delete',
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Icon(Icons.delete),
-                                                    SizedBox(width: 5),
-                                                    Text('Sil'),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        : Container(),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      )),
+                  _buildMaterialList(),
+                  _buildRecipeDetails(),
+                  _buildNutritionalValues(),
+                  _buildComments(),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMaterialList() {
+    return ListView.builder(
+      itemCount: widget.receipt.receiptItems!.length,
+      itemBuilder: (context, index) {
+        var product = widget.receipt.receiptItems![index];
+        return ListTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text("${product.productName}"),
+              ),
+              Text(
+                  "${product.unit! % 1 == 0 ? product.unit!.toInt().toString() : product.unit!.toStringAsFixed(1)} ${product.type}")
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRecipeDetails() {
+    return ListView.builder(
+      itemCount: widget.receipt.receiptDetails!.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title:
+              Text("${index + 1}- ${widget.receipt.receiptDetails![index]}."),
+        );
+      },
+    );
+  }
+
+  Widget _buildNutritionalValues() {
+    return ListView.builder(
+      itemCount: widget.receipt.nutritionalValuesList?.length,
+      itemBuilder: (context, index) {
+        final nutritionalValue = widget.receipt.nutritionalValuesList![index];
+        return Card(
+          child: ListTile(
+            title: Column(
+              children: [
+                Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: const Color(0xFFFFF1EC),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 4,
+                          height: 30,
+                          decoration: const BoxDecoration(
+                              color: Color(0xFFFF7A37),
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(15),
+                                  bottomRight: Radius.circular(15))),
+                        ),
+                        Text(
+                          nutritionalValue.type ?? "",
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        Container(
+                          width: 4,
+                          height: 30,
+                          decoration: const BoxDecoration(
+                              color: Color(0xFFFF7A37),
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(15),
+                                  bottomLeft: Radius.circular(15))),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Kalori (kcal):"),
+                    Text(nutritionalValue.calorieAmount.toString()),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Karbonhidrat (g):"),
+                    Text(nutritionalValue.carbohydrateAmount.toString()),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Protein (g):"),
+                    Text(nutritionalValue.proteinAmount.toString()),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Yağ (g):"),
+                    Text(nutritionalValue.fatAmount.toString()),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildComments() {
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModal(false);
+        },
+        child: const Icon(Icons.add),
+      ),
+      body: RefreshIndicator(
+        onRefresh: initializeData,
+        child: ListView.builder(
+          itemCount: commentReply.length,
+          itemBuilder: (context, index) {
+            final commentResponse = commentReply[index].commentResponse;
+            final replyResponses = commentReply[index].replyResponses;
+            final replyCount = replyResponses?.length ?? 0;
+
+            return Card(
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReplyCommentScreen(
+                        replies: commentReply[index].replyResponses!,
+                        commentId: commentResponse.commentId!,
+                        comment: commentResponse.comment ?? "null",
+                        commentUser: commentResponse.userName!,
+                        createdTime: commentResponse.createdDate!,
+                      ),
+                    ),
+                  ).then((value) => setState(() {
+                        initializeData();
+                      }));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 5, bottom: 5),
+                  child: Stack(
+                    children: [
+                      Column(
+                        children: [
+                          ListTile(
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        commentResponse!.userName.toString(),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      timeSince(DateTime.parse(
+                                          commentResponse.createdDate!)),
+                                    ),
+                                  ],
+                                ),
+                                const Divider(),
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        commentResponse.comment.toString(),
+                                        softWrap: true,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  replyCount > 0
+                                      ? 'Yanıtlar: $replyCount'
+                                      : "Yanıt Yok",
+                                  style: const TextStyle(color: Colors.black54),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: commentResponse.userName ==
+                                HttpBuildService.userName
+                            ? PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert),
+                                onSelected: (String result) async {
+                                  if (result == 'delete') {
+                                    await confirmDeleteComment(
+                                      commentResponse.commentId!,
+                                      "api/comments/",
+                                    );
+                                  } else if (result == 'update') {
+                                    showModal(true,
+                                        commentResponse: commentResponse);
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) =>
+                                    <PopupMenuEntry<String>>[
+                                  const PopupMenuItem<String>(
+                                    value: 'update',
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.edit),
+                                        SizedBox(width: 5),
+                                        Text('Güncelle'),
+                                      ],
+                                    ),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'delete',
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.delete),
+                                        SizedBox(width: 5),
+                                        Text('Sil'),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Container(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -530,8 +546,18 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(title),
-              const SizedBox(height: 10),
+              Container(
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                child: Text(title, style: const TextStyle(fontSize: 18)),
+              ),
               const Divider(),
               TextField(
                 maxLines: null,

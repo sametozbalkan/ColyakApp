@@ -139,6 +139,7 @@ class _MealScreenState extends State<MealScreen> {
                         FoodListComplex foodItem = foodListComplex[itemIndex];
                         return Dismissible(
                           key: UniqueKey(),
+                          direction: DismissDirection.startToEnd,
                           onDismissed: (direction) {
                             setState(() {
                               foodListComplex.removeAt(itemIndex);

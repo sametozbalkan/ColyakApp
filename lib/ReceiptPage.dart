@@ -23,18 +23,22 @@ class _ReceiptPageState extends State<ReceiptPage> {
   List<ReceiptJson> filteredReceipts = [];
   List<ReceiptJson> filteredFavorites = [];
   ScrollController scrollController = ScrollController();
+  ScrollController favoritesScrollController = ScrollController();
   int _loadedItemCount = 8;
+  int _loadedFavoritesItemCount = 8;
 
   @override
   void initState() {
     super.initState();
     initializeData();
     scrollController.addListener(_onScroll);
+    favoritesScrollController.addListener(_onFavoritesScroll);
   }
 
   @override
   void dispose() {
     scrollController.dispose();
+    favoritesScrollController.dispose();
     super.dispose();
   }
 
@@ -45,16 +49,24 @@ class _ReceiptPageState extends State<ReceiptPage> {
         _barkodlariAl(),
         _fetchFavorites(),
       ]);
-      await _loadImageBytes();
+      await _loadImageBytes(filteredReceipts, _loadedItemCount);
+      await _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
     } catch (e) {
       print("Critical error posting refresh token: $e");
     }
   }
 
   void _onScroll() {
-    if (scrollController.position.pixels ==
-        scrollController.position.maxScrollExtent) {
+    if (scrollController.position.pixels >=
+        scrollController.position.maxScrollExtent - 200) {
       _loadMore();
+    }
+  }
+
+  void _onFavoritesScroll() {
+    if (favoritesScrollController.position.pixels >=
+        favoritesScrollController.position.maxScrollExtent - 200) {
+      _loadMoreFavorites();
     }
   }
 
@@ -62,7 +74,14 @@ class _ReceiptPageState extends State<ReceiptPage> {
     setState(() {
       _loadedItemCount += 8;
     });
-    _loadImageBytes();
+    _loadImageBytes(filteredReceipts, _loadedItemCount);
+  }
+
+  void _loadMoreFavorites() {
+    setState(() {
+      _loadedFavoritesItemCount += 8;
+    });
+    _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
   }
 
   Future<void> _barkodlariAl() async {
@@ -103,10 +122,11 @@ class _ReceiptPageState extends State<ReceiptPage> {
     }
   }
 
-  Future<void> _loadImageBytes() async {
+  Future<void> _loadImageBytes(
+      List<ReceiptJson> receipts, int itemCount) async {
     List<Future<void>> futures = [];
-    for (int i = 0; i < _loadedItemCount && i < filteredReceipts.length; i++) {
-      ReceiptJson receipt = filteredReceipts[i];
+    for (int i = 0; i < itemCount && i < receipts.length; i++) {
+      ReceiptJson receipt = receipts[i];
       int imageId = receipt.imageId ?? 0;
       String imageUrl =
           "https://api.colyakdiyabet.com.tr/api/image/get/$imageId";
@@ -167,19 +187,25 @@ class _ReceiptPageState extends State<ReceiptPage> {
                           .contains(value.toLowerCase());
                     }).toList();
                     _loadedItemCount = 8;
+                    _loadedFavoritesItemCount = 8;
                   });
-                  _loadImageBytes();
+                  _loadImageBytes(filteredReceipts, _loadedItemCount);
+                  _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
                 },
               ),
             ),
-            const TabBar(
-              indicatorColor: Color(0xFFFF7A37),
-              labelColor: Color(0xFFFF7A37),
-              unselectedLabelColor: Colors.black,
-              tabs: [
-                Tab(text: 'Tarifler'),
-                Tab(text: 'Favorilerim'),
-              ],
+            Container(
+              decoration: const BoxDecoration(color: Color(0xFFFFF1EC)),
+              child: const TabBar(
+                indicatorColor: Color(0xFFFF7A37),
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelColor: Colors.black,
+                unselectedLabelColor: Colors.black,
+                tabs: [
+                  Tab(text: 'Tarifler'),
+                  Tab(text: 'Favorilerim'),
+                ],
+              ),
             ),
             Expanded(
               child: TabBarView(
@@ -189,14 +215,15 @@ class _ReceiptPageState extends State<ReceiptPage> {
                       searchController.clear();
                       await _refreshData();
                     },
-                    child: _buildGridView(filteredReceipts),
+                    child: _buildGridView(filteredReceipts, scrollController),
                   ),
                   RefreshIndicator(
                     onRefresh: () async {
                       searchController.clear();
                       await _refreshData();
                     },
-                    child: _buildGridView(filteredFavorites),
+                    child: _buildGridView(
+                        filteredFavorites, favoritesScrollController),
                   ),
                 ],
               ),
@@ -236,9 +263,10 @@ class _ReceiptPageState extends State<ReceiptPage> {
     }
   }
 
-  Widget _buildGridView(List<ReceiptJson> receipts) {
+  Widget _buildGridView(
+      List<ReceiptJson> receipts, ScrollController controller) {
     return GridView.builder(
-      controller: scrollController,
+      controller: controller,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, childAspectRatio: 0.91),
       itemCount: receipts.length < _loadedItemCount
@@ -292,12 +320,12 @@ class _ReceiptPageState extends State<ReceiptPage> {
                             fit: BoxFit.fitWidth,
                           )
                         : Shimmer(
-                          child: Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            color: Colors.grey.shade300,
+                            child: Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              color: Colors.grey.shade300,
+                            ),
                           ),
-                        ),
                   ),
                   Positioned(
                     top: -1,
