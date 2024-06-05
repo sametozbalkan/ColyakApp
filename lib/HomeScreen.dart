@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:colyakapp/BarcodeJson.dart';
 import 'package:colyakapp/BarcodeScanResult.dart';
 import 'package:colyakapp/BolusReportScreen.dart';
+import 'package:colyakapp/CacheManager.dart';
 import 'package:colyakapp/HttpBuild.dart';
 import 'package:colyakapp/MealScreen.dart';
 import 'package:colyakapp/QuizScreen.dart';
@@ -15,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -242,15 +242,11 @@ class _HomeScreenState extends State<HomeScreen> {
     for (ReceiptJson receipt in receipts) {
       String imageUrl =
           "https://api.colyakdiyabet.com.tr/api/image/get/${receipt.imageId}";
-      if (!imageBytesMap.containsKey(imageUrl)) {
-        var response = await http.get(Uri.parse(imageUrl));
-        if (response.statusCode == 200 && mounted) {
-          setState(() {
-            imageBytesMap[imageUrl] = response.bodyBytes;
-          });
-        } else {
-          print('Failed to load image. Status code: ${response.statusCode}');
-        }
+      Uint8List? imageBytes = await CacheManager().getImageBytes(imageUrl);
+      if (imageBytes != null) {
+        setState(() {
+          imageBytesMap[imageUrl] = imageBytes;
+        });
       }
     }
   }
@@ -267,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(
               builder: (context) => ReceiptDetailScreen(
                 receipt: receipt,
-                imageBytes: imageBytesMap[imageUrl]!,
+                imageUrl: imageUrl,
               ),
             ),
           );

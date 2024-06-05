@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:colyakapp/AddMealScreen.dart';
 import 'package:colyakapp/BarcodeJson.dart';
-import 'package:colyakapp/ReceiptJson.dart';
-import 'package:colyakapp/Shimmer.dart';
+import 'package:colyakapp/CacheManager.dart';
 import 'package:flutter/material.dart';
-import 'ReceiptDetailScreen.dart';
 import 'HttpBuild.dart';
-import 'package:http/http.dart' as http;
+import 'ReceiptDetailScreen.dart';
+import 'ReceiptJson.dart';
+import 'Shimmer.dart';
 
 class ReceiptPage extends StatefulWidget {
   const ReceiptPage({super.key});
@@ -26,6 +27,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
   ScrollController favoritesScrollController = ScrollController();
   int _loadedItemCount = 8;
   int _loadedFavoritesItemCount = 8;
+  Set<String> loadedImages = {};
 
   @override
   void initState() {
@@ -43,48 +45,10 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   Future<void> initializeData() async {
-    try {
-      await Future.wait([
-        _fetchReceipts(),
-        _barkodlariAl(),
-        _fetchFavorites(),
-      ]);
-      await _loadImageBytes(filteredReceipts, _loadedItemCount);
-      await _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
-    } catch (e) {
-      print("Critical error posting refresh token: $e");
-    }
-  }
-
-  void _onScroll() {
-    if (scrollController.position.pixels >=
-        scrollController.position.maxScrollExtent - 200) {
-      setState(() {
-        _loadedItemCount += 8;
-      });
-      _loadImageBytes(filteredReceipts, _loadedItemCount);
-    }
-  }
-
-  void _onFavoritesScroll() {
-    if (favoritesScrollController.position.pixels >=
-        favoritesScrollController.position.maxScrollExtent - 200) {
-      setState(() {
-        _loadedFavoritesItemCount += 8;
-      });
-      _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
-    }
-  }
-
-  Future<void> _barkodlariAl() async {
-    var response = await HttpBuildService.sendRequest("GET", "api/barcodes/all",
-        token: true);
-    List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-    if (mounted) {
-      setState(() {
-        barcodesMeal = data.map((json) => BarcodeJson.fromJson(json)).toList();
-      });
-    }
+    await Future.wait([_fetchReceipts(), _fetchFavorites(), _fetchBarcodes()]);
+    _loadCachedImages();
+    _loadImagesInBackground(filteredReceipts, _loadedItemCount);
+    _loadImagesInBackground(filteredFavorites, _loadedFavoritesItemCount);
   }
 
   Future<void> _fetchReceipts() async {
@@ -92,13 +56,20 @@ class _ReceiptPageState extends State<ReceiptPage> {
         "GET", "api/receipts/getAll/all",
         token: true);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-    if (mounted) {
-      setState(() {
-        receipts = data.map((json) => ReceiptJson.fromJson(json)).toList();
-        receiptsMeal = receipts;
-        filteredReceipts = receipts;
-      });
-    }
+    setState(() {
+      receipts = data.map((json) => ReceiptJson.fromJson(json)).toList();
+      filteredReceipts = receipts;
+      receiptsMeal = receipts;
+    });
+  }
+
+  Future<void> _fetchBarcodes() async {
+    var response = await HttpBuildService.sendRequest("GET", "api/barcodes/all",
+        token: true);
+    List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+    setState(() {
+      barcodesMeal = data.map((json) => BarcodeJson.fromJson(json)).toList();
+    });
   }
 
   Future<void> _fetchFavorites() async {
@@ -106,53 +77,68 @@ class _ReceiptPageState extends State<ReceiptPage> {
         "GET", "api/likes/favoriteList",
         token: true);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-    if (mounted) {
+    setState(() {
+      favoriler = data.map((json) => ReceiptJson.fromJson(json)).toList();
+      filteredFavorites = favoriler;
+    });
+  }
+
+  Future<void> _onScroll() async {
+    if (scrollController.position.pixels >=
+        scrollController.position.maxScrollExtent - 200) {
       setState(() {
-        favoriler = data.map((json) => ReceiptJson.fromJson(json)).toList();
-        filteredFavorites = favoriler;
+        _loadedItemCount += 8;
+      });
+      await _loadImagesInBackground(filteredReceipts, _loadedItemCount);
+    }
+  }
+
+  Future<void> _onFavoritesScroll() async {
+    if (favoritesScrollController.position.pixels >=
+        favoritesScrollController.position.maxScrollExtent - 200) {
+      setState(() {
+        _loadedFavoritesItemCount += 8;
+      });
+      await _loadImagesInBackground(
+          filteredFavorites, _loadedFavoritesItemCount);
+    }
+  }
+
+  Future<void> _loadCachedImages() async {
+    for (ReceiptJson receipt in filteredReceipts + filteredFavorites) {
+      String imageUrl =
+          "https://api.colyakdiyabet.com.tr/api/image/get/${receipt.imageId}";
+      Uint8List? imageBytes = await CacheManager().getImageBytes(imageUrl);
+      if (imageBytes != null) {
+        imageBytesMap[imageUrl] = imageBytes;
+        loadedImages.add(imageUrl);
+      }
+    }
+  }
+
+  Future<void> _fetchImage(String imageUrl) async {
+    Uint8List? imageBytes = await CacheManager().getImageBytes(imageUrl);
+    if (imageBytes != null) {
+      setState(() {
+        imageBytesMap[imageUrl] = imageBytes;
+        loadedImages.add(imageUrl);
       });
     }
   }
 
-  Future<void> _loadImageBytes(
+  Future<void> _loadImagesInBackground(
       List<ReceiptJson> receipts, int itemCount) async {
-    List<Future<void>> futures = [];
-    for (int i = 0; i < itemCount && i < receipts.length; i++) {
-      ReceiptJson receipt = receipts[i];
-      int imageId = receipt.imageId ?? 0;
-      String imageUrl =
-          "https://api.colyakdiyabet.com.tr/api/image/get/$imageId";
-
-      if (!imageBytesMap.containsKey(imageUrl) ||
-          imageBytesMap[imageUrl] == null) {
-        futures.add(_fetchImage(imageUrl));
-      }
-    }
-    await Future.wait(futures);
-  }
-
-  Future<void> _fetchImage(String imageUrl) async {
-    try {
-      var response = await http.get(Uri.parse(imageUrl));
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            imageBytesMap[imageUrl] = response.bodyBytes;
-          });
+    await Future.delayed(const Duration(milliseconds: 100), () async {
+      for (int i = 0; i < itemCount && i < receipts.length; i++) {
+        ReceiptJson receipt = receipts[i];
+        String imageUrl =
+            "https://api.colyakdiyabet.com.tr/api/image/get/${receipt.imageId}";
+        if (!loadedImages.contains(imageUrl)) {
+          await _fetchImage(imageUrl);
         }
-      } else {
-        print('Failed to fetch image. Error code: ${response.statusCode}');
       }
-    } catch (e) {
-      print('Failed to fetch image. Error: $e');
-    }
+    });
   }
-
-  Future<void> _refreshData() async {
-    await initializeData();
-  }
-
-  TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +152,6 @@ class _ReceiptPageState extends State<ReceiptPage> {
             Padding(
               padding: const EdgeInsets.all(5),
               child: TextField(
-                controller: searchController,
                 decoration: const InputDecoration(
                   labelText: "Ara",
                   prefixIcon: Icon(Icons.search),
@@ -196,11 +181,11 @@ class _ReceiptPageState extends State<ReceiptPage> {
               child: TabBarView(
                 children: <Widget>[
                   RefreshIndicator(
-                    onRefresh: _refreshData,
+                    onRefresh: initializeData,
                     child: _buildGridView(filteredReceipts, scrollController),
                   ),
                   RefreshIndicator(
-                    onRefresh: _refreshData,
+                    onRefresh: initializeData,
                     child: _buildGridView(
                         filteredFavorites, favoritesScrollController),
                   ),
@@ -214,45 +199,18 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   void _filterReceipts(String query) {
-    filteredReceipts = receipts.where((receipt) {
-      return receipt.receiptName!.toLowerCase().contains(query.toLowerCase());
-    }).toList();
-    filteredFavorites = favoriler.where((receipt) {
-      return receipt.receiptName!.toLowerCase().contains(query.toLowerCase());
-    }).toList();
-    _loadedItemCount = 8;
-    _loadedFavoritesItemCount = 8;
-    _loadImageBytes(filteredReceipts, _loadedItemCount);
-    _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
-  }
-
-  Future<void> toggleLike(int receiptId, String path, bool isLiked) async {
-    try {
-      final Map<String, dynamic> likeDetails = {
-        'receiptId': receiptId,
-      };
-
-      final response = await HttpBuildService.sendRequest('POST', path,
-          body: likeDetails, token: true);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        setState(() {
-          isLiked = !isLiked;
-        });
-        await _fetchFavorites();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                isLiked ? 'Favorilere eklendi!' : 'Favorilerden kaldırıldı!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      } else {
-        print(response.statusCode);
-      }
-    } catch (e) {
-      print('Error toggling like: $e');
-    }
+    setState(() {
+      filteredReceipts = receipts.where((receipt) {
+        return receipt.receiptName!.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+      filteredFavorites = favoriler.where((receipt) {
+        return receipt.receiptName!.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+      _loadedItemCount = 8;
+      _loadedFavoritesItemCount = 8;
+    });
+    _loadImagesInBackground(filteredReceipts, _loadedItemCount);
+    _loadImagesInBackground(filteredFavorites, _loadedFavoritesItemCount);
   }
 
   Widget _buildGridView(
@@ -261,9 +219,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
       controller: controller,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, childAspectRatio: 0.91),
-      itemCount: receipts.length < _loadedItemCount
-          ? receipts.length
-          : _loadedItemCount,
+      itemCount: receipts.length,
       itemBuilder: (context, index) {
         return _buildReceiptCard(receipts[index]);
       },
@@ -282,7 +238,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
             MaterialPageRoute(
               builder: (context) => ReceiptDetailScreen(
                 receipt: receipt,
-                imageBytes: imageBytesMap[imageUrl]!,
+                imageUrl: imageUrl,
               ),
             ),
           );
@@ -304,20 +260,21 @@ class _ReceiptPageState extends State<ReceiptPage> {
                       topLeft: Radius.circular(8),
                       topRight: Radius.circular(8),
                     ),
-                    child: imageBytesMap.containsKey(imageUrl)
-                        ? Image.memory(
-                            imageBytesMap[imageUrl]!,
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.fitWidth,
-                          )
-                        : Shimmer(
-                            child: Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                              color: Colors.grey.shade300,
-                            ),
-                          ),
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      placeholder: (context, url) => Shimmer(
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.fitWidth,
+                    ),
                   ),
                   Positioned(
                     top: -1,
@@ -360,5 +317,34 @@ class _ReceiptPageState extends State<ReceiptPage> {
         ),
       ),
     );
+  }
+
+  Future<void> toggleLike(int receiptId, String path, bool isLiked) async {
+    try {
+      final Map<String, dynamic> likeDetails = {
+        'receiptId': receiptId,
+      };
+
+      final response = await HttpBuildService.sendRequest('POST', path,
+          body: likeDetails, token: true);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          isLiked = !isLiked;
+        });
+        await initializeData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                isLiked ? 'Favorilere eklendi!' : 'Favorilerden kaldırıldı!'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      } else {
+        print(response.statusCode);
+      }
+    } catch (e) {
+      print('Error toggling like: $e');
+    }
   }
 }

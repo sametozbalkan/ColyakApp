@@ -72,14 +72,18 @@ class _AddMealScreenState extends State<AddMealScreen> {
             child: Expanded(
               child: Column(
                 children: <Widget>[
-                  const TabBar(
-                    indicatorColor: Color(0xFFFF7A37),
-                    labelColor: Color(0xFFFF7A37),
-                    unselectedLabelColor: Colors.black,
-                    tabs: [
-                      Tab(text: 'Tarifler'),
-                      Tab(text: 'Hazır Gıdalar'),
-                    ],
+                  Container(
+                    decoration: const BoxDecoration(color: Color(0xFFFFF1EC)),
+                    child: const TabBar(
+                      indicatorColor: Color(0xFFFF7A37),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      labelColor: Colors.black,
+                      unselectedLabelColor: Colors.black,
+                      tabs: [
+                        Tab(text: 'Tarifler'),
+                        Tab(text: 'Hazır Gıdalar'),
+                      ],
+                    ),
                   ),
                   Expanded(
                     child: TabBarView(

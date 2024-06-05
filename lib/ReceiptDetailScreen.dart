@@ -1,19 +1,20 @@
 import 'dart:convert';
-import 'dart:typed_data';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:colyakapp/CommentReplyJson.dart';
 import 'package:colyakapp/HttpBuild.dart';
 import 'package:colyakapp/ReceiptJson.dart';
 import 'package:colyakapp/ReplyCommentScreen.dart';
+import 'package:colyakapp/Shimmer.dart';
 import 'package:flutter/material.dart';
 
 class ReceiptDetailScreen extends StatefulWidget {
   final ReceiptJson receipt;
-  final Uint8List imageBytes;
+  final String imageUrl;
 
   const ReceiptDetailScreen({
     super.key,
     required this.receipt,
-    required this.imageBytes,
+    required this.imageUrl,
   });
 
   @override
@@ -191,7 +192,20 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
           children: <Widget>[
             AspectRatio(
               aspectRatio: 4 / 3,
-              child: Image.memory(widget.imageBytes, fit: BoxFit.fitWidth),
+              child: CachedNetworkImage(
+                imageUrl: widget.imageUrl,
+                placeholder: (context, url) => Shimmer(
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.grey.shade300,
+                  ),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.fitWidth,
+              ),
             ),
             Container(
               decoration: const BoxDecoration(color: Color(0xFFFFF1EC)),
@@ -282,8 +296,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
       itemCount: widget.receipt.receiptDetails!.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title:
-              Text("${index + 1}- ${widget.receipt.receiptDetails![index]}"),
+          title: Text("${index + 1}- ${widget.receipt.receiptDetails![index]}"),
         );
       },
     );
