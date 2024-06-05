@@ -186,7 +186,7 @@ class _BolusScreenState extends State<BolusScreen> {
   }
 
   void showBolusResult(double bolusValue) {
-    showModalBottomSheet<dynamic>(
+    showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {

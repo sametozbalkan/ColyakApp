@@ -128,7 +128,9 @@ class _MealScreenState extends State<MealScreen> {
             ),
             Expanded(
               child: foodListComplex.isEmpty
-                  ? const Center(child: Text("Liste boş!"))
+                  ? const Center(
+                      child: Text("Sağ üstten yediklerinizi ekleyin.",
+                          softWrap: true, textAlign: TextAlign.center))
                   : ListView.builder(
                       itemCount: foodListComplex.length * 2 - 1,
                       itemBuilder: (context, index) {
@@ -144,7 +146,9 @@ class _MealScreenState extends State<MealScreen> {
                             setState(() {
                               foodListComplex.removeAt(itemIndex);
                               bolusFoodList.removeWhere((element) =>
-                                  element.foodId == foodItem.foodId && element.carbonhydrate == foodItem.carbonhydrate);
+                                  element.foodId == foodItem.foodId &&
+                                  element.carbonhydrate ==
+                                      foodItem.carbonhydrate);
                               carbHesapla();
                               karbonhidratMiktariController.text =
                                   totalCarb.toStringAsFixed(2);

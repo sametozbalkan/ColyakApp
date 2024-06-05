@@ -139,7 +139,18 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text("Barkod Kontrolü"),
+                  Container(
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 10, top: 10),
+                    child: Text("Barkod Kontrolü"),
+                  ),
                   const Divider(),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -364,117 +375,115 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       appBar: AppBar(title: const Text("Çölyak Diyabet")),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: FittedBox(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.person, size: 48),
-                      Text(" Hoş geldin, \n ${HttpBuildService.userName}",
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18)),
-                    ],
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 10, bottom: 5, top: 5),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: FittedBox(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Neler yapılabilir?", style: TextStyle(fontSize: 18))
+                    const Icon(Icons.person, size: 32),
+                    Text(" Hoş geldin, ${HttpBuildService.userName}",
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                   ],
                 ),
               ),
-              GridView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.4,
+            ),
+            const Padding(
+              padding: EdgeInsets.only(left: 10, bottom: 5, top: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text("Neler yapılabilir?", style: TextStyle(fontSize: 18))
+                ],
+              ),
+            ),
+            GridView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 1.4,
+              ),
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    String barcode = await scanBarcodeNormal(context);
+                    if (barcode != "-1") {
+                      await barkodGonder(context, barcode);
+                    }
+                  },
+                  child: const Card(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.barcode_reader, size: 32),
+                        ListTile(
+                            title: Text("Barkod Tarayıcı"),
+                            subtitle:
+                                Text("Hazır gıdalar için barkod tarayıcı")),
+                      ],
+                    ),
+                  ),
                 ),
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      String barcode = await scanBarcodeNormal(context);
-                      if (barcode != "-1") {
-                        await barkodGonder(context, barcode);
-                      }
+              ],
+            ),
+            Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text("En Çok Beğenilen 5 Tarif",
+                      style: TextStyle(fontSize: 18)),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 3.7,
+                  child: GridView.builder(
+                    scrollDirection: Axis.horizontal,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 1),
+                    controller: _scrollController,
+                    itemCount: receipts.length,
+                    itemBuilder: (context, index) {
+                      return _buildReceiptCard(receipts[index]);
                     },
-                    child: const Card(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.barcode_reader, size: 32),
-                          ListTile(
-                              title: Text("Barkod Tarayıcı"),
-                              subtitle:
-                                  Text("Hazır gıdalar için barkod tarayıcı")),
-                        ],
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text("Öğün Ekle", style: TextStyle(fontSize: 18)),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MealScreen()));
+                  },
+                  child: const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(5),
+                      child: ListTile(
+                        title: Text("Öğün Listem"),
+                        subtitle: Text(
+                            "Bolus hesaplamak için yediklerini seçip öğün listeni oluştur"),
+                        leading: Icon(Icons.fastfood),
+                        trailing: Icon(Icons.arrow_forward_sharp),
                       ),
                     ),
                   ),
-                ],
-              ),
-              Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text("En Çok Tercih Edilen 5 Tarif",
-                        style: TextStyle(fontSize: 18)),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 3.7,
-                    child: GridView.builder(
-                      scrollDirection: Axis.horizontal,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 1),
-                      controller: _scrollController,
-                      itemCount: receipts.length,
-                      itemBuilder: (context, index) {
-                        return _buildReceiptCard(receipts[index]);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text("Öğün Ekle", style: TextStyle(fontSize: 18)),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const MealScreen()));
-                    },
-                    child: const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(5),
-                        child: ListTile(
-                          title: Text("Öğün Listem"),
-                          subtitle: Text(
-                              "Bolus hesaplamak için yediklerini seçip öğün listeni oluştur"),
-                          leading: Icon(Icons.fastfood),
-                          trailing: Icon(Icons.arrow_forward_sharp),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -513,7 +522,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showSuggestionModal(BuildContext context) {
     TextEditingController suggestionController = TextEditingController();
-    showModalBottomSheet<dynamic>(
+    showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         builder: (BuildContext context) {
@@ -527,7 +536,18 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text("Ürün Önerisi Yap"),
+                Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 10, top: 10),
+                  child: Text("Ürün Önerisi Yap"),
+                ),
                 const Divider(),
                 Text("Barkod: $barcodeScanRes"),
                 Padding(

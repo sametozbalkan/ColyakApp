@@ -13,7 +13,8 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
   Future<void> forgotPassword(String email) async {
     try {
-      final response = await HttpBuildService.sendRequest('POST', 'api/users/verify/x0/',
+      final response = await HttpBuildService.sendRequest(
+          'POST', 'api/users/verify/x0/',
           body: {'email': email});
 
       if (response.statusCode == 200) {
@@ -55,15 +56,15 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset("assets/images/colyak.png",
-                  height: MediaQuery.of(context).size.width / 1.5,
-                  width: MediaQuery.of(context).size.width / 1.5),
+                  height: MediaQuery.of(context).size.width / 2,
+                  width: MediaQuery.of(context).size.width / 2),
               Padding(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
                 child: TextField(
                   onChanged: (_) => setState(() {}),
                   controller: emailController,
                   decoration: InputDecoration(
-                    labelText: "Email",
+                    labelText: "Emailinizi girin",
                     prefixIcon: const Icon(Icons.email),
                     border: const OutlineInputBorder(),
                     suffixIcon: emailController.text.isEmpty

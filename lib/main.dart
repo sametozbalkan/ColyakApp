@@ -77,12 +77,17 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> getAll() async {
-    isCheckboxChecked = (await HttpBuildService.getStoredBool('isChecked')) ?? false;
+    isCheckboxChecked =
+        (await HttpBuildService.getStoredBool('isChecked')) ?? false;
     if (isCheckboxChecked) {
-      HttpBuildService.refreshToken = (await HttpBuildService.getStoredToken('refresh_token')) ?? '';
-      HttpBuildService.userName = (await HttpBuildService.getStoredToken('userName')) ?? '';
-      HttpBuildService.storedEmail = (await HttpBuildService.getStoredToken('storedEmail')) ?? '';
-      HttpBuildService.storedPassword = (await HttpBuildService.getStoredToken('storedPassword')) ?? '';
+      HttpBuildService.refreshToken =
+          (await HttpBuildService.getStoredToken('refresh_token')) ?? '';
+      HttpBuildService.userName =
+          (await HttpBuildService.getStoredToken('userName')) ?? '';
+      HttpBuildService.storedEmail =
+          (await HttpBuildService.getStoredToken('storedEmail')) ?? '';
+      HttpBuildService.storedPassword =
+          (await HttpBuildService.getStoredToken('storedPassword')) ?? '';
       emailController.text = HttpBuildService.storedEmail;
       passwordController.text = HttpBuildService.storedPassword;
     }
@@ -92,15 +97,24 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFF7A37),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/images/colyak.png",
+            Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+              ),
+              child: Image.asset(
+                "assets/images/colyak.png",
                 height: MediaQuery.of(context).size.width / 1.5,
-                width: MediaQuery.of(context).size.width / 1.5),
+                width: MediaQuery.of(context).size.width / 1.5,
+              ),
+            ),
             const SizedBox(height: 20),
-            const CircularProgressIndicator(),
+            const CircularProgressIndicator(color: Colors.white),
           ],
         ),
       ),

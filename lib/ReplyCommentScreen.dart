@@ -81,7 +81,8 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
   Future<void> replyGonder(int commentId, String reply) async {
     try {
       final replyDetails = {'commentId': commentId, 'reply': reply};
-      final response = await HttpBuildService.sendRequest('POST', 'api/replies/add',
+      final response = await HttpBuildService.sendRequest(
+          'POST', 'api/replies/add',
           body: replyDetails, token: true);
 
       if (response.statusCode == 200) {
@@ -145,7 +146,8 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
 
   Future<void> _deleteReply(int replyId) async {
     try {
-      final response = await HttpBuildService.sendRequest('DELETE', 'api/replies/',
+      final response = await HttpBuildService.sendRequest(
+          'DELETE', 'api/replies/',
           extra: replyId.toString(), token: true);
       if (response.statusCode == 204) {
         await initializeData();
@@ -222,26 +224,29 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
     return Padding(
       padding: const EdgeInsets.all(5),
       child: Card(
-        child: ListTile(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.commentUser,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(timeSince(DateTime.parse(widget.createdTime))),
-                ],
-              ),
-              const Divider(),
-              Text(
-                widget.comment,
-                softWrap: true,
-              )
-            ],
+        child: Padding(
+          padding: const EdgeInsets.only(top: 5, bottom: 5),
+          child: ListTile(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      widget.commentUser,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(timeSince(DateTime.parse(widget.createdTime))),
+                  ],
+                ),
+                const Divider(),
+                Text(
+                  widget.comment,
+                  softWrap: true,
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -291,81 +296,106 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: allReplies.length,
-            itemBuilder: (context, index) {
-              DateTime createdAt =
-                  DateTime.parse(allReplies[index].createdDate!);
-              return Padding(
-                padding: const EdgeInsets.only(right: 5, left: 5, bottom: 5),
-                child: Card(
-                  child: Stack(children: [
-                    Column(
-                      children: [
-                        ListTile(
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+          child: RefreshIndicator(
+            onRefresh: initializeData,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: allReplies.length,
+              itemBuilder: (context, index) {
+                DateTime createdAt =
+                    DateTime.parse(allReplies[index].createdDate!);
+                return Padding(
+                  padding: const EdgeInsets.only(right: 5, left: 5, bottom: 5),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 5, bottom: 5),
+                      child: Stack(children: [
+                        Column(
+                          children: [
+                            ListTile(
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    allReplies[index].userName.toString(),
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        allReplies[index].userName.toString(),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(timeSince(createdAt))
+                                    ],
                                   ),
-                                  Text(timeSince(createdAt))
+                                  const Divider(),
+                                  allReplies[index].userName !=
+                                          HttpBuildService.userName
+                                      ? Text(allReplies[index].reply.toString(),
+                                          softWrap: true)
+                                      : Padding(
+                                          padding:
+                                              const EdgeInsets.only(right: 16),
+                                          child: Text(
+                                              allReplies[index]
+                                                  .reply
+                                                  .toString(),
+                                              softWrap: true),
+                                        )
                                 ],
                               ),
-                              const Divider(),
-                              allReplies[index].userName != HttpBuildService.userName
-                                  ? Text(allReplies[index].reply.toString(),
-                                      softWrap: true)
-                                  : Padding(
-                                      padding: const EdgeInsets.only(right: 16),
-                                      child: Text(
-                                          allReplies[index].reply.toString(),
-                                          softWrap: true),
-                                    )
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: allReplies[index].userName ==
+                                  HttpBuildService.userName
+                              ? PopupMenuButton<String>(
+                                  icon: const Icon(Icons.more_vert),
+                                  onSelected: (String result) async {
+                                    if (result == 'delete') {
+                                      await confirmDeleteReply(index);
+                                    } else if (result == 'update') {
+                                      replyYaz.text = allReplies[index].reply!;
+                                      await showModalUpdate(index);
+                                    }
+                                  },
+                                  itemBuilder: (BuildContext context) =>
+                                      <PopupMenuEntry<String>>[
+                                    const PopupMenuItem<String>(
+                                      value: 'update',
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.edit),
+                                          SizedBox(width: 5),
+                                          Text('Güncelle'),
+                                        ],
+                                      ),
+                                    ),
+                                    const PopupMenuItem<String>(
+                                      value: 'delete',
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.delete),
+                                          SizedBox(width: 5),
+                                          Text('Sil'),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Container(),
+                        ),
+                      ]),
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: allReplies[index].userName == HttpBuildService.userName
-                          ? PopupMenuButton<String>(
-                              icon: const Icon(Icons.more_vert),
-                              onSelected: (String result) async {
-                                if (result == 'delete') {
-                                  await confirmDeleteReply(index);
-                                } else if (result == 'update') {
-                                  replyYaz.text = allReplies[index].reply!;
-                                  await showModalUpdate(index);
-                                }
-                              },
-                              itemBuilder: (BuildContext context) =>
-                                  <PopupMenuEntry<String>>[
-                                const PopupMenuItem<String>(
-                                  value: 'update',
-                                  child: Text('Güncelle'),
-                                ),
-                                const PopupMenuItem<String>(
-                                  value: 'delete',
-                                  child: Text('Sil'),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                  ]),
-                ),
-              );
-            },
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -375,7 +405,7 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
   Widget _buildFloatingActionButton() {
     return FloatingActionButton(
       onPressed: () {
-        showModalBottomSheet<dynamic>(
+        showModalBottomSheet(
           isScrollControlled: true,
           context: context,
           builder: (BuildContext context) {
@@ -390,8 +420,18 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const Text('Yanıt Ekle'),
-                  const SizedBox(height: 10),
+                  Container(
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                    child: Text('Yanıt Ekle', style: TextStyle(fontSize: 18)),
+                  ),
                   const Divider(),
                   TextField(
                     maxLines: null,
@@ -420,7 +460,7 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
   }
 
   Future showModalUpdate(index) {
-    return showModalBottomSheet<dynamic>(
+    return showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
@@ -435,8 +475,19 @@ class _ReplyCommentScreenState extends State<ReplyCommentScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Text('Yanıt Düzenle'),
-              const SizedBox(height: 10),
+              Container(
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 10, top: 10),
+                child:
+                    Text('Yanıt Düzenle', style: TextStyle(fontSize: 18)),
+              ),
               const Divider(),
               TextField(
                 maxLines: null,

@@ -283,7 +283,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
       itemBuilder: (context, index) {
         return ListTile(
           title:
-              Text("${index + 1}- ${widget.receipt.receiptDetails![index]}."),
+              Text("${index + 1}- ${widget.receipt.receiptDetails![index]}"),
         );
       },
     );
@@ -531,7 +531,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
     commentController.text = isUpdate ? commentResponse!.comment! : '';
     final String title = isUpdate ? 'Yorumu Güncelle' : 'Yorum Ekle';
 
-    showModalBottomSheet<dynamic>(
+    showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {

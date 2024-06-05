@@ -60,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     void Function()? onSuffixIconPressed,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(right: 10, left: 10, bottom: 10),
+      padding: const EdgeInsets.only(right: 10, left: 10, bottom: 15),
       child: TextField(
         onChanged: (_) => setState(() {}),
         controller: controller,
@@ -96,12 +96,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: <Widget>[
               Image.asset(
                 "assets/images/colyak.png",
-                height: MediaQuery.of(context).size.width / 1.5,
-                width: MediaQuery.of(context).size.width / 1.5,
+                height: MediaQuery.of(context).size.width / 2,
+                width: MediaQuery.of(context).size.width / 2,
               ),
+              const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text("Size nasıl hitap edelim?",
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold))),
               const SizedBox(height: 10),
               buildTextField(
-                labelText: "İsim",
+                labelText: "İsim Soyisim",
                 prefixIcon: Icons.person,
                 controller: nameController,
               ),

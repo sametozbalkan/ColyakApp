@@ -148,7 +148,7 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
     return Padding(
       padding: const EdgeInsets.all(11),
       child: Text(
-        "${_currentQuestionIndex + 1}) ${widget.questionList[_currentQuestionIndex].question!}?",
+        "${_currentQuestionIndex + 1}) ${widget.questionList[_currentQuestionIndex].question!}",
         style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
       ),
     );
