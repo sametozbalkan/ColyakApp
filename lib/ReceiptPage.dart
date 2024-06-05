@@ -9,8 +9,6 @@ import 'ReceiptDetailScreen.dart';
 import 'HttpBuild.dart';
 import 'package:http/http.dart' as http;
 
-//lazy loading problem
-
 class ReceiptPage extends StatefulWidget {
   const ReceiptPage({super.key});
 
@@ -61,25 +59,21 @@ class _ReceiptPageState extends State<ReceiptPage> {
   void _onScroll() {
     if (scrollController.position.pixels >=
         scrollController.position.maxScrollExtent - 200) {
-      _loadMore();
+      setState(() {
+        _loadedItemCount += 8;
+      });
+      _loadImageBytes(filteredReceipts, _loadedItemCount);
     }
   }
 
   void _onFavoritesScroll() {
     if (favoritesScrollController.position.pixels >=
         favoritesScrollController.position.maxScrollExtent - 200) {
-      _loadMoreFavorites();
+      setState(() {
+        _loadedFavoritesItemCount += 8;
+      });
+      _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
     }
-  }
-
-  void _loadMore() {
-    _loadedItemCount += 8;
-    _loadImageBytes(filteredReceipts, _loadedItemCount);
-  }
-
-  void _loadMoreFavorites() {
-    _loadedFavoritesItemCount += 8;
-    _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
   }
 
   Future<void> _barkodlariAl() async {
@@ -128,12 +122,13 @@ class _ReceiptPageState extends State<ReceiptPage> {
       int imageId = receipt.imageId ?? 0;
       String imageUrl =
           "https://api.colyakdiyabet.com.tr/api/image/get/$imageId";
-      if (!imageBytesMap.containsKey(imageUrl)) {
+
+      if (!imageBytesMap.containsKey(imageUrl) ||
+          imageBytesMap[imageUrl] == null) {
         futures.add(_fetchImage(imageUrl));
       }
     }
     await Future.wait(futures);
-    print(futures.length);
   }
 
   Future<void> _fetchImage(String imageUrl) async {
@@ -146,10 +141,10 @@ class _ReceiptPageState extends State<ReceiptPage> {
           });
         }
       } else {
-        print('Resim alınamadı. Hata kodu: ${response.statusCode}');
+        print('Failed to fetch image. Error code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Resim alınamadı. Hata: $e');
+      print('Failed to fetch image. Error: $e');
     }
   }
 
@@ -179,21 +174,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
                 ),
                 onChanged: (value) {
                   setState(() {
-                    filteredReceipts = receipts.where((receipt) {
-                      return receipt.receiptName!
-                          .toLowerCase()
-                          .contains(value.toLowerCase());
-                    }).toList();
-                    filteredFavorites = favoriler.where((receipt) {
-                      return receipt.receiptName!
-                          .toLowerCase()
-                          .contains(value.toLowerCase());
-                    }).toList();
-                    _loadedItemCount = 8;
-                    _loadedFavoritesItemCount = 8;
+                    _filterReceipts(value);
                   });
-                  _loadImageBytes(filteredReceipts, _loadedItemCount);
-                  _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
                 },
               ),
             ),
@@ -214,17 +196,11 @@ class _ReceiptPageState extends State<ReceiptPage> {
               child: TabBarView(
                 children: <Widget>[
                   RefreshIndicator(
-                    onRefresh: () async {
-                      searchController.clear();
-                      await _refreshData();
-                    },
+                    onRefresh: _refreshData,
                     child: _buildGridView(filteredReceipts, scrollController),
                   ),
                   RefreshIndicator(
-                    onRefresh: () async {
-                      searchController.clear();
-                      await _refreshData();
-                    },
+                    onRefresh: _refreshData,
                     child: _buildGridView(
                         filteredFavorites, favoritesScrollController),
                   ),
@@ -235,6 +211,19 @@ class _ReceiptPageState extends State<ReceiptPage> {
         ),
       ),
     );
+  }
+
+  void _filterReceipts(String query) {
+    filteredReceipts = receipts.where((receipt) {
+      return receipt.receiptName!.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+    filteredFavorites = favoriler.where((receipt) {
+      return receipt.receiptName!.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+    _loadedItemCount = 8;
+    _loadedFavoritesItemCount = 8;
+    _loadImageBytes(filteredReceipts, _loadedItemCount);
+    _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
   }
 
   Future<void> toggleLike(int receiptId, String path, bool isLiked) async {
