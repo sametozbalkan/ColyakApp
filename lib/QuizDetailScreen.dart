@@ -140,7 +140,6 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
       'api/user-answer/submit-answer',
       body: quizDetails,
       token: true,
-      
     );
   }
 
@@ -232,9 +231,26 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 16),
-                  child: Text(
-                    "${_currentQuestionIndex + 1} / ${widget.questionList.length}",
-                    style: const TextStyle(fontSize: 16),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 75,
+                        height: 75,
+                        child: CircularProgressIndicator(
+                          value: (_currentQuestionIndex + 1) /
+                              widget.questionList.length,
+                          strokeWidth: 8,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFFFF7A37)),
+                          backgroundColor: Colors.grey[300],
+                        ),
+                      ),
+                      Text(
+                        "${_currentQuestionIndex + 1} / ${widget.questionList.length}",
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(

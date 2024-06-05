@@ -139,62 +139,58 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Column(
-          children: [
-            Container(
-              width: 40,
-              height: 5,
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                borderRadius: BorderRadius.circular(10),
+        Container(
+          width: 40,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.grey[400],
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 10, bottom: 10),
+          child: Text(
+            widget.receipt?.receiptName ?? widget.barcode?.name ?? "",
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+        const Divider(),
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              const Text(
+                "Besin Değerleri:",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 10),
-              child: Text(
-                widget.receipt?.receiptName ?? widget.barcode?.name ?? "",
-                style: const TextStyle(fontSize: 18),
+              const SizedBox(height: 10),
+              Text(
+                "Kalori: ${_totalCalories.toStringAsFixed(2)} kcal",
+                style: const TextStyle(fontSize: 16),
               ),
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  const Text(
-                    "Besin Değerleri:",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Kalori: ${_totalCalories.toStringAsFixed(2)} kcal",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  Text(
-                    "Karbonhidrat: ${_totalCarbohydrate.toStringAsFixed(2)} g",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  Text(
-                    "Protein: ${_totalProtein.toStringAsFixed(2)} g",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  Text(
-                    "Yağ: ${_totalFat.toStringAsFixed(2)} g",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
+              Text(
+                "Karbonhidrat: ${_totalCarbohydrate.toStringAsFixed(2)} g",
+                style: const TextStyle(fontSize: 16),
               ),
-            ),
-          ],
+              Text(
+                "Protein: ${_totalProtein.toStringAsFixed(2)} g",
+                style: const TextStyle(fontSize: 16),
+              ),
+              Text(
+                "Yağ: ${_totalFat.toStringAsFixed(2)} g",
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
         ),
         const Padding(
-          padding: EdgeInsets.all(10),
+          padding: EdgeInsets.all(5),
           child: Text(
             "Miktar:",
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
         Row(
@@ -250,7 +246,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
           children: [
             Text(
               "Tür Seçin:",
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -261,7 +257,8 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         ElevatedButton(
           onPressed: () {
             if (_selectedType != null &&
-                (widget.receipt != null || widget.barcode != null)) {
+                (widget.receipt != null || widget.barcode != null) &&
+                _quantity != 0) {
               _addOrUpdateFoodList();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

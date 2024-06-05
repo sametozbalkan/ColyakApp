@@ -9,6 +9,8 @@ import 'ReceiptDetailScreen.dart';
 import 'HttpBuild.dart';
 import 'package:http/http.dart' as http;
 
+//lazy loading problem
+
 class ReceiptPage extends StatefulWidget {
   const ReceiptPage({super.key});
 
@@ -71,16 +73,12 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   void _loadMore() {
-    setState(() {
-      _loadedItemCount += 8;
-    });
+    _loadedItemCount += 8;
     _loadImageBytes(filteredReceipts, _loadedItemCount);
   }
 
   void _loadMoreFavorites() {
-    setState(() {
-      _loadedFavoritesItemCount += 8;
-    });
+    _loadedFavoritesItemCount += 8;
     _loadImageBytes(filteredFavorites, _loadedFavoritesItemCount);
   }
 
@@ -135,18 +133,23 @@ class _ReceiptPageState extends State<ReceiptPage> {
       }
     }
     await Future.wait(futures);
+    print(futures.length);
   }
 
   Future<void> _fetchImage(String imageUrl) async {
-    var response = await http.get(Uri.parse(imageUrl));
-    if (response.statusCode == 200) {
-      if (mounted) {
-        setState(() {
-          imageBytesMap[imageUrl] = response.bodyBytes;
-        });
+    try {
+      var response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            imageBytesMap[imageUrl] = response.bodyBytes;
+          });
+        }
+      } else {
+        print('Resim alınamadı. Hata kodu: ${response.statusCode}');
       }
-    } else {
-      print('Resim alınamadı. Hata kodu: ${response.statusCode}');
+    } catch (e) {
+      print('Resim alınamadı. Hata: $e');
     }
   }
 
