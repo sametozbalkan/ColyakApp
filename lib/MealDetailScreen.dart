@@ -160,7 +160,6 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Text(
                     "Besin Değerleri",

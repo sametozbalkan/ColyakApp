@@ -27,7 +27,7 @@ class _MealScreenState extends State<MealScreen> {
 
   void carbHesapla() {
     _totalCarb = 0;
-    for (var item in bolusFoodList) {
+    for (var item in foodListComplex) {
       _totalCarb += item.carbonhydrate ?? 0.0;
     }
     setState(() {
@@ -41,8 +41,7 @@ class _MealScreenState extends State<MealScreen> {
       double currentCarb = foodItem.carbonhydrate ?? 0.0;
 
       int newAmount = currentAmount + quantityChange;
-      double newCarb =
-          currentCarb + (currentCarb / currentAmount) * quantityChange;
+      double newCarb = currentCarb * newAmount / currentAmount;
 
       if (newAmount <= 0) {
         foodListComplex.remove(foodItem);
@@ -57,9 +56,7 @@ class _MealScreenState extends State<MealScreen> {
         );
 
         if (bolusItemIndex != -1) {
-          double bolusCarb = bolusFoodList[bolusItemIndex].carbonhydrate ?? 0.0;
-          bolusFoodList[bolusItemIndex].carbonhydrate =
-              bolusCarb + (bolusCarb / currentAmount) * quantityChange;
+          bolusFoodList[bolusItemIndex].carbonhydrate = newCarb;
         } else {
           bolusFoodList.add(FoodList(
             foodType: foodItem.type,
@@ -146,9 +143,7 @@ class _MealScreenState extends State<MealScreen> {
                             setState(() {
                               foodListComplex.removeAt(itemIndex);
                               bolusFoodList.removeWhere((element) =>
-                                  element.foodId == foodItem.foodId &&
-                                  element.carbonhydrate ==
-                                      foodItem.carbonhydrate);
+                                  element.foodId == foodItem.foodId);
                               carbHesapla();
                               karbonhidratMiktariController.text =
                                   totalCarb.toStringAsFixed(2);
