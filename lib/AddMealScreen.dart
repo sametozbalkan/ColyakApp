@@ -17,15 +17,13 @@ List<BarcodeJson> barcodesMeal = [];
 class _AddMealScreenState extends State<AddMealScreen> {
   late final TextEditingController searchController;
 
-  List<ReceiptJson> filteredReceipts = [];
-  List<BarcodeJson> filteredBarcodes = [];
+  List<ReceiptJson> filteredReceipts = receiptsMeal;
+  List<BarcodeJson> filteredBarcodes = barcodesMeal;
 
   @override
   void initState() {
     super.initState();
     searchController = TextEditingController();
-    filteredReceipts = receiptsMeal;
-    filteredBarcodes = barcodesMeal;
   }
 
   @override
@@ -66,10 +64,9 @@ class _AddMealScreenState extends State<AddMealScreen> {
               onChanged: search,
             ),
           ),
-          DefaultTabController(
-            length: 2,
-            initialIndex: 0,
-            child: Expanded(
+          Expanded(
+            child: DefaultTabController(
+              length: 2,
               child: Column(
                 children: <Widget>[
                   Container(
@@ -92,54 +89,16 @@ class _AddMealScreenState extends State<AddMealScreen> {
                           filteredReceipts,
                           (receipt) => receipt.receiptName!,
                           (receipt) {
-                            showModalBottomSheet(
-                              isScrollControlled: true,
-                              context: context,
-                              builder: (BuildContext context) {
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    bottom: MediaQuery.of(context)
-                                            .viewInsets
-                                            .bottom +
-                                        20,
-                                    left: 10,
-                                    right: 10,
-                                    top: 20,
-                                  ),
-                                  child: MealDetailScreen(
-                                    receiptOrBarcodes: FoodType.RECEIPT,
-                                    receipt: receipt,
-                                  ),
-                                );
-                              },
-                            );
+                            _showMealDetailScreen(context, FoodType.RECEIPT,
+                                receipt: receipt);
                           },
                         ),
                         _buildListView<BarcodeJson>(
                           filteredBarcodes,
                           (barcode) => barcode.name!,
                           (barcode) {
-                            showModalBottomSheet(
-                              isScrollControlled: true,
-                              context: context,
-                              builder: (BuildContext context) {
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    bottom: MediaQuery.of(context)
-                                            .viewInsets
-                                            .bottom +
-                                        20,
-                                    left: 10,
-                                    right: 10,
-                                    top: 20,
-                                  ),
-                                  child: MealDetailScreen(
-                                    receiptOrBarcodes: FoodType.BARCODE,
-                                    barcode: barcode,
-                                  ),
-                                );
-                              },
-                            );
+                            _showMealDetailScreen(context, FoodType.BARCODE,
+                                barcode: barcode);
                           },
                         ),
                       ],
@@ -167,6 +126,30 @@ class _AddMealScreenState extends State<AddMealScreen> {
           child: ListTile(
             title: Text(getName(item)),
             trailing: const Icon(Icons.arrow_forward),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showMealDetailScreen(BuildContext context, FoodType type,
+      {ReceiptJson? receipt, BarcodeJson? barcode}) {
+    showModalBottomSheet(
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            left: 10,
+            right: 10,
+            top: 20,
+          ),
+          child: MealDetailScreen(
+            receiptOrBarcodes: type,
+            receipt: receipt,
+            barcode: barcode,
           ),
         );
       },

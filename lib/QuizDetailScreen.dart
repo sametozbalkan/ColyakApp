@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:colyakapp/CacheManager.dart';
 import 'package:colyakapp/HttpBuild.dart';
 import 'package:colyakapp/QuizJson.dart';
 import 'package:colyakapp/QuizReportScreen.dart';
@@ -45,13 +46,13 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
       String imageUrl =
           "https://api.colyakdiyabet.com.tr/api/image/get/${choice.imageId}";
       if (!imageBytesMap.containsKey(imageUrl)) {
-        var response = await http.get(Uri.parse(imageUrl));
-        if (response.statusCode == 200 && mounted) {
+        Uint8List? bytes = await CacheManager().getImageBytes(imageUrl);
+        if (bytes != null && mounted) {
           setState(() {
-            imageBytesMap[imageUrl] = response.bodyBytes;
+            imageBytesMap[imageUrl] = bytes;
           });
         } else {
-          print('Resim alınamadı. Hata kodu: ${response.statusCode}');
+          print('Resim alınamadı.');
         }
       }
     }).toList();

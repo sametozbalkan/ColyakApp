@@ -149,110 +149,116 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         ),
         Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 10),
-          child: Text(
-            widget.receipt?.receiptName ?? widget.barcode?.name ?? "",
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          child: Text(widget.receipt?.receiptName ?? widget.barcode?.name ?? "",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center),
         ),
         const Divider(),
-        Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              const Text(
-                "Besin Değerleri:",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Besin Değerleri",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Kalori: ${_totalCalories.toStringAsFixed(2)} kcal",
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  Text(
+                    "K.hidrat: ${_totalCarbohydrate.toStringAsFixed(2)} g",
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  Text(
+                    "Protein: ${_totalProtein.toStringAsFixed(2)} g",
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  Text(
+                    "Yağ: ${_totalFat.toStringAsFixed(2)} g",
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              children: [
+                const Text(
+                  "Miktar",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "Kalori: ${_totalCalories.toStringAsFixed(2)} kcal",
-                style: const TextStyle(fontSize: 16),
-              ),
-              Text(
-                "Karbonhidrat: ${_totalCarbohydrate.toStringAsFixed(2)} g",
-                style: const TextStyle(fontSize: 16),
-              ),
-              Text(
-                "Protein: ${_totalProtein.toStringAsFixed(2)} g",
-                style: const TextStyle(fontSize: 16),
-              ),
-              Text(
-                "Yağ: ${_totalFat.toStringAsFixed(2)} g",
-                style: const TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () {
+                          setState(() {
+                            if (_quantity > 1) {
+                              _quantity--;
+                              _quantityController.text = _quantity.toString();
+                            }
+                          });
+                          _calculateNutritionalValues();
+                        },
+                      ),
+                      SizedBox(
+                        width: 40,
+                        height: 50,
+                        child: TextFormField(
+                          controller: _quantityController,
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          onChanged: (value) {
+                            if (value.isNotEmpty && _totalCarbohydrate != 0) {
+                              setState(() {
+                                _quantity = int.parse(value);
+                              });
+                              _calculateNutritionalValues();
+                            }
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          setState(() {
+                            _quantity++;
+                            _quantityController.text = _quantity.toString();
+                          });
+                          _calculateNutritionalValues();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         const Padding(
-          padding: EdgeInsets.all(5),
+          padding: EdgeInsets.only(top: 10, bottom: 10),
           child: Text(
-            "Miktar:",
+            "Tür Seçin",
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.remove),
-              onPressed: () {
-                setState(() {
-                  if (_quantity > 1) {
-                    _quantity--;
-                    _quantityController.text = _quantity.toString();
-                  }
-                });
-                _calculateNutritionalValues();
-              },
-            ),
-            SizedBox(
-              width: 40,
-              height: 50,
-              child: TextFormField(
-                controller: _quantityController,
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-                onChanged: (value) {
-                  if (value.isNotEmpty && _totalCarbohydrate != 0) {
-                    setState(() {
-                      _quantity = int.parse(value);
-                    });
-                    _calculateNutritionalValues();
-                  }
-                },
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () {
-                setState(() {
-                  _quantity++;
-                  _quantityController.text = _quantity.toString();
-                });
-                _calculateNutritionalValues();
-              },
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Tür Seçin:",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
         Padding(
-          padding: const EdgeInsets.all(10),
-          child: SizedBox(height: 40, child: _buildTypeButtons()),
+          padding: const EdgeInsets.only(bottom: 20),
+          child: SizedBox(height: 40, child: _buildDropdownButton()),
         ),
         ElevatedButton(
           onPressed: () {
@@ -277,48 +283,33 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
               );
             }
           },
-          child: const Text("Ekle"),
+          child: const Text("Öğün Listesine Ekle"),
         )
       ],
     );
   }
 
-  Widget _buildTypeButtons() {
+  Widget _buildDropdownButton() {
     var nutritionalValuesList = widget.receiptOrBarcodes == FoodType.RECEIPT
         ? widget.receipt?.nutritionalValuesList ?? []
         : widget.barcode?.nutritionalValuesList ?? [];
 
-    return ListView.separated(
-      separatorBuilder: (context, index) {
-        return const SizedBox(width: 5);
+    return DropdownButton<String>(
+      alignment: Alignment.center,
+      value: _selectedType,
+      onChanged: (newValue) {
+        setState(() {
+          _selectedType = newValue;
+        });
+        _calculateNutritionalValues();
       },
-      scrollDirection: Axis.horizontal,
-      shrinkWrap: true,
-      itemCount: nutritionalValuesList.length,
-      itemBuilder: (context, index) {
-        var item = nutritionalValuesList[index];
-        return ElevatedButton(
-          onPressed: () {
-            setState(() {
-              _selectedType = item.type;
-            });
-            _calculateNutritionalValues();
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _selectedType == item.type
-                ? const Color(0xFFFF7A37)
-                : Colors.white,
-          ),
-          child: Text(
-            item.type ?? "",
-            style: TextStyle(
-              color: _selectedType == item.type
-                  ? Colors.white
-                  : const Color(0xFFFF7A37),
-            ),
-          ),
+      items: nutritionalValuesList.map((item) {
+        return DropdownMenuItem<String>(
+          alignment: Alignment.center,
+          value: item.type,
+          child: Text(item.type ?? ""),
         );
-      },
+      }).toList(),
     );
   }
 }
