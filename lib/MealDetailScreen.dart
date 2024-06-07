@@ -293,22 +293,33 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         ? widget.receipt?.nutritionalValuesList ?? []
         : widget.barcode?.nutritionalValuesList ?? [];
 
-    return DropdownButton<String>(
-      alignment: Alignment.center,
-      value: _selectedType,
-      onChanged: (newValue) {
-        setState(() {
-          _selectedType = newValue;
-        });
-        _calculateNutritionalValues();
-      },
-      items: nutritionalValuesList.map((item) {
-        return DropdownMenuItem<String>(
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10, right: 5),
+        child: DropdownButton<String>(
+          underline: Container(),
+          borderRadius: BorderRadius.circular(5),
           alignment: Alignment.center,
-          value: item.type,
-          child: Text(item.type ?? ""),
-        );
-      }).toList(),
+          value: _selectedType,
+          onChanged: (newValue) {
+            setState(() {
+              _selectedType = newValue;
+            });
+            _calculateNutritionalValues();
+          },
+          items: nutritionalValuesList.map((item) {
+            return DropdownMenuItem<String>(
+              alignment: Alignment.center,
+              value: item.type,
+              child: Text(item.type ?? "", overflow: TextOverflow.ellipsis),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }

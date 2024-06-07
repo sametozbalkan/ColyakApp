@@ -10,11 +10,13 @@ import 'package:flutter/material.dart';
 class ReceiptDetailScreen extends StatefulWidget {
   final ReceiptJson receipt;
   final String imageUrl;
+  final bool isLiked;
 
   const ReceiptDetailScreen({
     super.key,
     required this.receipt,
     required this.imageUrl,
+    required this.isLiked,
   });
 
   @override
@@ -24,10 +26,12 @@ class ReceiptDetailScreen extends StatefulWidget {
 class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
   List<CommentReplyJson> commentReply = [];
   TextEditingController commentController = TextEditingController();
-
+  late bool liked;
+  
   @override
   void initState() {
     super.initState();
+    liked = widget.isLiked;
     initializeData();
   }
 
@@ -184,7 +188,36 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.receipt.receiptName.toString())),
+      appBar: AppBar(
+        title: Text(widget.receipt.receiptName.toString()),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              liked
+                  ? {
+                      await toggleLike(
+                          widget.receipt.id!, "api/likes/unlike", liked),
+                      liked = false
+                    }
+                  : {
+                      await toggleLike(
+                          widget.receipt.id!, "api/likes/like", liked),
+                      liked = true
+                    };
+            },
+            icon: Icon(
+              liked ? Icons.favorite : Icons.favorite_border,
+              color: liked ? Colors.red : Colors.black,
+            ),
+          ),
+        ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context, liked);
+          },
+        ),
+      ),
       body: DefaultTabController(
         length: 4,
         initialIndex: 0,
@@ -332,10 +365,17 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                   topRight: Radius.circular(15),
                                   bottomRight: Radius.circular(15))),
                         ),
-                        Text(
-                          nutritionalValue.type ?? "",
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 5, right: 5),
+                            child: Text(
+                              nutritionalValue.type ?? "",
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         ),
                         Container(
                           width: 4,
@@ -538,6 +578,35 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> toggleLike(int receiptId, String path, bool isLiked) async {
+    try {
+      final Map<String, dynamic> likeDetails = {
+        'receiptId': receiptId,
+      };
+
+      final response = await HttpBuildService.sendRequest('POST', path,
+          body: likeDetails, token: true);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          isLiked = !isLiked;
+          liked = isLiked;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                isLiked ? 'Favorilere eklendi!' : 'Favorilerden kaldırıldı!'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      } else {
+        print(response.statusCode);
+      }
+    } catch (e) {
+      print('Error toggling like: $e');
+    }
   }
 
   void showModal(bool isUpdate, {CommentResponse? commentResponse}) {
