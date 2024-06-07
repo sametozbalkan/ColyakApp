@@ -1,6 +1,6 @@
-import 'dart:typed_data';
-import 'package:http/http.dart' as http;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'Shimmer.dart';
 import 'BarcodeJson.dart';
 
 class BarcodeScanResult extends StatefulWidget {
@@ -13,37 +13,13 @@ class BarcodeScanResult extends StatefulWidget {
 }
 
 class _BarcodeScanResultState extends State<BarcodeScanResult> {
-  Map<String, Uint8List?> imageBytesMap = {};
-  String imageUrl = "";
-  bool isLoading = false;
+  late String imageUrl;
 
   @override
   void initState() {
     super.initState();
-    _loadImageBytes();
-  }
-
-  Future<void> _loadImageBytes() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    int imageId = widget.barcode.imageId!;
-    imageUrl = "https://api.colyakdiyabet.com.tr/api/image/get/$imageId";
-    if (!imageBytesMap.containsKey(imageUrl)) {
-      var response = await http.get(Uri.parse(imageUrl));
-      if (response.statusCode == 200) {
-        setState(() {
-          imageBytesMap[imageUrl] = response.bodyBytes;
-          isLoading = false;
-        });
-      } else {
-        print('Resim alınamadı. Hata kodu: ${response.statusCode}');
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
+    imageUrl =
+        "https://api.colyakdiyabet.com.tr/api/image/get/${widget.barcode.imageId}";
   }
 
   @override
@@ -52,133 +28,163 @@ class _BarcodeScanResultState extends State<BarcodeScanResult> {
       appBar: AppBar(
         title: Text(widget.barcode.name!),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (imageBytesMap.containsKey(imageUrl))
-                      AspectRatio(
-                        aspectRatio: 4 / 3,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(8),
-                            topRight: Radius.circular(8),
-                          ),
-                          child: Image.memory(
-                            imageBytesMap[imageUrl]!,
-                            fit: BoxFit.fill,
-                          ),
-                        ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  AspectRatio(
+                    aspectRatio: 4 / 3,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
                       ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Text(
-                          'Gluten: ',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        Text(widget.barcode.glutenFree! ? 'Var' : 'Yok',
-                            style: const TextStyle(fontSize: 18)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Text(
-                          'Barkod: ',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        Text(widget.barcode.code.toString(),
-                            style: const TextStyle(fontSize: 18)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Besin Değerleri',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: widget.barcode.nutritionalValuesList!.length,
-                      itemBuilder: (context, index) {
-                        final value =
-                            widget.barcode.nutritionalValuesList![index];
-                        return Card(
-                          elevation: 4,
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            title: Column(
-                              children: [
-                                Text("${value.unit} ${value.type}"),
-                                const Divider(),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Kalori (kcal):"),
-                                    Text(
-                                      value.calorieAmount.toString(),
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Karbonhidrat (g):"),
-                                    Text(
-                                      value.carbohydrateAmount.toString(),
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Yağ (g):"),
-                                    Text(
-                                      value.fatAmount.toString(),
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Protein (g):"),
-                                    Text(
-                                      value.proteinAmount.toString(),
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        placeholder: (context, url) => Shimmer(
+                          child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            color: Colors.grey.shade300,
                           ),
-                        );
-                      },
+                        ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.fill,
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildInfoRow(
+                      'Gluten: ', widget.barcode.glutenFree! ? 'Var' : 'Yok'),
+                  const SizedBox(height: 8),
+                  _buildInfoRow('Barkod: ', widget.barcode.code.toString()),
+                ],
               ),
             ),
+            const SizedBox(height: 8),
+            const Center(
+              child: Text(
+                'Besin Değerleri',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildNutritionalValues()
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNutritionalValues() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: widget.barcode.nutritionalValuesList?.length,
+      itemBuilder: (context, index) {
+        final nutritionalValue = widget.barcode.nutritionalValuesList![index];
+        return Card(
+          child: ListTile(
+            title: Column(
+              children: [
+                Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: const Color(0xFFFFF1EC),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 4,
+                          height: 30,
+                          decoration: const BoxDecoration(
+                              color: Color(0xFFFF7A37),
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(15),
+                                  bottomRight: Radius.circular(15))),
+                        ),
+                        Text(
+                          nutritionalValue.type ?? "",
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        Container(
+                          width: 4,
+                          height: 30,
+                          decoration: const BoxDecoration(
+                              color: Color(0xFFFF7A37),
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(15),
+                                  bottomLeft: Radius.circular(15))),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Kalori (kcal):"),
+                    Text(nutritionalValue.calorieAmount.toString()),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Karbonhidrat (g):"),
+                    Text(nutritionalValue.carbohydrateAmount.toString()),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Protein (g):"),
+                    Text(nutritionalValue.proteinAmount.toString()),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Yağ (g):"),
+                    Text(nutritionalValue.fatAmount.toString()),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 18),
+        ),
+      ],
     );
   }
 }
