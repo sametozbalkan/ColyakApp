@@ -105,10 +105,7 @@ class Bolus {
   }
 }
 
-enum FoodType {
-  RECEIPT,
-  BARCODE
-}
+
 
 class BolusReportJson {
   String? userName;

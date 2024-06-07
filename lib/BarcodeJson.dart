@@ -1,4 +1,4 @@
-import 'package:colyakapp/ReceiptJson.dart';
+import 'package:colyakapp/NutritionalValuesList.dart';
 
 class BarcodeJson {
   int? id;

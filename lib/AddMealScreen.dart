@@ -1,4 +1,4 @@
-import 'package:colyakapp/BolusJson.dart';
+import 'package:colyakapp/FoodType.dart';
 import 'package:flutter/material.dart';
 import 'package:colyakapp/BarcodeJson.dart';
 import 'package:colyakapp/ReceiptJson.dart';

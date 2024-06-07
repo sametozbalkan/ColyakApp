@@ -32,4 +32,8 @@ class CacheManager {
       }
     }
   }
+
+  Future<void> cleanDefaultCacheManager() async {
+    DefaultCacheManager().emptyCache();
+  }
 }

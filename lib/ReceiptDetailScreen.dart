@@ -27,7 +27,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
   List<CommentReplyJson> commentReply = [];
   TextEditingController commentController = TextEditingController();
   late bool liked;
-  
+
   @override
   void initState() {
     super.initState();
@@ -187,117 +187,121 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.receipt.receiptName.toString()),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              liked
-                  ? {
-                      await toggleLike(
-                          widget.receipt.id!, "api/likes/unlike", liked),
-                      liked = false
-                    }
-                  : {
-                      await toggleLike(
-                          widget.receipt.id!, "api/likes/like", liked),
-                      liked = true
-                    };
-            },
-            icon: Icon(
-              liked ? Icons.favorite : Icons.favorite_border,
-              color: liked ? Colors.red : Colors.black,
-            ),
-          ),
-        ],
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context, liked);
-          },
-        ),
-      ),
-      body: DefaultTabController(
-        length: 4,
-        initialIndex: 0,
-        child: Column(
-          children: <Widget>[
-            AspectRatio(
-              aspectRatio: 4 / 3,
-              child: CachedNetworkImage(
-                imageUrl: widget.imageUrl,
-                placeholder: (context, url) => Shimmer(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: Colors.grey.shade300,
-                  ),
-                ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.fitWidth,
-              ),
-            ),
-            Container(
-              decoration: const BoxDecoration(color: Color(0xFFFFF1EC)),
-              child: const TabBar(
-                indicatorColor: Color(0xFFFF7A37),
-                indicatorSize: TabBarIndicatorSize.tab,
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.black,
-                tabs: [
-                  Tab(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        "Malzeme\nListesi",
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        "Tarif\nDetayları",
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        "Besin\nDeğerleri",
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        "Yorumlar",
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: TabBarView(
-                children: <Widget>[
-                  _buildMaterialList(),
-                  _buildRecipeDetails(),
-                  _buildNutritionalValues(),
-                  _buildComments(),
-                ],
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, liked);
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.receipt.receiptName.toString()),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                liked
+                    ? {
+                        await toggleLike(
+                            widget.receipt.id!, "api/likes/unlike", liked),
+                      }
+                    : {
+                        await toggleLike(
+                            widget.receipt.id!, "api/likes/like", liked),
+                      };
+              },
+              icon: Icon(
+                liked ? Icons.favorite : Icons.favorite_border,
+                color: liked ? Colors.red : Colors.black,
               ),
             ),
           ],
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context, liked);
+            },
+          ),
+        ),
+        body: DefaultTabController(
+          length: 4,
+          initialIndex: 0,
+          child: Column(
+            children: <Widget>[
+              AspectRatio(
+                aspectRatio: 4 / 3,
+                child: CachedNetworkImage(
+                  imageUrl: widget.imageUrl,
+                  placeholder: (context, url) => Shimmer(
+                    child: Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      color: Colors.grey.shade300,
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+              Container(
+                decoration: const BoxDecoration(color: Color(0xFFFFF1EC)),
+                child: const TabBar(
+                  indicatorColor: Color(0xFFFF7A37),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.black,
+                  tabs: [
+                    Tab(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          "Malzeme\nListesi",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    Tab(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          "Tarif\nDetayları",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    Tab(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          "Besin\nDeğerleri",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    Tab(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          "Yorumlar",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  children: <Widget>[
+                    _buildMaterialList(),
+                    _buildRecipeDetails(),
+                    _buildNutritionalValues(),
+                    _buildComments(),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -434,7 +438,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showModal(false);
+          showModalBS(false);
         },
         child: const Icon(Icons.add),
       ),
@@ -537,7 +541,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                                       "api/comments/",
                                     );
                                   } else if (result == 'update') {
-                                    showModal(true,
+                                    showModalBS(true,
                                         commentResponse: commentResponse);
                                   }
                                 },
@@ -609,7 +613,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
     }
   }
 
-  void showModal(bool isUpdate, {CommentResponse? commentResponse}) {
+  void showModalBS(bool isUpdate, {CommentResponse? commentResponse}) {
     commentController.text = isUpdate ? commentResponse!.comment! : '';
     final String title = isUpdate ? 'Yorumu Güncelle' : 'Yorum Ekle';
 

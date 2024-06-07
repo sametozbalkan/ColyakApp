@@ -188,6 +188,15 @@ class _ReceiptPageState extends State<ReceiptPage> {
     );
   }
 
+  Widget _buildEmptyFavorites() {
+    return const Center(
+      child: Text(
+        'Favoriler Boş',
+        style: TextStyle(fontSize: 20),
+      ),
+    );
+  }
+
   Widget _buildReceiptCard(ReceiptJson receipt) {
     String imageUrl =
         "https://api.colyakdiyabet.com.tr/api/image/get/${receipt.imageId}";
@@ -325,8 +334,10 @@ class _ReceiptPageState extends State<ReceiptPage> {
                   ),
                   RefreshIndicator(
                     onRefresh: initializeData,
-                    child:
-                        _buildGridView(filteredFavorites, favoritesController),
+                    child: filteredFavorites.isEmpty
+                        ? _buildEmptyFavorites()
+                        : _buildGridView(
+                            filteredFavorites, favoritesController),
                   ),
                 ],
               ),
