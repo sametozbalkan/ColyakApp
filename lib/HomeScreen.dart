@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:colyakapp/BarcodeJson.dart';
 import 'package:colyakapp/BarcodeScanResult.dart';
+import 'package:colyakapp/BarcodeScanner.dart';
 import 'package:colyakapp/BolusReportScreen.dart';
 import 'package:colyakapp/CacheManager.dart';
 import 'package:colyakapp/HttpBuild.dart';
@@ -15,7 +16,6 @@ import 'package:colyakapp/UserGuides.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -61,17 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
         receipts = data.map((json) => ReceiptJson.fromJson(json)).toList();
       });
     }
-  }
-
-  Future<String> scanBarcodeNormal(BuildContext context) async {
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          "#ff6666", "Cancel", true, ScanMode.BARCODE);
-      debugPrint(barcodeScanRes);
-    } on PlatformException {
-      barcodeScanRes = "Failed to get platform version.";
-    }
-    return barcodeScanRes;
   }
 
   Future<void> barkodGonder(BuildContext context, String barcode) async {
@@ -409,9 +398,17 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 GestureDetector(
                   onTap: () async {
-                    String barcode = await scanBarcodeNormal(context);
-                    if (barcode != "-1") {
+                    String barcode = "";
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BarcodeScanner(),
+                      ),
+                    );
+                    barcode = result ?? "";
+                    if (barcode.isNotEmpty) {
                       await barkodGonder(context, barcode);
+                      barcode = "";
                     }
                   },
                   child: const Card(

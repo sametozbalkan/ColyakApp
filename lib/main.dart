@@ -107,10 +107,13 @@ class _SplashScreenState extends State<SplashScreen> {
                 shape: BoxShape.circle,
                 color: Colors.white,
               ),
-              child: Image.asset(
-                "assets/images/colyak.png",
-                height: MediaQuery.of(context).size.width / 1.5,
-                width: MediaQuery.of(context).size.width / 1.5,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Image.asset(
+                  "assets/images/colyak.png",
+                  height: MediaQuery.of(context).size.width / 1.5,
+                  width: MediaQuery.of(context).size.width / 1.5,
+                ),
               ),
             ),
             const SizedBox(height: 20),
