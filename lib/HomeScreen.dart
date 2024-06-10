@@ -217,7 +217,9 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _showSuggestionModal(context);
+                  _showSuggestionModal(context,
+                      isProductSuggestion: true,
+                      barcodeScanRes: barcodeScanRes);
                 },
                 child: const Text('Öner')),
           ],

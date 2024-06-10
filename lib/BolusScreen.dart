@@ -60,7 +60,8 @@ class _BolusScreenState extends State<BolusScreen> {
 
   Future<void> sendBolus(BolusJson bolusJson) async {
     try {
-      final response = await HttpBuildService.sendRequest('POST', 'api/meals/add',
+      final response = await HttpBuildService.sendRequest(
+          'POST', 'api/meals/add',
           body: bolusJson.toJson(), token: true);
 
       if (response.statusCode == 201) {
@@ -201,14 +202,24 @@ class _BolusScreenState extends State<BolusScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Text('Bolus Sonucu'),
-              const SizedBox(height: 10),
+              Container(
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 10, bottom: 10),
+                child: Text('Bolus Sonucu'),
+              ),
               const Divider(),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Vurulacak doz: ${bolusValue.round().toInt()}',
-                  style: const TextStyle(fontSize: 28),
+                  'İnsülin Dozu: ${bolusValue.round().toInt()}',
+                  style: const TextStyle(fontSize: 24),
                 ),
               ),
             ],

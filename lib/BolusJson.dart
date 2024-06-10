@@ -57,7 +57,13 @@ class FoodListComplex {
   int? amount;
   double? carbonhydrate;
 
-  FoodListComplex({this.foodType, this.foodId, this.carbonhydrate, this.foodName, this.type, this.amount});
+  FoodListComplex(
+      {this.foodType,
+      this.foodId,
+      this.carbonhydrate,
+      this.foodName,
+      this.type,
+      this.amount});
 }
 
 class Bolus {
@@ -88,7 +94,8 @@ class Bolus {
     totalCarbonhydrate = json['totalCarbonhydrate'];
     insulinCarbonhydrateRatio = json['insulinCarbonhydrateRatio'];
     bolusValue = json['bolusValue'];
-    eatingTime = json['eatingTime'] != null ? DateTime.parse(json['eatingTime']) : null;
+    eatingTime =
+        json['eatingTime'] != null ? DateTime.parse(json['eatingTime']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -104,8 +111,6 @@ class Bolus {
     return data;
   }
 }
-
-
 
 class BolusReportJson {
   String? userName;
