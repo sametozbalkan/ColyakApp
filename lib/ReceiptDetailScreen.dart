@@ -39,7 +39,10 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
     await commentAl("api/replies/receipt/commentsWithReplyByReceiptId/");
   }
 
+  bool isLoading = true;
   Future<void> commentAl(String path) async {
+    isLoading = true;
+
     try {
       final response = await HttpBuildService.sendRequest(
           'GET', path + widget.receipt.id.toString(),
@@ -56,6 +59,8 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
     } catch (e) {
       debugPrint('Error fetching comments: $e');
     }
+
+    isLoading = false;
   }
 
   Future<void> addComment(int receiptId, String comment, String path) async {
@@ -444,142 +449,155 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: initializeData,
-        child: ListView.builder(
-          itemCount: commentReply.length,
-          itemBuilder: (context, index) {
-            final commentResponse = commentReply[index].commentResponse;
-            final replyResponses = commentReply[index].replyResponses;
-            final replyCount = replyResponses?.length ?? 0;
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : commentReply.isEmpty
+                ? const Center(child: Text("Henüz Yorum Yok"))
+                : ListView.builder(
+                    itemCount: commentReply.length,
+                    itemBuilder: (context, index) {
+                      final commentResponse =
+                          commentReply[index].commentResponse;
+                      final replyResponses = commentReply[index].replyResponses;
+                      final replyCount = replyResponses?.length ?? 0;
 
-            return Card(
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ReplyCommentScreen(
-                        replies: commentReply[index].replyResponses!,
-                        commentId: commentResponse.commentId!,
-                        comment: commentResponse.comment ?? "null",
-                        commentUser: commentResponse.userName!,
-                        createdTime: commentResponse.createdDate!,
-                      ),
-                    ),
-                  ).then((value) => setState(() {
-                        initializeData();
-                      }));
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 5, bottom: 5),
-                  child: Stack(
-                    children: [
-                      Column(
-                        children: [
-                          ListTile(
-                            title: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      return Card(
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReplyCommentScreen(
+                                  replies: commentReply[index].replyResponses!,
+                                  commentId: commentResponse.commentId!,
+                                  comment: commentResponse.comment ?? "null",
+                                  commentUser: commentResponse.userName!,
+                                  createdTime: commentResponse.createdDate!,
+                                ),
+                              ),
+                            ).then((value) => setState(() {
+                                  initializeData();
+                                }));
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 5, bottom: 5),
+                            child: Stack(
                               children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                Column(
                                   children: [
-                                    Expanded(
-                                      child: Text(
-                                        commentResponse!.userName.toString(),
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    ListTile(
+                                      title: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  commentResponse!.userName
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                timeSince(DateTime.parse(
+                                                    commentResponse
+                                                        .createdDate!)),
+                                              ),
+                                            ],
+                                          ),
+                                          const Divider(),
+                                          Row(
+                                            children: [
+                                              Flexible(
+                                                child: Text(
+                                                  commentResponse.comment
+                                                      .toString(),
+                                                  softWrap: true,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Text(
-                                      timeSince(DateTime.parse(
-                                          commentResponse.createdDate!)),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 10),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            replyCount > 0
+                                                ? 'Yanıtlar: $replyCount'
+                                                : "Yanıt Yok",
+                                            style: const TextStyle(
+                                                color: Colors.black54),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
-                                const Divider(),
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        commentResponse.comment.toString(),
-                                        softWrap: true,
-                                      ),
-                                    ),
-                                  ],
+                                Positioned(
+                                  bottom: 8,
+                                  right: 8,
+                                  child: commentResponse.userName ==
+                                          HttpBuildService.userName
+                                      ? PopupMenuButton<String>(
+                                          icon: const Icon(Icons.more_vert),
+                                          onSelected: (String result) async {
+                                            if (result == 'delete') {
+                                              await confirmDeleteComment(
+                                                commentResponse.commentId!,
+                                                "api/comments/",
+                                              );
+                                            } else if (result == 'update') {
+                                              showModalBS(true,
+                                                  commentResponse:
+                                                      commentResponse);
+                                            }
+                                          },
+                                          itemBuilder: (BuildContext context) =>
+                                              <PopupMenuEntry<String>>[
+                                            const PopupMenuItem<String>(
+                                              value: 'update',
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(Icons.edit),
+                                                  SizedBox(width: 5),
+                                                  Text('Güncelle'),
+                                                ],
+                                              ),
+                                            ),
+                                            const PopupMenuItem<String>(
+                                              value: 'delete',
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(Icons.delete),
+                                                  SizedBox(width: 5),
+                                                  Text('Sil'),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Container(),
                                 ),
                               ],
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  replyCount > 0
-                                      ? 'Yanıtlar: $replyCount'
-                                      : "Yanıt Yok",
-                                  style: const TextStyle(color: Colors.black54),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      Positioned(
-                        bottom: 8,
-                        right: 8,
-                        child: commentResponse.userName ==
-                                HttpBuildService.userName
-                            ? PopupMenuButton<String>(
-                                icon: const Icon(Icons.more_vert),
-                                onSelected: (String result) async {
-                                  if (result == 'delete') {
-                                    await confirmDeleteComment(
-                                      commentResponse.commentId!,
-                                      "api/comments/",
-                                    );
-                                  } else if (result == 'update') {
-                                    showModalBS(true,
-                                        commentResponse: commentResponse);
-                                  }
-                                },
-                                itemBuilder: (BuildContext context) =>
-                                    <PopupMenuEntry<String>>[
-                                  const PopupMenuItem<String>(
-                                    value: 'update',
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.edit),
-                                        SizedBox(width: 5),
-                                        Text('Güncelle'),
-                                      ],
-                                    ),
-                                  ),
-                                  const PopupMenuItem<String>(
-                                    value: 'delete',
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.delete),
-                                        SizedBox(width: 5),
-                                        Text('Sil'),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Container(),
-                      ),
-                    ],
+                        ),
+                      );
+                    },
                   ),
-                ),
-              ),
-            );
-          },
-        ),
       ),
     );
   }

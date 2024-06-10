@@ -108,7 +108,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: Colors.white,
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 child: Image.asset(
                   "assets/images/colyak.png",
                   height: MediaQuery.of(context).size.width / 1.5,

@@ -11,7 +11,6 @@ import 'package:colyakapp/ReceiptDetailScreen.dart';
 import 'package:colyakapp/ReceiptJson.dart';
 import 'package:colyakapp/SettingsScreen.dart';
 import 'package:colyakapp/Shimmer.dart';
-import 'package:colyakapp/Suggestion.dart';
 import 'package:colyakapp/UserGuides.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -335,8 +334,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       (context) => const BolusReportScreen()),
                   _buildDrawerItem(
                       Icons.quiz, 'Quizler', (context) => const QuizScreen()),
-                  _buildDrawerItem(Icons.tips_and_updates, 'Öneri Yap',
-                      (context) => const Suggestion()),
                   _buildDrawerItem(Icons.menu_book, 'Faydalı Bilgiler',
                       (context) => const UserGuides()),
                   _buildDrawerItem(Icons.settings, 'Ayarlar',
@@ -424,6 +421,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
+                GestureDetector(
+                  onTap: () async {
+                    _showSuggestionModal(context);
+                  },
+                  child: const Card(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.tips_and_updates, size: 32),
+                        ListTile(
+                            title: Text("Öneri Yap"),
+                            subtitle: Text("Diyetisyeninize öneri yapın")),
+                      ],
+                    ),
+                  ),
+                )
               ],
             ),
             Column(
@@ -498,23 +511,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildArrowButton(IconData icon, bool isVisible, int direction) {
-    return IconButton(
-      icon: Icon(icon),
-      onPressed: isVisible
-          ? () {
-              _scrollController.animateTo(
-                _scrollController.offset +
-                    (MediaQuery.of(context).size.width * direction),
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.ease,
-              );
-            }
-          : null,
-    );
-  }
-
-  void _showSuggestionModal(BuildContext context) {
+  void _showSuggestionModal(BuildContext context,
+      {bool isProductSuggestion = false, String barcodeScanRes = ""}) {
     TextEditingController suggestionController = TextEditingController();
     showModalBottomSheet(
         context: context,
@@ -540,19 +538,30 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const Padding(
                   padding: EdgeInsets.only(bottom: 10, top: 10),
-                  child: Text("Ürün Önerisi Yap"),
+                  child: Text("Öneri Yap"),
                 ),
                 const Divider(),
-                Text("Barkod: $barcodeScanRes"),
+                if (isProductSuggestion)
+                  Text("Barkod: $barcodeScanRes")
+                else
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      "Diyetisyeninize önermek istediğiniz bir ürün veya tarif mi var? Aşağıdaki boş alana önerinizi yazıp gönderebilirsiniz.",
+                      textAlign: TextAlign.center,
+                      softWrap: true,
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
                     controller: suggestionController,
                     maxLength: 100,
-                    decoration: const InputDecoration(
-                      labelText: "Ürün İsmi",
+                    decoration: InputDecoration(
+                      labelText:
+                          isProductSuggestion ? "Ürün İsmi" : "Önerinizi yazın",
                       counterText: '',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ),
@@ -564,8 +573,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: const Text('İptal')),
                     TextButton(
                         onPressed: () {
+                          final suggestionText = isProductSuggestion
+                              ? "$barcodeScanRes | ${suggestionController.text}"
+                              : suggestionController.text;
                           suggestionGonder(
-                              "$barcodeScanRes | ${suggestionController.text}");
+                              context, suggestionText, isProductSuggestion);
                         },
                         child: const Text('Gönder')),
                   ],
@@ -576,7 +588,8 @@ class _HomeScreenState extends State<HomeScreen> {
         });
   }
 
-  void suggestionGonder(String suggestion) async {
+  void suggestionGonder(
+      BuildContext context, String suggestion, bool isProductSuggestion) async {
     try {
       final suggestionDetails = {'suggestion': suggestion};
       final response = await HttpBuildService.sendRequest(
@@ -587,10 +600,14 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       if (response.statusCode == 200) {
-        _showSnackBar(context, 'Ürün önerisi gönderildi!');
+        _showSnackBar(
+            context,
+            isProductSuggestion
+                ? 'Ürün önerisi gönderildi!'
+                : 'Öneri gönderildi!');
         Navigator.pop(context);
       } else {
-        _showSnackBar(context, 'Ürün önerilirken hata!',
+        _showSnackBar(context, 'Öneri gönderilirken hata!',
             additionalMessage: response.statusCode.toString());
       }
     } catch (e) {
@@ -601,8 +618,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showSnackBar(BuildContext context, String message,
       {String? additionalMessage}) {
     final snackBar = SnackBar(
-      content: Text('$message ${additionalMessage ?? ''}'),
-      duration: const Duration(seconds: 2),
+      content: Text(
+          message + (additionalMessage != null ? ' $additionalMessage' : '')),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }

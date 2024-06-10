@@ -81,7 +81,7 @@ class QuizReportScreen extends StatelessWidget {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     child: ListTile(
                       title: Text(
-                        "${index + 1}) ${questionList[index].question}?",
+                        "${index + 1}) ${questionList[index].question}",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Column(
