@@ -91,10 +91,10 @@ class _BarcodeScannerState extends State<BarcodeScanner>
           return _buildErrorScreen(error);
         },
         onDetect: (barcodes) {
-          final barcode = barcodes.barcodes.first.rawValue!;
-          barcodes.barcodes.clear();
-          viewModel.disposeController();
-          Navigator.pop(context, barcode);
+          if (Navigator.of(context).canPop()) {
+            viewModel.disposeController();
+            Navigator.pop(context, barcodes.barcodes.first.rawValue);
+          }
         },
       ),
     );

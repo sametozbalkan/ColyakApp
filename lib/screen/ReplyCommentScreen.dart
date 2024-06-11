@@ -9,7 +9,7 @@ class ReplyCommentScreen extends StatelessWidget {
   final String comment;
   final String commentUser;
   final String createdTime;
-  final List<ReplyResponses> replies;
+  final List<ReplyResponse> replies;
 
   const ReplyCommentScreen({
     super.key,

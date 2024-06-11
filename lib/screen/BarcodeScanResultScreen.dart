@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:colyakapp/model/BarcodeJson.dart';
-import 'package:colyakapp/others/Shimmer.dart';
 import 'package:colyakapp/viewmodel/BarcodeScanResultViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,12 +36,10 @@ class BarcodeScanResultScreen extends StatelessWidget {
                             ),
                             child: CachedNetworkImage(
                               imageUrl: viewModel.imageUrl,
-                              placeholder: (context, url) => Shimmer(
-                                child: Container(
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  color: Colors.grey.shade300,
-                                ),
+                              placeholder: (context, url) => Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                color: Colors.grey.shade300,
                               ),
                               errorWidget: (context, url, error) =>
                                   const Icon(Icons.error),
@@ -56,8 +53,8 @@ class BarcodeScanResultScreen extends StatelessWidget {
                         _buildInfoRow('Gluten: ',
                             viewModel.barcode.glutenFree! ? 'Var' : 'Yok'),
                         const SizedBox(height: 8),
-                        _buildInfoRow('Barkod: ',
-                            viewModel.barcode.code.toString()),
+                        _buildInfoRow(
+                            'Barkod: ', viewModel.barcode.code.toString()),
                       ],
                     ),
                   ),
@@ -86,7 +83,8 @@ class BarcodeScanResultScreen extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: viewModel.barcode.nutritionalValuesList?.length,
       itemBuilder: (context, index) {
-        final nutritionalValue = viewModel.barcode.nutritionalValuesList![index];
+        final nutritionalValue =
+            viewModel.barcode.nutritionalValuesList![index];
         return Card(
           child: ListTile(
             title: Column(

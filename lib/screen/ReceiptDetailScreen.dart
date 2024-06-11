@@ -4,7 +4,6 @@ import 'package:colyakapp/viewmodel/ReceiptDetailViewModel.dart';
 import 'package:colyakapp/model/CommentReplyJson.dart';
 import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:colyakapp/screen/ReplyCommentScreen.dart';
-import 'package:colyakapp/others/Shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -67,12 +66,10 @@ class ReceiptDetailScreen extends StatelessWidget {
                       aspectRatio: 4 / 3,
                       child: CachedNetworkImage(
                         imageUrl: imageUrl,
-                        placeholder: (context, url) => Shimmer(
-                          child: Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            color: Colors.grey.shade300,
-                          ),
+                        placeholder: (context, url) => Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          color: Colors.grey.shade300,
                         ),
                         errorWidget: (context, url, error) =>
                             const Icon(Icons.error),
@@ -462,7 +459,8 @@ class ReceiptDetailScreen extends StatelessWidget {
               child: const Text('Evet'),
               onPressed: () async {
                 Navigator.of(context).pop();
-                await viewModel.deleteComment(commentId, path, receiptId, context);
+                await viewModel.deleteComment(
+                    commentId, path, receiptId, context);
               },
             ),
             TextButton(
@@ -525,12 +523,14 @@ class ReceiptDetailScreen extends StatelessWidget {
                         await viewModel.updateComment(
                             commentResponse!.commentId!,
                             viewModel.commentController.text,
-                            receipt.id!, context);
+                            receipt.id!,
+                            context);
                       } else {
                         await viewModel.addComment(
                             receipt.id!,
                             viewModel.commentController.text,
-                            "api/comments/add", context);
+                            "api/comments/add",
+                            context);
                       }
                       Navigator.pop(context);
                     },

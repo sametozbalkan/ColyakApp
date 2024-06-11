@@ -4,7 +4,6 @@ import 'package:colyakapp/screen/QuizScreen.dart';
 import 'package:colyakapp/viewmodel/HomeScreenViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:colyakapp/others/Shimmer.dart';
 import 'package:colyakapp/screen/ReceiptDetailScreen.dart';
 import 'package:colyakapp/screen/BarcodeScanner.dart';
 import 'package:colyakapp/screen/MealScreen.dart';
@@ -24,18 +23,16 @@ class HomeScreen extends StatelessWidget {
           return Scaffold(
             drawer: _buildDrawer(context),
             appBar: AppBar(title: const Text("Çölyak Diyabet")),
-            body: viewModel.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        _buildWelcomeMessage(context),
-                        _buildActionsGrid(context, viewModel),
-                        _buildTop5Receipts(viewModel, context),
-                        _buildMealSection(context),
-                      ],
-                    ),
-                  ),
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildWelcomeMessage(context),
+                  _buildActionsGrid(context, viewModel),
+                  _buildTop5Receipts(viewModel, context),
+                  _buildMealSection(context, viewModel),
+                ],
+              ),
+            ),
           );
         },
       ),
@@ -142,18 +139,16 @@ class HomeScreen extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () async {
-                String barcode = "";
-                final result = await Navigator.push(
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const BarcodeScanner(),
                   ),
-                );
-                barcode = result ?? "";
-                if (barcode.isNotEmpty) {
-                  await viewModel.sendBarcode(context, barcode);
-                  barcode = "";
-                }
+                ).then((onValue) {
+                  if (onValue.isNotEmpty) {
+                    viewModel.sendBarcode(context, onValue);
+                  }
+                });
               },
               child: const Card(
                 child: Column(
@@ -257,12 +252,10 @@ class HomeScreen extends StatelessWidget {
             else
               Expanded(
                 flex: 7,
-                child: Shimmer(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: Colors.grey.shade300,
-                  ),
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.grey.shade300,
                 ),
               ),
             Expanded(
@@ -288,7 +281,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMealSection(BuildContext context) {
+  Widget _buildMealSection(BuildContext context, HomeViewModel viewModel) {
     return Column(
       children: [
         const Padding(
@@ -298,7 +291,12 @@ class HomeScreen extends StatelessWidget {
         GestureDetector(
           onTap: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const MealScreen()));
+                    MaterialPageRoute(builder: (context) => const MealScreen()))
+                .then((value) {
+              if (value != null) {
+                viewModel.foodListComplex = value;
+              }
+            });
           },
           child: const Card(
             child: Padding(

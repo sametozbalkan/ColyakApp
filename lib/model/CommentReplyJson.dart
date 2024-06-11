@@ -1,6 +1,6 @@
 class CommentReplyJson {
   CommentResponse? commentResponse;
-  List<ReplyResponses>? replyResponses;
+  List<ReplyResponse>? replyResponses;
 
   CommentReplyJson({this.commentResponse, this.replyResponses});
 
@@ -9,9 +9,9 @@ class CommentReplyJson {
         ? CommentResponse.fromJson(json['commentResponse'])
         : null;
     if (json['replyResponses'] != null) {
-      replyResponses = <ReplyResponses>[];
+      replyResponses = <ReplyResponse>[];
       json['replyResponses'].forEach((v) {
-        replyResponses!.add(ReplyResponses.fromJson(v));
+        replyResponses!.add(ReplyResponse.fromJson(v));
       });
     }
   }
@@ -61,15 +61,15 @@ class CommentResponse {
   }
 }
 
-class ReplyResponses {
+class ReplyResponse {
   int? replyId;
   String? userName;
   String? createdDate;
   String? reply;
 
-  ReplyResponses({this.replyId, this.userName, this.createdDate, this.reply});
+  ReplyResponse({this.replyId, this.userName, this.createdDate, this.reply});
 
-  ReplyResponses.fromJson(Map<String, dynamic> json) {
+  ReplyResponse.fromJson(Map<String, dynamic> json) {
     replyId = json['replyId'];
     userName = json['userName'];
     createdDate = json['createdDate'];

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:colyakapp/model/BolusJson.dart';
 import 'package:colyakapp/screen/BarcodeScanResultScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:colyakapp/model/ReceiptJson.dart';
@@ -10,7 +11,7 @@ import 'package:colyakapp/service/HttpBuild.dart';
 class HomeViewModel extends ChangeNotifier {
   List<ReceiptJson> receipts = [];
   Map<String, Uint8List?> imageBytesMap = {};
-  bool isLoading = false;
+  List<FoodListComplex> foodListComplex = [];
 
   HomeViewModel() {
     initializeData();
@@ -18,14 +19,12 @@ class HomeViewModel extends ChangeNotifier {
 
   Future<void> initializeData() async {
     try {
-      isLoading = true;
       notifyListeners();
       await _fetchTop5Receipts();
       await _loadImageBytes();
     } catch (e) {
       print("Error initializing data: $e");
     } finally {
-      isLoading = false;
       notifyListeners();
     }
   }

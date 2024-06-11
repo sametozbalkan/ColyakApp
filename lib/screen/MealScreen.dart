@@ -15,6 +15,11 @@ class MealScreen extends StatelessWidget {
         builder: (context, viewModel, child) {
           return Scaffold(
             appBar: AppBar(
+              leading: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context, viewModel.foodListComplex);
+                  },
+                  icon: const Icon(Icons.arrow_back)),
               title: const Text("Öğün Ekranı"),
               actions: [
                 IconButton(

@@ -97,7 +97,6 @@ class ReceiptDetailViewModel extends ChangeNotifier {
 
       if (response.statusCode == 204) {
         await initializeData(receiptId);
-        _showSnackBar('Yorum silindi!', context);
       } else {
         _showSnackBar('Yorum silinirken hata: ${response.statusCode}', context);
         debugPrint('Error: ${response.statusCode}');

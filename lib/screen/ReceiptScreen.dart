@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:colyakapp/screen/ReceiptDetailScreen.dart';
-import 'package:colyakapp/others/Shimmer.dart';
 
 class ReceiptScreen extends StatelessWidget {
   const ReceiptScreen({super.key});
@@ -136,11 +135,10 @@ class ReceiptScreen extends StatelessWidget {
                         topRight: Radius.circular(8)),
                     child: CachedNetworkImage(
                       imageUrl: imageUrl,
-                      placeholder: (context, url) => Shimmer(
-                          child: Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                              color: Colors.grey.shade300)),
+                      placeholder: (context, url) => Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          color: Colors.grey.shade300),
                       errorWidget: (context, url, error) =>
                           const Icon(Icons.error),
                       width: double.infinity,

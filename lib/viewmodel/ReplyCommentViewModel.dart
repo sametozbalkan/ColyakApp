@@ -8,7 +8,7 @@ class ReplyCommentViewModel extends ChangeNotifier {
   final String comment;
   final String commentUser;
   final String createdTime;
-  List<ReplyResponses> replies;
+  List<ReplyResponse> replies;
 
   bool isLoading = false;
   final TextEditingController replyController = TextEditingController();
@@ -28,7 +28,7 @@ class ReplyCommentViewModel extends ChangeNotifier {
           'GET', 'api/replies/comments/$commentId',
           token: true);
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-      replies = data.map((json) => ReplyResponses.fromJson(json)).toList();
+      replies = data.map((json) => ReplyResponse.fromJson(json)).toList();
     } catch (e) {
       print('Failed to load replies: $e');
     }
