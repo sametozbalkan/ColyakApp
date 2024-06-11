@@ -1,8 +1,8 @@
-import 'package:colyakapp/HomePage.dart';
-import 'package:colyakapp/HttpBuild.dart';
-import 'package:colyakapp/LoginScreen.dart';
-import 'package:colyakapp/PasswordResetScreen.dart';
-import 'package:colyakapp/RegisterScreen.dart';
+import 'package:colyakapp/screen/HomePage.dart';
+import 'package:colyakapp/service/HttpBuild.dart';
+import 'package:colyakapp/screen/LoginScreen.dart';
+import 'package:colyakapp/screen/PasswordResetScreen.dart';
+import 'package:colyakapp/screen/RegisterScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -73,25 +73,15 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    getAll();
+    initializeData();
   }
 
-  Future<void> getAll() async {
-    isCheckboxChecked =
-        (await HttpBuildService.getStoredBool('isChecked')) ?? false;
-    if (isCheckboxChecked) {
-      HttpBuildService.refreshToken =
-          (await HttpBuildService.getStoredToken('refresh_token')) ?? '';
-      HttpBuildService.userName =
-          (await HttpBuildService.getStoredToken('userName')) ?? '';
-      HttpBuildService.storedEmail =
-          (await HttpBuildService.getStoredToken('storedEmail')) ?? '';
-      HttpBuildService.storedPassword =
-          (await HttpBuildService.getStoredToken('storedPassword')) ?? '';
-      emailController.text = HttpBuildService.storedEmail;
-      passwordController.text = HttpBuildService.storedPassword;
-    }
-    await HttpBuildService.checkAndLogin(context);
+  Future<void> initializeData() async {
+    HttpBuildService.refreshToken =
+        (await HttpBuildService.getStoredToken('refresh_token')) ?? '';
+        HttpBuildService.storedEmail =
+        (await HttpBuildService.getStoredToken('storedEmail')) ?? '';
+    HttpBuildService.checkAndLogin(context);
   }
 
   @override
