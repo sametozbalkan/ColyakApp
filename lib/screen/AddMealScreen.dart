@@ -1,4 +1,5 @@
 import 'package:colyakapp/model/BolusJson.dart';
+import 'package:colyakapp/screen/MealDetailScreen.dart';
 import 'package:colyakapp/viewmodel/AddMealViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:colyakapp/model/BarcodeJson.dart';
@@ -6,15 +7,17 @@ import 'package:colyakapp/model/FoodType.dart';
 import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:provider/provider.dart';
 
-import 'MealDetailScreen.dart';
-
 class AddMealScreen extends StatelessWidget {
-  const AddMealScreen({super.key});
+  final List<ReceiptJson> receiptList;
+  final List<BarcodeJson> barkodList;
+  const AddMealScreen(
+      {super.key, required this.receiptList, required this.barkodList});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AddMealViewModel()..initializeData(),
+      create: (_) =>
+          AddMealViewModel()..initializeData(receiptList, barkodList),
       child: Consumer<AddMealViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
@@ -57,7 +60,7 @@ class AddMealScreen extends StatelessWidget {
                             children: <Widget>[
                               _buildListView<ReceiptJson>(
                                 viewModel.filteredReceipts,
-                                (receipt) => receipt.receiptName!,
+                                (receipt) => receipt.receiptName ?? "",
                                 (receipt) {
                                   _showMealDetailScreen(
                                     context,

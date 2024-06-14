@@ -305,11 +305,12 @@ class HomeScreen extends StatelessWidget {
         GestureDetector(
           onTap: () {
             Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MealScreen(
-                            foodListComplex: viewModel.foodListComplex)))
-                .then((value) {
+                context,
+                MaterialPageRoute(
+                    builder: (context) => MealScreen(
+                        foodListComplex: viewModel.foodListComplex,
+                        barkodList: viewModel.barcodesMeal,
+                        receiptList: viewModel.receiptsMeal))).then((value) {
               if (value != null &&
                   !areListsEqual(
                       value,

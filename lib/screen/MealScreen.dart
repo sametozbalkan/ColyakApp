@@ -1,4 +1,6 @@
+import 'package:colyakapp/model/BarcodeJson.dart';
 import 'package:colyakapp/model/BolusJson.dart';
+import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:colyakapp/screen/AddMealScreen.dart';
 import 'package:colyakapp/viewmodel/BolusModel.dart';
 import 'package:colyakapp/viewmodel/MealViewModel.dart';
@@ -7,7 +9,13 @@ import 'package:provider/provider.dart';
 
 class MealScreen extends StatelessWidget {
   final List<FoodListComplex> foodListComplex;
-  const MealScreen({super.key, required this.foodListComplex});
+  final List<ReceiptJson> receiptList;
+  final List<BarcodeJson> barkodList;
+  const MealScreen(
+      {super.key,
+      required this.foodListComplex,
+      required this.receiptList,
+      required this.barkodList});
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +37,12 @@ class MealScreen extends StatelessWidget {
                     final response = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AddMealScreen(),
+                        builder: (context) => AddMealScreen(
+                            receiptList: receiptList, barkodList: barkodList),
                       ),
                     );
 
-                    if (response != null &&
-                        response is List<FoodListComplex>) {
+                    if (response != null && response is List<FoodListComplex>) {
                       viewModel.addItemsToFoodList(response);
                       Provider.of<BolusModel>(context, listen: false)
                           .updateTotalCarb(viewModel.totalCarb);
@@ -71,24 +79,20 @@ class MealScreen extends StatelessWidget {
                     padding: EdgeInsets.all(10),
                     child: Text(
                       "Öğün Listem",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ),
                   Expanded(
                     child: viewModel.foodListComplex.isEmpty
                         ? const Center(
-                            child: Text(
-                                "Sağ üstten yediklerinizi ekleyin.",
-                                softWrap: true,
-                                textAlign: TextAlign.center))
+                            child: Text("Sağ üstten yediklerinizi ekleyin.",
+                                softWrap: true, textAlign: TextAlign.center))
                         : ListView.builder(
-                            itemCount:
-                                viewModel.foodListComplex.length * 2 - 1,
+                            itemCount: viewModel.foodListComplex.length * 2 - 1,
                             itemBuilder: (context, index) {
                               if (index.isOdd) {
-                                return const Divider(
-                                    endIndent: 10, indent: 10);
+                                return const Divider(endIndent: 10, indent: 10);
                               }
                               int itemIndex = index ~/ 2;
                               FoodListComplex foodItem =
@@ -126,16 +130,15 @@ class MealScreen extends StatelessWidget {
                                         icon: const Icon(Icons.remove),
                                         onPressed: () {
                                           if (foodItem.amount! > 1) {
-                                            viewModel.updateCarb(
-                                                foodItem, -1);
+                                            viewModel.updateCarb(foodItem, -1);
                                             Provider.of<BolusModel>(context,
                                                     listen: false)
                                                 .updateTotalCarb(
                                                     viewModel.totalCarb);
                                             Provider.of<BolusModel>(context,
                                                     listen: false)
-                                                .updateFoodList(viewModel
-                                                    .foodListComplex);
+                                                .updateFoodList(
+                                                    viewModel.foodListComplex);
                                           } else {
                                             viewModel.removeFood(foodItem);
                                             Provider.of<BolusModel>(context,
@@ -144,24 +147,23 @@ class MealScreen extends StatelessWidget {
                                                     viewModel.totalCarb);
                                             Provider.of<BolusModel>(context,
                                                     listen: false)
-                                                .updateFoodList(viewModel
-                                                    .foodListComplex);
+                                                .updateFoodList(
+                                                    viewModel.foodListComplex);
                                           }
                                         },
                                       ),
                                       IconButton(
                                         icon: const Icon(Icons.add),
                                         onPressed: () {
-                                          viewModel.updateCarb(
-                                              foodItem, 1);
+                                          viewModel.updateCarb(foodItem, 1);
                                           Provider.of<BolusModel>(context,
                                                   listen: false)
                                               .updateTotalCarb(
                                                   viewModel.totalCarb);
                                           Provider.of<BolusModel>(context,
                                                   listen: false)
-                                              .updateFoodList(viewModel
-                                                  .foodListComplex);
+                                              .updateFoodList(
+                                                  viewModel.foodListComplex);
                                         },
                                       ),
                                     ],

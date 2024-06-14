@@ -12,16 +12,38 @@ class HomeViewModel extends ChangeNotifier {
   List<ReceiptJson> receipts = [];
   Map<String, Uint8List?> imageBytesMap = {};
   List<FoodListComplex> foodListComplex = [];
+  List<ReceiptJson> receiptsMeal = [];
+  List<BarcodeJson> barcodesMeal = [];
 
   HomeViewModel() {
     initializeData();
   }
 
+  Future<void> _fetchReceipts() async {
+    var response = await HttpBuildService.sendRequest(
+        "GET", "api/receipts/getAll/all",
+        token: true);
+    List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+    receiptsMeal = data.map((json) => ReceiptJson.fromJson(json)).toList();
+    notifyListeners();
+  }
+
+  Future<void> _fetchBarcodes() async {
+    var response = await HttpBuildService.sendRequest("GET", "api/barcodes/all",
+        token: true);
+    List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+    barcodesMeal = data.map((json) => BarcodeJson.fromJson(json)).toList();
+    notifyListeners();
+  }
+
   Future<void> initializeData() async {
     try {
       notifyListeners();
+      await _fetchReceipts();
+      await _fetchBarcodes();
       await _fetchTop5Receipts();
       await _loadImageBytes();
+      
     } catch (e) {
       debugPrint("Error initializing data: $e");
     } finally {
