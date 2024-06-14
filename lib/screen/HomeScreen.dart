@@ -1,6 +1,8 @@
+import 'package:colyakapp/model/BolusJson.dart';
 import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:colyakapp/service/HttpBuild.dart';
 import 'package:colyakapp/screen/QuizScreen.dart';
+import 'package:colyakapp/viewmodel/BolusModel.dart';
 import 'package:colyakapp/viewmodel/HomeScreenViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -281,6 +283,18 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  bool areListsEqual(List<FoodListComplex> list1, List<FoodListComplex> list2) {
+    if (list1.length != list2.length) {
+      return false;
+    }
+    for (int i = 0; i < list1.length; i++) {
+      if (list1[i] != list2[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   Widget _buildMealSection(BuildContext context, HomeViewModel viewModel) {
     return Column(
       children: [
@@ -290,11 +304,21 @@ class HomeScreen extends StatelessWidget {
         ),
         GestureDetector(
           onTap: () {
-            Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const MealScreen()))
+            Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MealScreen(
+                            foodListComplex: viewModel.foodListComplex)))
                 .then((value) {
-              if (value != null) {
-                viewModel.foodListComplex = value;
+              if (value != null &&
+                  !areListsEqual(
+                      value,
+                      Provider.of<BolusModel>(context, listen: false)
+                          .foodList)) {
+                Provider.of<BolusModel>(context, listen: false)
+                    .updateFoodList(value);
+                Provider.of<BolusModel>(context, listen: false).updateTotalCarb(
+                    value.fold(0, (sum, item) => sum + item.carbonhydrate!));
               }
             });
           },

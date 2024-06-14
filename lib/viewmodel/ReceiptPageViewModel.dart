@@ -108,10 +108,10 @@ class ReceiptPageViewModel extends ChangeNotifier {
         filteredFavorites = favorites;
         notifyListeners();
       } else {
-        print(response.statusCode);
+        debugPrint(response.statusCode.toString());
       }
     } catch (e) {
-      print('Error toggling like: $e');
+      debugPrint('Error toggling like: $e');
     }
   }
 

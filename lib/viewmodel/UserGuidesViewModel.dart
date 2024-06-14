@@ -24,7 +24,7 @@ class UserGuidesViewModel extends ChangeNotifier {
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       pdflistesi = data.map((json) => PDFJson.fromJson(json)).toList();
     } catch (e) {
-      print('Failed to load pdf: $e');
+      debugPrint('Failed to load pdf: $e');
     }
   }
 

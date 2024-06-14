@@ -33,7 +33,7 @@ class QuizPageViewModel extends ChangeNotifier {
       quizler = data.map((json) => QuizJson.fromJson(json)).toList();
     } catch (e) {
       if (_isMounted) {
-        print('Failed to load quizzes: $e');
+        debugPrint('Failed to load quizzes: $e');
       }
     }
     if (_isMounted) {

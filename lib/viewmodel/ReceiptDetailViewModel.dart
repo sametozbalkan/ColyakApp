@@ -119,10 +119,10 @@ class ReceiptDetailViewModel extends ChangeNotifier {
         liked = !liked;
         if (_isMounted) notifyListeners();
       } else {
-        print(response.statusCode);
+        debugPrint(response.statusCode.toString());
       }
     } catch (e) {
-      print('Error toggling like: $e');
+      debugPrint('Error toggling like: $e');
     }
   }
 

@@ -30,7 +30,7 @@ class ReplyCommentViewModel extends ChangeNotifier {
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       replies = data.map((json) => ReplyResponse.fromJson(json)).toList();
     } catch (e) {
-      print('Failed to load replies: $e');
+      debugPrint('Failed to load replies: $e');
     }
     setLoading(false);
   }
@@ -49,7 +49,7 @@ class ReplyCommentViewModel extends ChangeNotifier {
         showSnackBar('Yanıt güncellenirken hata: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error updating comment: $e');
+      debugPrint('Error updating comment: $e');
     }
   }
 
@@ -67,7 +67,7 @@ class ReplyCommentViewModel extends ChangeNotifier {
         showSnackBar('Yanıt eklenirken hata: ${response.statusCode}');
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -80,10 +80,10 @@ class ReplyCommentViewModel extends ChangeNotifier {
         await initializeData();
         showSnackBar('Yanıt silindi!');
       } else {
-        print('Error deleting reply: ${response.statusCode}');
+        debugPrint('Error deleting reply: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error deleting reply: $e');
+      debugPrint('Error deleting reply: $e');
     }
   }
 

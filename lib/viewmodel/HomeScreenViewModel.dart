@@ -23,7 +23,7 @@ class HomeViewModel extends ChangeNotifier {
       await _fetchTop5Receipts();
       await _loadImageBytes();
     } catch (e) {
-      print("Error initializing data: $e");
+      debugPrint("Error initializing data: $e");
     } finally {
       notifyListeners();
     }
@@ -72,7 +72,7 @@ class HomeViewModel extends ChangeNotifier {
         await showCorrectBarcodeModal(context, barcode);
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -189,7 +189,7 @@ class HomeViewModel extends ChangeNotifier {
         await showProductNotFoundDialog(context);
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -317,7 +317,7 @@ class HomeViewModel extends ChangeNotifier {
             additionalMessage: response.statusCode.toString());
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 

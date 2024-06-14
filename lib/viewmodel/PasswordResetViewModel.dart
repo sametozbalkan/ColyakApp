@@ -44,7 +44,7 @@ class PasswordResetViewModel extends ChangeNotifier {
     } catch (e) {
       isLoading = false;
       notifyListeners();
-      print('Error resetting password: $e');
+      debugPrint('Error resetting password: $e');
     }
   }
 

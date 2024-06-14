@@ -1,4 +1,5 @@
 import 'package:colyakapp/others/ColyakIcons.dart';
+import 'package:colyakapp/viewmodel/BolusModel.dart';
 import 'package:colyakapp/viewmodel/BolusViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,9 @@ class BolusScreen extends StatelessWidget {
       create: (context) => BolusViewModel(),
       child: Consumer<BolusViewModel>(
         builder: (context, viewModel, child) {
+          final bolusModel = Provider.of<BolusModel>(context);
+          viewModel.karbonhidratMiktariController.text =
+              bolusModel.totalCarb.toString();
           return Scaffold(
             appBar: AppBar(title: const Text("Bolus Hesapla")),
             floatingActionButton: ValueListenableBuilder<bool>(

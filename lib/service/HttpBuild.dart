@@ -54,7 +54,7 @@ class HttpBuildService {
         return http.Response.fromStream(response);
       }
     } catch (e) {
-      print('İstek gönderirken hata oluştu: $e');
+      debugPrint('İstek gönderirken hata oluştu: $e');
       rethrow;
     }
   }
@@ -150,13 +150,13 @@ class HttpBuildService {
         }
         return "";
       } else {
-        print(
+        debugPrint(
             "Refresh token gönderilirken hata: ${postRefreshTokenResponse.statusCode}");
         throw Exception(
             "Refresh token gönderilirken hata: ${postRefreshTokenResponse.statusCode}");
       }
     } catch (e) {
-      print("Refresh token gönderilirken kritik hata: $e");
+      debugPrint("Refresh token gönderilirken kritik hata: $e");
       rethrow;
     }
   }

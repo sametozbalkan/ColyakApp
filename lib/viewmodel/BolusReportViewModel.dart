@@ -41,7 +41,7 @@ class BolusReportViewModel extends ChangeNotifier {
       bolusReportList = reportList.reversed.toList();
     } catch (e) {
       if (_isMounted) {
-        print(e);
+        debugPrint(e.toString());
       }
     } finally {
       if (_isMounted) {
@@ -61,7 +61,7 @@ class BolusReportViewModel extends ChangeNotifier {
       await fetchReports(dateFormat.format(lastWeek), dateFormat.format(now.add(const Duration(days: 1))));
     } catch (e) {
       if (_isMounted) {
-        print(e);
+        debugPrint(e.toString());
       }
     } finally {
       if (_isMounted) {
@@ -101,7 +101,7 @@ class BolusReportViewModel extends ChangeNotifier {
             DateFormat('yyyy-MM-dd').format(endDate!.add(const Duration(days: 1))));
       } catch (e) {
         if (_isMounted) {
-          print(e);
+          debugPrint(e.toString());
         }
       } finally {
         if (_isMounted) {

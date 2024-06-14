@@ -92,8 +92,10 @@ class _BarcodeScannerState extends State<BarcodeScanner>
         },
         onDetect: (barcodes) {
           if (Navigator.of(context).canPop()) {
+            final barkod = barcodes.barcodes.first.rawValue;
             viewModel.disposeController();
-            Navigator.pop(context, barcodes.barcodes.first.rawValue);
+            barcodes.barcodes.clear();
+            Navigator.pop(context, barkod);
           }
         },
       ),

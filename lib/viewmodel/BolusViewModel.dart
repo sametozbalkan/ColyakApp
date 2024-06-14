@@ -1,4 +1,6 @@
+import 'package:colyakapp/viewmodel/BolusModel.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:colyakapp/service/HttpBuild.dart';
 import 'package:colyakapp/model/BolusJson.dart';
 
@@ -31,19 +33,19 @@ class BolusViewModel extends ChangeNotifier {
     isFormComplete.value = isComplete;
   }
 
-  Future<void> sendBolus(BolusJson bolusJson) async {
+  Future<void> sendBolus(BuildContext context, BolusJson bolusJson) async {
     try {
       final response = await HttpBuildService.sendRequest(
           'POST', 'api/meals/add',
           body: bolusJson.toJson(), token: true);
 
       if (response.statusCode == 201) {
-        print("Başarılı");
+        debugPrint("Başarılı");
       } else {
         throw Exception('Rapor gönderilirken hata!');
       }
     } catch (e) {
-      print('Hata: $e');
+      debugPrint('Hata: $e');
     }
   }
 
@@ -58,6 +60,8 @@ class BolusViewModel extends ChangeNotifier {
   }
 
   void calculateAndSendBolus(BuildContext context) async {
+    final bolusModel = Provider.of<BolusModel>(context, listen: false);
+
     if (karbonhidratMiktariController.text.isNotEmpty &&
         insulinKarbonhidratOraniController.text.isNotEmpty &&
         kanSekeriController.text.isNotEmpty &&
@@ -66,10 +70,8 @@ class BolusViewModel extends ChangeNotifier {
       double? bloodSugar = tryParseDouble(kanSekeriController.text);
       double? targetBloodSugar = tryParseDouble(hedefKanSekeriController.text);
       double? insulinTolerateFactor = tryParseDouble(idfController.text);
-      double? totalCarbonhydrate =
-          tryParseDouble(karbonhidratMiktariController.text);
-      double? insulinCarbonhydrateRatio =
-          tryParseDouble(insulinKarbonhidratOraniController.text);
+      double? totalCarbonhydrate = tryParseDouble(karbonhidratMiktariController.text);
+      double? insulinCarbonhydrateRatio = tryParseDouble(insulinKarbonhidratOraniController.text);
 
       if (bloodSugar != null &&
           targetBloodSugar != null &&
@@ -81,20 +83,23 @@ class BolusViewModel extends ChangeNotifier {
             insulinTolerateFactor;
 
         BolusJson bolusDegerleri = BolusJson(
-          foodList: [],
+          foodList: bolusModel.foodList.map((food) => FoodList(
+            foodType: food.foodType,
+            foodId: food.foodId,
+            carbonhydrate: food.carbonhydrate,
+          )).toList(),
           bolus: Bolus(
             bloodSugar: bloodSugar.round().toInt(),
             targetBloodSugar: targetBloodSugar.round().toInt(),
             insulinTolerateFactor: insulinTolerateFactor.round().toInt(),
             totalCarbonhydrate: totalCarbonhydrate.round().toInt(),
-            insulinCarbonhydrateRatio:
-                insulinCarbonhydrateRatio.round().toInt(),
+            insulinCarbonhydrateRatio: insulinCarbonhydrateRatio.round().toInt(),
             bolusValue: bolusValue.round().toInt(),
             eatingTime: getSelectedDateTime(),
           ),
         );
 
-        await sendBolus(bolusDegerleri);
+        await sendBolus(context, bolusDegerleri);
         showBolusResult(context, bolusValue);
         clearFields();
       }

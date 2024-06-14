@@ -3,8 +3,10 @@ import 'package:colyakapp/service/HttpBuild.dart';
 import 'package:colyakapp/screen/LoginScreen.dart';
 import 'package:colyakapp/screen/PasswordResetScreen.dart';
 import 'package:colyakapp/screen/RegisterScreen.dart';
+import 'package:colyakapp/viewmodel/BolusModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,49 +17,61 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      routes: {
-        '/loginscreen': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/homepage': (context) => const HomePage(),
-        '/forgotpassword': (context) => const PasswordResetScreen(),
-      },
-      title: 'Colyak App',
-      theme: ThemeData(
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => BolusModel())],
+      child: MaterialApp(
+        navigatorKey: navigatorKey,
+        routes: {
+          '/loginscreen': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
+          '/homepage': (context) => const HomePage(),
+          '/forgotpassword': (context) => const PasswordResetScreen(),
+        },
+        title: 'Colyak App',
+        theme: ThemeData(
           floatingActionButtonTheme: const FloatingActionButtonThemeData(
-              backgroundColor: Color(0xFFFF7A37),
-              foregroundColor: Colors.white),
+            backgroundColor: Color(0xFFFF7A37),
+            foregroundColor: Colors.white,
+          ),
           cardTheme: const CardTheme(color: Colors.white, elevation: 4),
           dividerTheme: const DividerThemeData(color: Colors.grey),
-          elevatedButtonTheme: const ElevatedButtonThemeData(
-              style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(Color(0xFFFF7A37)),
-                  foregroundColor: WidgetStatePropertyAll(Colors.white))),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Color(0xFFFF7A37)),
+              foregroundColor: MaterialStateProperty.all(Colors.white),
+            ),
+          ),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-              backgroundColor: Color(0xFFFF7A37),
-              selectedItemColor: Colors.white,
-              unselectedItemColor: Colors.white54),
+            backgroundColor: Color(0xFFFF7A37),
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white54,
+          ),
           appBarTheme: const AppBarTheme(
-              surfaceTintColor: Colors.white,
-              color: Colors.white,
-              titleTextStyle: TextStyle(
-                  color: Colors.black, fontSize: 22, fontFamily: "Urbanist"),
-              centerTitle: true),
+            surfaceTintColor: Colors.white,
+            color: Colors.white,
+            titleTextStyle: TextStyle(
+              color: Colors.black,
+              fontSize: 22,
+              fontFamily: "Urbanist",
+            ),
+            centerTitle: true,
+          ),
           fontFamily: "Poppins",
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF7A37))
               .copyWith(background: const Color(0xFFFAFAFA)),
-          useMaterial3: true),
-      home: const SplashScreen(),
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('tr'),
-      ],
+          useMaterial3: true,
+        ),
+        home: const SplashScreen(),
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('tr'),
+        ],
+      ),
     );
   }
 }
@@ -79,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> initializeData() async {
     HttpBuildService.refreshToken =
         (await HttpBuildService.getStoredToken('refresh_token')) ?? '';
-        HttpBuildService.storedEmail =
+    HttpBuildService.storedEmail =
         (await HttpBuildService.getStoredToken('storedEmail')) ?? '';
     HttpBuildService.checkAndLogin(context);
   }

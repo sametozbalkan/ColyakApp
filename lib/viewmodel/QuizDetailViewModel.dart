@@ -107,7 +107,7 @@ class QuizDetailViewModel extends ChangeNotifier {
         );
       }
     } else {
-      print("Hata kodu: ${response.statusCode}");
+      debugPrint("Hata kodu: ${response.statusCode}");
     }
 
     _setProcessing(false);
