@@ -29,6 +29,7 @@ class ReplyCommentViewModel extends ChangeNotifier {
           token: true);
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       replies = data.map((json) => ReplyResponse.fromJson(json)).toList();
+      replies = replies.reversed.toList();
     } catch (e) {
       debugPrint('Failed to load replies: $e');
     }

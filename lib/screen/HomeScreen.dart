@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:colyakapp/model/BolusJson.dart';
 import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:colyakapp/service/HttpBuild.dart';
@@ -24,11 +25,47 @@ class HomeScreen extends StatelessWidget {
         builder: (context, viewModel, child) {
           return Scaffold(
             drawer: _buildDrawer(context),
-            appBar: AppBar(title: const Text("Çölyak Diyabet")),
+            appBar: AppBar(
+              title: const Text("Çölyak Diyabet"),
+              bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(52),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.black87,
+                                width: 1.0,
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.person,
+                                size: 32,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          Text("  Hoş geldin, ${HttpBuildService.userName}!",
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 18, fontFamily: "Urbanist")),
+                        ],
+                      ),
+                    ),
+                  )),
+            ),
             body: SingleChildScrollView(
               child: Column(
                 children: [
-                  _buildWelcomeMessage(context),
                   _buildActionsGrid(context, viewModel),
                   _buildTop5Receipts(viewModel, context),
                   _buildMealSection(context, viewModel),
@@ -97,24 +134,6 @@ class HomeScreen extends StatelessWidget {
           Navigator.pop(context);
           Navigator.push(context, MaterialPageRoute(builder: builder));
         },
-      ),
-    );
-  }
-
-  Widget _buildWelcomeMessage(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: FittedBox(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.person, size: 32),
-            Text(" Hoş geldin, ${HttpBuildService.userName}",
-                overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          ],
-        ),
       ),
     );
   }
@@ -195,18 +214,22 @@ class HomeScreen extends StatelessWidget {
               Text("En Çok Beğenilen 5 Tarif", style: TextStyle(fontSize: 18)),
         ),
         SizedBox(
-          height: MediaQuery.of(context).size.height / 3.7,
-          child: GridView.builder(
-            scrollDirection: Axis.horizontal,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 1),
-            itemCount: viewModel.receipts.length,
-            itemBuilder: (context, index) {
-              return _buildReceiptCard(
-                  context, viewModel, viewModel.receipts[index]);
-            },
-          ),
-        ),
+            height: MediaQuery.of(context).size.height / 3.7,
+            child: viewModel.receipts.isNotEmpty
+                ? GridView.builder(
+                    scrollDirection: Axis.horizontal,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 1),
+                    itemCount: viewModel.receipts.length,
+                    itemBuilder: (context, index) {
+                      return _buildReceiptCard(
+                          context, viewModel, viewModel.receipts[index]);
+                    },
+                  )
+                : const Center(
+                    child: Text("Yükleniyor..."),
+                  ))
       ],
     );
   }
@@ -243,8 +266,14 @@ class HomeScreen extends StatelessWidget {
                   borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(8),
                       topRight: Radius.circular(8)),
-                  child: Image.memory(
-                    viewModel.imageBytesMap[imageUrl]!,
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    placeholder: (context, url) => Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        color: Colors.grey.shade300),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.fitWidth,

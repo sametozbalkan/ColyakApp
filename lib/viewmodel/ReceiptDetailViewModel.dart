@@ -9,38 +9,14 @@ class ReceiptDetailViewModel extends ChangeNotifier {
   bool isLoading = true;
   bool liked = false;
   bool _isMounted = true;
+  bool isUpdate = false;
+  int? commentIdForUpdate;
 
   @override
   void dispose() {
     _isMounted = false;
     commentController.dispose();
     super.dispose();
-  }
-
-  Future<void> initializeData(int receiptId) async {
-    await commentAl(
-        "api/replies/receipt/commentsWithReplyByReceiptId/", receiptId);
-  }
-
-  Future<void> commentAl(String path, int receiptId) async {
-    _setLoading(true);
-
-    try {
-      final response = await HttpBuildService.sendRequest(
-          'GET', path + receiptId.toString(),
-          token: true);
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-        commentReply =
-            data.map((json) => CommentReplyJson.fromJson(json)).toList();
-      } else {
-        debugPrint('Error: ${response.statusCode}');
-      }
-    } catch (e) {
-      debugPrint('Error fetching comments: $e');
-    } finally {
-      _setLoading(false);
-    }
   }
 
   Future<void> addComment(
@@ -55,9 +31,8 @@ class ReceiptDetailViewModel extends ChangeNotifier {
           body: commentDetails, token: true);
 
       if (response.statusCode == 201) {
-        await initializeData(receiptId);
-        _showSnackBar('Yorum eklendi!', context);
         commentController.clear();
+        await initializeData(receiptId);
       } else {
         _showSnackBar('Yorum eklenirken hata: ${response.statusCode}', context);
         debugPrint('Error: ${response.statusCode}');
@@ -75,9 +50,8 @@ class ReceiptDetailViewModel extends ChangeNotifier {
           body: comment, token: true);
 
       if (response.statusCode == 204) {
-        await initializeData(receiptId);
-        _showSnackBar('Yorum güncellendi!', context);
         commentController.clear();
+        await initializeData(receiptId);
       } else {
         _showSnackBar(
             'Yorum güncellenirken hata: ${response.statusCode}', context);
@@ -103,6 +77,41 @@ class ReceiptDetailViewModel extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error deleting comment: $e');
+    }
+  }
+
+  Future<void> initializeData(int receiptId) async {
+    _setLoading(true);
+    await commentAl(
+        "api/replies/receipt/commentsWithReplyByReceiptId/", receiptId);
+    _setLoading(false);
+    notifyListeners();
+  }
+
+  void _setLoading(bool value) {
+    isLoading = value;
+    if (_isMounted) notifyListeners();
+  }
+
+  Future<void> commentAl(String path, int receiptId) async {
+    _setLoading(true);
+
+    try {
+      final response = await HttpBuildService.sendRequest(
+          'GET', path + receiptId.toString(),
+          token: true);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+        commentReply =
+            data.map((json) => CommentReplyJson.fromJson(json)).toList();
+        commentReply = commentReply.reversed.toList();
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching comments: $e');
+    } finally {
+      _setLoading(false);
     }
   }
 
@@ -155,11 +164,6 @@ class ReceiptDetailViewModel extends ChangeNotifier {
     }
 
     return '$seconds saniye';
-  }
-
-  void _setLoading(bool value) {
-    isLoading = value;
-    if (_isMounted) notifyListeners();
   }
 
   void _showSnackBar(String message, BuildContext context) {

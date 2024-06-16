@@ -1,11 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:colyakapp/service/HttpBuild.dart';
-import 'package:colyakapp/viewmodel/ReceiptDetailViewModel.dart';
-import 'package:colyakapp/model/CommentReplyJson.dart';
-import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:colyakapp/screen/ReplyCommentScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
+import 'package:colyakapp/service/HttpBuild.dart';
+import 'package:colyakapp/viewmodel/ReceiptDetailViewModel.dart';
+import 'package:colyakapp/model/ReceiptJson.dart';
 
 class ReceiptDetailScreen extends StatelessWidget {
   final ReceiptJson receipt;
@@ -58,25 +57,85 @@ class ReceiptDetailScreen extends StatelessWidget {
                 ),
               ),
               body: DefaultTabController(
-                length: 4,
+                length: 3,
                 initialIndex: 0,
                 child: Column(
                   children: <Widget>[
-                    AspectRatio(
-                      aspectRatio: 4 / 3,
-                      child: CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        placeholder: (context, url) => Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          color: Colors.grey.shade300,
+                    Stack(
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 4 / 3,
+                          child: CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            placeholder: (context, url) => Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              color: Colors.grey.shade300,
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.fitWidth,
+                          ),
                         ),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.fitWidth,
-                      ),
+                        Positioned(
+                            bottom: 5,
+                            right: 5,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              height: 45,
+                              width: 45,
+                              child: Stack(
+                                children: [
+                                  Center(
+                                    child: IconButton(
+                                      onPressed: () => _showCommentsModal(
+                                          context, viewModel),
+                                      icon: const Icon(Icons.comment_rounded,
+                                          color: Colors.black, size: 28),
+                                    ),
+                                  ),
+                                  if (viewModel.commentReply.isNotEmpty)
+                                    Positioned(
+                                      right: -1,
+                                      top: -3,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 16,
+                                          minHeight: 16,
+                                        ),
+                                        child: Text(
+                                          viewModel.commentReply.length
+                                              .toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            )),
+                      ],
                     ),
                     Container(
                       decoration: const BoxDecoration(color: Color(0xFFFFF1EC)),
@@ -113,15 +172,6 @@ class ReceiptDetailScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Tab(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                "Yorumlar",
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -131,7 +181,6 @@ class ReceiptDetailScreen extends StatelessWidget {
                           _buildMaterialList(receipt),
                           _buildRecipeDetails(receipt),
                           _buildNutritionalValues(receipt),
-                          _buildComments(context, viewModel),
                         ],
                       ),
                     ),
@@ -272,173 +321,272 @@ class ReceiptDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildComments(
+  void _showCommentsModal(
       BuildContext context, ReceiptDetailViewModel viewModel) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showModalBS(context, viewModel, false);
-        },
-        child: const Icon(Icons.add),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => viewModel.initializeData(receipt.id!),
-        child: viewModel.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : viewModel.commentReply.isEmpty
-                ? const Center(child: Text("Henüz Yorum Yok"))
-                : ListView.builder(
-                    itemCount: viewModel.commentReply.length,
-                    itemBuilder: (context, index) {
-                      final commentResponse =
-                          viewModel.commentReply[index].commentResponse;
-                      final replyResponses =
-                          viewModel.commentReply[index].replyResponses;
-                      final replyCount = replyResponses?.length ?? 0;
+    viewModel.commentController.text = '';
+    viewModel.isUpdate = false;
+    viewModel.commentIdForUpdate = null;
 
-                      return Card(
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ReplyCommentScreen(
-                                  replies: viewModel
-                                      .commentReply[index].replyResponses!,
-                                  commentId: commentResponse.commentId!,
-                                  comment: commentResponse.comment ?? "null",
-                                  commentUser: commentResponse.userName!,
-                                  createdTime: commentResponse.createdDate!,
-                                ),
-                              ),
-                            ).then((value) =>
-                                viewModel.initializeData(receipt.id!));
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 5, bottom: 5),
-                            child: Stack(
-                              children: [
-                                Column(
-                                  children: [
-                                    ListTile(
-                                      title: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  commentResponse!.userName
-                                                      .toString(),
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                viewModel.timeSince(
-                                                    DateTime.parse(
-                                                        commentResponse
-                                                            .createdDate!)),
-                                              ),
-                                            ],
-                                          ),
-                                          const Divider(),
-                                          Row(
-                                            children: [
-                                              Flexible(
-                                                child: Text(
-                                                  commentResponse.comment
-                                                      .toString(),
-                                                  softWrap: true,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 10),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            replyCount > 0
-                                                ? 'Yanıtlar: $replyCount'
-                                                : "Yanıt Yok",
-                                            style: const TextStyle(
-                                                color: Colors.black54),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Positioned(
-                                  bottom: 8,
-                                  right: 8,
-                                  child: commentResponse.userName ==
-                                          HttpBuildService.userName
-                                      ? PopupMenuButton<String>(
-                                          icon: const Icon(Icons.more_vert),
-                                          onSelected: (String result) async {
-                                            if (result == 'delete') {
-                                              await _confirmDeleteComment(
-                                                context,
-                                                viewModel,
-                                                commentResponse.commentId!,
-                                                "api/comments/",
-                                                receipt.id!,
-                                              );
-                                            } else if (result == 'update') {
-                                              _showModalBS(
-                                                  context, viewModel, true,
-                                                  commentResponse:
-                                                      commentResponse);
-                                            }
-                                          },
-                                          itemBuilder: (BuildContext context) =>
-                                              <PopupMenuEntry<String>>[
-                                            const PopupMenuItem<String>(
-                                              value: 'update',
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.edit),
-                                                  SizedBox(width: 5),
-                                                  Text('Güncelle'),
-                                                ],
-                                              ),
+    showModalBottomSheet(
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return ChangeNotifierProvider.value(
+          value: viewModel,
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 10,
+              right: 10,
+              top: 20,
+            ),
+            child: Consumer<ReceiptDetailViewModel>(
+              builder: (context, viewModel, child) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text('Yorumlar', style: TextStyle(fontSize: 18)),
+                    const Divider(),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height / 2.1,
+                      width: double.infinity,
+                      child: RefreshIndicator(
+                        onRefresh: () => viewModel.initializeData(receipt.id!),
+                        child: viewModel.isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : viewModel.commentReply.isEmpty
+                                ? const Center(child: Text("Henüz Yorum Yok"))
+                                : ListView.builder(
+                                    itemCount: viewModel.commentReply.length,
+                                    itemBuilder: (context, index) {
+                                      final commentResponse = viewModel
+                                          .commentReply[index].commentResponse;
+                                      final replyResponses = viewModel
+                                          .commentReply[index].replyResponses;
+                                      final replyCount =
+                                          replyResponses?.length ?? 0;
+
+                                      return InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ReplyCommentScreen(
+                                                      replies: viewModel
+                                                          .commentReply[index]
+                                                          .replyResponses!,
+                                                      commentId: commentResponse
+                                                          .commentId!,
+                                                      comment: commentResponse
+                                                              .comment ??
+                                                          "null",
+                                                      commentUser:
+                                                          commentResponse
+                                                              .userName!,
+                                                      createdTime:
+                                                          commentResponse
+                                                              .createdDate!),
                                             ),
-                                            const PopupMenuItem<String>(
-                                              value: 'delete',
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.delete),
-                                                  SizedBox(width: 5),
-                                                  Text('Sil'),
-                                                ],
-                                              ),
+                                          );
+                                        },
+                                        child: Card(
+                                          child: ListTile(
+                                            title: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        commentResponse!
+                                                            .userName
+                                                            .toString(),
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      viewModel.timeSince(
+                                                          DateTime.parse(
+                                                              commentResponse
+                                                                  .createdDate!)),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const Divider(),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        commentResponse.comment
+                                                            .toString(),
+                                                        softWrap: true,
+                                                      ),
+                                                    ),
+                                                    commentResponse.userName ==
+                                                            HttpBuildService
+                                                                .userName
+                                                        ? PopupMenuButton<
+                                                            String>(
+                                                            color: Colors.white,
+                                                            icon: const Icon(
+                                                                Icons
+                                                                    .more_vert),
+                                                            onSelected: (String
+                                                                result) async {
+                                                              if (result ==
+                                                                  'delete') {
+                                                                await _confirmDeleteComment(
+                                                                  context,
+                                                                  viewModel,
+                                                                  commentResponse
+                                                                      .commentId!,
+                                                                  "api/comments/",
+                                                                  receipt.id!,
+                                                                );
+                                                              } else if (result ==
+                                                                  'update') {
+                                                                viewModel
+                                                                        .commentController
+                                                                        .text =
+                                                                    commentResponse
+                                                                        .comment!;
+                                                                viewModel
+                                                                        .isUpdate =
+                                                                    true;
+                                                                viewModel
+                                                                        .commentIdForUpdate =
+                                                                    commentResponse
+                                                                        .commentId!;
+                                                              }
+                                                            },
+                                                            itemBuilder: (BuildContext
+                                                                    context) =>
+                                                                <PopupMenuEntry<
+                                                                    String>>[
+                                                              const PopupMenuItem<
+                                                                  String>(
+                                                                value: 'update',
+                                                                child: Row(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    Icon(Icons
+                                                                        .edit),
+                                                                    SizedBox(
+                                                                        width:
+                                                                            5),
+                                                                    Text(
+                                                                        'Güncelle'),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              const PopupMenuItem<
+                                                                  String>(
+                                                                value: 'delete',
+                                                                child: Row(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    Icon(Icons
+                                                                        .delete),
+                                                                    SizedBox(
+                                                                        width:
+                                                                            5),
+                                                                    Text('Sil'),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          )
+                                                        : Container()
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 10),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      replyCount > 0
+                                                          ? 'Yanıtlar: $replyCount'
+                                                          : "Yanıt Ekle",
+                                                      style: const TextStyle(
+                                                          color:
+                                                              Colors.black54),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        )
-                                      : Container(),
-                                ),
-                              ],
-                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5, bottom: 5),
+                      child: TextField(
+                        controller: viewModel.commentController,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          labelText: "Yorum yaz",
+                          prefixIcon: const Icon(Icons.comment),
+                          suffixIcon: IconButton(
+                            onPressed: () async {
+                              if (viewModel.isUpdate) {
+                                await viewModel.updateComment(
+                                  viewModel.commentIdForUpdate!,
+                                  viewModel.commentController.text,
+                                  receipt.id!,
+                                  context,
+                                );
+                              } else {
+                                await viewModel.addComment(
+                                  receipt.id!,
+                                  viewModel.commentController.text,
+                                  "api/comments/add",
+                                  context,
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.send),
                           ),
                         ),
-                      );
-                    },
-                  ),
-      ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -470,76 +618,6 @@ class ReceiptDetailScreen extends StatelessWidget {
               },
             )
           ],
-        );
-      },
-    );
-  }
-
-  void _showModalBS(
-      BuildContext context, ReceiptDetailViewModel viewModel, bool isUpdate,
-      {CommentResponse? commentResponse}) {
-    viewModel.commentController.text =
-        isUpdate ? commentResponse!.comment! : '';
-    final String title = isUpdate ? 'Yorumu Güncelle' : 'Yorum Ekle';
-
-    showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            left: 10,
-            right: 10,
-            top: 20,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Container(
-                width: 40,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey[400],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10, bottom: 10),
-                child: Text(title, style: const TextStyle(fontSize: 18)),
-              ),
-              const Divider(),
-              TextField(
-                maxLines: null,
-                controller: viewModel.commentController,
-                decoration: InputDecoration(
-                  labelText: "Yorum yaz",
-                  prefixIcon: const Icon(Icons.comment),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    onPressed: () async {
-                      if (isUpdate) {
-                        await viewModel.updateComment(
-                            commentResponse!.commentId!,
-                            viewModel.commentController.text,
-                            receipt.id!,
-                            context);
-                      } else {
-                        await viewModel.addComment(
-                            receipt.id!,
-                            viewModel.commentController.text,
-                            "api/comments/add",
-                            context);
-                      }
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.send),
-                  ),
-                ),
-              ),
-            ],
-          ),
         );
       },
     );

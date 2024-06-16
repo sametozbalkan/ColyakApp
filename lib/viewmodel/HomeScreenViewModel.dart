@@ -14,6 +14,7 @@ class HomeViewModel extends ChangeNotifier {
   List<FoodListComplex> foodListComplex = [];
   List<ReceiptJson> receiptsMeal = [];
   List<BarcodeJson> barcodesMeal = [];
+  Set<String> loadedImages = {};
 
   HomeViewModel() {
     initializeData();
@@ -36,14 +37,47 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _loadCachedImages() async {
+    for (ReceiptJson receipt in receipts) {
+      String imageUrl =
+          "https://api.colyakdiyabet.com.tr/api/image/get/${receipt.imageId}";
+      Uint8List? imageBytes = await CacheManager().getImageBytes(imageUrl);
+      if (imageBytes != null) {
+        imageBytesMap[imageUrl] = imageBytes;
+      }
+    }
+    notifyListeners();
+  }
+
+  Future<void> _fetchImage(String imageUrl) async {
+    Uint8List? imageBytes = await CacheManager().getImageBytes(imageUrl);
+    if (imageBytes != null) {
+      imageBytesMap[imageUrl] = imageBytes;
+      loadedImages.add(imageUrl);
+      notifyListeners();
+    }
+  }
+
+  Future<void> _loadImagesInBackground(List<ReceiptJson> receipts) async {
+    await Future.delayed(const Duration(milliseconds: 100), () async {
+      for (int i = 0; i < receipts.length; i++) {
+        String imageUrl =
+            "https://api.colyakdiyabet.com.tr/api/image/get/${receipts[i].imageId}";
+        if (!loadedImages.contains(imageUrl)) {
+          await _fetchImage(imageUrl);
+        }
+      }
+    });
+    notifyListeners();
+  }
+
   Future<void> initializeData() async {
     try {
+      await Future.wait(
+          [_fetchTop5Receipts(), _fetchReceipts(), _fetchBarcodes()]);
+      _loadCachedImages();
+      _loadImagesInBackground(receipts);
       notifyListeners();
-      await _fetchReceipts();
-      await _fetchBarcodes();
-      await _fetchTop5Receipts();
-      await _loadImageBytes();
-      
     } catch (e) {
       debugPrint("Error initializing data: $e");
     } finally {
@@ -57,17 +91,6 @@ class HomeViewModel extends ChangeNotifier {
         token: true);
     List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
     receipts = data.map((json) => ReceiptJson.fromJson(json)).toList();
-  }
-
-  Future<void> _loadImageBytes() async {
-    for (ReceiptJson receipt in receipts) {
-      String imageUrl =
-          "https://api.colyakdiyabet.com.tr/api/image/get/${receipt.imageId}";
-      Uint8List? imageBytes = await CacheManager().getImageBytes(imageUrl);
-      if (imageBytes != null) {
-        imageBytesMap[imageUrl] = imageBytes;
-      }
-    }
     notifyListeners();
   }
 

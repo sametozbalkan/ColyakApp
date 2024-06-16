@@ -168,7 +168,7 @@ class ReceiptScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(receipt.receiptName!,
+                    Text(receipt.receiptName ?? "",
                         softWrap: true,
                         textAlign: TextAlign.center,
                         maxLines: 2,
