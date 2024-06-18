@@ -231,14 +231,14 @@ class HomeViewModel extends ChangeNotifier {
           showSnackBar(context, 'Tekrar taramayı deneyin!');
         }
       } else {
-        await showProductNotFoundDialog(context);
+        await showProductNotFoundDialog(context, correctedBarcode);
       }
     } catch (e) {
       debugPrint(e.toString());
     }
   }
 
-  Future<void> showProductNotFoundDialog(BuildContext context) async {
+  Future<void> showProductNotFoundDialog(BuildContext context, String barcodeScanRes) async {
     await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -253,7 +253,7 @@ class HomeViewModel extends ChangeNotifier {
             TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  showSuggestionModal(context, isProductSuggestion: true);
+                  showSuggestionModal(context, isProductSuggestion: true, barcodeScanRes: barcodeScanRes);
                 },
                 child: const Text('Öner')),
           ],

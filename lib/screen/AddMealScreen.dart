@@ -1,10 +1,10 @@
+import 'package:colyakapp/model/BarcodeJson.dart';
 import 'package:colyakapp/model/BolusJson.dart';
+import 'package:colyakapp/model/FoodType.dart';
+import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:colyakapp/screen/MealDetailScreen.dart';
 import 'package:colyakapp/viewmodel/AddMealViewModel.dart';
 import 'package:flutter/material.dart';
-import 'package:colyakapp/model/BarcodeJson.dart';
-import 'package:colyakapp/model/FoodType.dart';
-import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:provider/provider.dart';
 
 class AddMealScreen extends StatelessWidget {
@@ -26,15 +26,7 @@ class AddMealScreen extends StatelessWidget {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(5),
-                  child: TextField(
-                    controller: TextEditingController(),
-                    decoration: const InputDecoration(
-                      labelText: "Ara",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (value) => viewModel.search(value),
-                  ),
+                  child: _buildSearchField(viewModel),
                 ),
                 Expanded(
                   child: DefaultTabController(
@@ -93,6 +85,17 @@ class AddMealScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildSearchField(AddMealViewModel viewModel) {
+    return TextField(
+      decoration: const InputDecoration(
+        labelText: "Ara",
+        prefixIcon: Icon(Icons.search),
+        border: OutlineInputBorder(),
+      ),
+      onChanged: (value) => viewModel.search(value),
     );
   }
 

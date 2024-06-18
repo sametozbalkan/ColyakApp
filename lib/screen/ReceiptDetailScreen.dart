@@ -343,108 +343,160 @@ class ReceiptDetailScreen extends StatelessWidget {
             ),
             child: Consumer<ReceiptDetailViewModel>(
               builder: (context, viewModel, child) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Container(
-                      width: 40,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[400],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text('Yorumlar', style: TextStyle(fontSize: 18)),
-                    const Divider(),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height / 2.1,
-                      width: double.infinity,
-                      child: RefreshIndicator(
-                        onRefresh: () => viewModel.initializeData(receipt.id!),
-                        child: viewModel.isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : viewModel.commentReply.isEmpty
-                                ? const Center(child: Text("Henüz Yorum Yok"))
-                                : ListView.builder(
-                                    itemCount: viewModel.commentReply.length,
-                                    itemBuilder: (context, index) {
-                                      final commentResponse = viewModel
-                                          .commentReply[index].commentResponse;
-                                      final replyResponses = viewModel
-                                          .commentReply[index].replyResponses;
-                                      final replyCount =
-                                          replyResponses?.length ?? 0;
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Container(
+                          width: 40,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[400],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text('Yorumlar', style: TextStyle(fontSize: 18)),
+                        const Divider(),
+                        SizedBox(
+                          height: constraints.maxHeight / 2,
+                          width: double.infinity,
+                          child: RefreshIndicator(
+                            onRefresh: () =>
+                                viewModel.initializeData(receipt.id!),
+                            child: viewModel.isLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : viewModel.commentReply.isEmpty
+                                    ? const Center(
+                                        child: Text("Henüz Yorum Yok"))
+                                    : ListView.builder(
+                                        itemCount:
+                                            viewModel.commentReply.length,
+                                        itemBuilder: (context, index) {
+                                          final commentResponse = viewModel
+                                              .commentReply[index]
+                                              .commentResponse;
+                                          final replyResponses = viewModel
+                                              .commentReply[index]
+                                              .replyResponses;
+                                          final replyCount =
+                                              replyResponses?.length ?? 0;
 
-                                      return InkWell(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ReplyCommentScreen(
-                                                      replies: viewModel
-                                                          .commentReply[index]
-                                                          .replyResponses!,
-                                                      commentId: commentResponse
-                                                          .commentId!,
-                                                      comment: commentResponse
-                                                              .comment ??
-                                                          "null",
-                                                      commentUser:
-                                                          commentResponse
-                                                              .userName!,
-                                                      createdTime:
-                                                          commentResponse
-                                                              .createdDate!),
-                                            ),
-                                          );
-                                        },
-                                        child: Card(
-                                          child: ListTile(
-                                            title: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Text(
-                                                        commentResponse!
-                                                            .userName
-                                                            .toString(),
-                                                        style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      viewModel.timeSince(
-                                                          DateTime.parse(
+                                          return InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ReplyCommentScreen(
+                                                          replies: viewModel
+                                                              .commentReply[
+                                                                  index]
+                                                              .replyResponses!,
+                                                          commentId:
                                                               commentResponse
-                                                                  .createdDate!)),
-                                                    ),
-                                                  ],
+                                                                  .commentId!,
+                                                          comment: commentResponse
+                                                                  .comment ??
+                                                              "null",
+                                                          commentUser:
+                                                              commentResponse
+                                                                  .userName!,
+                                                          createdTime:
+                                                              commentResponse
+                                                                  .createdDate!),
                                                 ),
-                                                const Divider(),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Text(
-                                                        commentResponse.comment
-                                                            .toString(),
-                                                        softWrap: true,
-                                                      ),
+                                              );
+                                            },
+                                            child: Stack(
+                                              children: [
+                                                Card(
+                                                  child: ListTile(
+                                                    title: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              commentResponse!
+                                                                  .userName
+                                                                  .toString(),
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                            const Padding(
+                                                              padding: EdgeInsets
+                                                                  .only(
+                                                                      left:
+                                                                          5,
+                                                                      right:
+                                                                          5),
+                                                              child: Icon(
+                                                                  Icons
+                                                                      .circle,
+                                                                  size: 6,
+                                                                  color: Colors
+                                                                      .black),
+                                                            ),
+                                                            Text(
+                                                              viewModel.timeSince(
+                                                                  DateTime.parse(
+                                                                      commentResponse
+                                                                          .createdDate!)),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const Divider(),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Expanded(
+                                                              child: Text(
+                                                                commentResponse
+                                                                    .comment
+                                                                    .toString(),
+                                                                softWrap: true,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 10),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Text(
+                                                              replyCount > 0
+                                                                  ? 'Yanıtlar: $replyCount'
+                                                                  : "Yanıt Ekle",
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .black54, fontSize: 14),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
                                                     ),
-                                                    commentResponse.userName ==
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                    right: 5,
+                                                    top: 0,
+                                                    child: commentResponse
+                                                                .userName ==
                                                             HttpBuildService
                                                                 .userName
                                                         ? PopupMenuButton<
@@ -452,7 +504,7 @@ class ReceiptDetailScreen extends StatelessWidget {
                                                             color: Colors.white,
                                                             icon: const Icon(
                                                                 Icons
-                                                                    .more_vert),
+                                                                    .more_horiz),
                                                             onSelected: (String
                                                                 result) async {
                                                               if (result ==
@@ -522,65 +574,48 @@ class ReceiptDetailScreen extends StatelessWidget {
                                                               ),
                                                             ],
                                                           )
-                                                        : Container()
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 10),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      replyCount > 0
-                                                          ? 'Yanıtlar: $replyCount'
-                                                          : "Yanıt Ekle",
-                                                      style: const TextStyle(
-                                                          color:
-                                                              Colors.black54),
-                                                    ),
-                                                  ],
-                                                ),
+                                                        : Container())
                                               ],
                                             ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5, bottom: 5),
-                      child: TextField(
-                        controller: viewModel.commentController,
-                        decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
-                          labelText: "Yorum yaz",
-                          prefixIcon: const Icon(Icons.comment),
-                          suffixIcon: IconButton(
-                            onPressed: () async {
-                              if (viewModel.isUpdate) {
-                                await viewModel.updateComment(
-                                  viewModel.commentIdForUpdate!,
-                                  viewModel.commentController.text,
-                                  receipt.id!,
-                                  context,
-                                );
-                              } else {
-                                await viewModel.addComment(
-                                  receipt.id!,
-                                  viewModel.commentController.text,
-                                  "api/comments/add",
-                                  context,
-                                );
-                              }
-                            },
-                            icon: const Icon(Icons.send),
+                                          );
+                                        },
+                                      ),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5, bottom: 5),
+                          child: TextField(
+                            controller: viewModel.commentController,
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              labelText: "Yorum yaz",
+                              prefixIcon: const Icon(Icons.comment),
+                              suffixIcon: IconButton(
+                                onPressed: () async {
+                                  if (viewModel.isUpdate) {
+                                    await viewModel.updateComment(
+                                      viewModel.commentIdForUpdate!,
+                                      viewModel.commentController.text,
+                                      receipt.id!,
+                                      context,
+                                    );
+                                  } else {
+                                    await viewModel.addComment(
+                                      receipt.id!,
+                                      viewModel.commentController.text,
+                                      "api/comments/add",
+                                      context,
+                                    );
+                                  }
+                                },
+                                icon: const Icon(Icons.send),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
             ),

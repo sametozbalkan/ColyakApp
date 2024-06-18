@@ -12,32 +12,20 @@ class AddMealViewModel extends ChangeNotifier {
 
   Future<void> initializeData(
       List<ReceiptJson> receiptList, List<BarcodeJson> barcodeList) async {
-    filteredReceipts = receiptList;
-    filteredBarcodes = barcodeList;
+    receiptsMeal = receiptList;
+    barcodesMeal = barcodeList;
+    filteredReceipts = receiptsMeal;
+    filteredBarcodes = barcodesMeal;
+    notifyListeners();
   }
 
   void search(String value) {
-    final query = value.toLowerCase();
     filteredReceipts = receiptsMeal
-        .where((receipt) =>
-            receipt.receiptName?.toLowerCase().contains(query) ?? false)
+        .where((receipt) => receipt.receiptName!.toLowerCase().contains(value.toLowerCase()))
         .toList();
     filteredBarcodes = barcodesMeal
-        .where(
-            (barcode) => barcode.name?.toLowerCase().contains(query) ?? false)
+        .where((barcode) => barcode.name!.toLowerCase().contains(value.toLowerCase()))
         .toList();
-    notifyListeners();
-  }
-
-  void updateReceipts(List<ReceiptJson> newReceipts) {
-    receiptsMeal = newReceipts;
-    search('');
-    notifyListeners();
-  }
-
-  void updateBarcodes(List<BarcodeJson> newBarcodes) {
-    barcodesMeal = newBarcodes;
-    search('');
     notifyListeners();
   }
 }

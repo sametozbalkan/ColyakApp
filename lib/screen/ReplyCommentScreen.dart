@@ -35,7 +35,8 @@ class ReplyCommentScreen extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(title: const Text("Yanıt Ekle")),
             body: SafeArea(child: _buildBody(context, viewModel)),
-            floatingActionButton: _buildFloatingActionButton(context, viewModel),
+            floatingActionButton:
+                _buildFloatingActionButton(context, viewModel),
           );
         },
       ),
@@ -68,7 +69,8 @@ class ReplyCommentScreen extends StatelessWidget {
                       viewModel.commentUser,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Text(viewModel.timeSince(DateTime.parse(viewModel.createdTime))),
+                    Text(viewModel
+                        .timeSince(DateTime.parse(viewModel.createdTime))),
                   ],
                 ),
                 const Divider(),
@@ -84,7 +86,8 @@ class ReplyCommentScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRepliesSection(BuildContext context, ReplyCommentViewModel viewModel) {
+  Widget _buildRepliesSection(
+      BuildContext context, ReplyCommentViewModel viewModel) {
     return Column(
       children: [
         const Padding(
@@ -99,110 +102,149 @@ class ReplyCommentScreen extends StatelessWidget {
             ],
           ),
         ),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: viewModel.initializeData,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: viewModel.replies.length,
-              itemBuilder: (context, index) {
-                DateTime createdAt = DateTime.parse(viewModel.replies[index].createdDate!);
-                return Padding(
-                  padding: const EdgeInsets.only(right: 5, left: 5, bottom: 5),
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 5, bottom: 5),
-                      child: Stack(children: [
-                        Column(
+        viewModel.replies.isEmpty
+            ? const Expanded(
+                child: Center(
+                  child: Text("Henüz Cevap Yok"),
+                ),
+              )
+            : Expanded(
+                child: RefreshIndicator(
+                  onRefresh: viewModel.initializeData,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: viewModel.replies.length,
+                    itemBuilder: (context, index) {
+                      DateTime createdAt =
+                          DateTime.parse(viewModel.replies[index].createdDate!);
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(right: 5, left: 5, bottom: 5),
+                        child: Stack(
                           children: [
-                            ListTile(
-                              title: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Card(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 5, bottom: 5),
+                                child: Stack(children: [
+                                  Column(
                                     children: [
-                                      Text(
-                                        viewModel.replies[index].userName.toString(),
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ListTile(
+                                        title: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  viewModel
+                                                      .replies[index].userName
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                const Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 5, right: 5),
+                                                  child: Icon(Icons.circle,
+                                                      size: 6,
+                                                      color: Colors.black),
+                                                ),
+                                                Text(viewModel
+                                                    .timeSince(createdAt))
+                                              ],
+                                            ),
+                                            const Divider(),
+                                            viewModel.replies[index].userName !=
+                                                    HttpBuildService.userName
+                                                ? Text(
+                                                    viewModel
+                                                        .replies[index].reply
+                                                        .toString(),
+                                                    softWrap: true)
+                                                : Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            right: 16),
+                                                    child: Text(
+                                                        viewModel.replies[index]
+                                                            .reply
+                                                            .toString(),
+                                                        softWrap: true),
+                                                  )
+                                          ],
+                                        ),
                                       ),
-                                      Text(viewModel.timeSince(createdAt))
                                     ],
                                   ),
-                                  const Divider(),
-                                  viewModel.replies[index].userName !=
-                                          HttpBuildService.userName
-                                      ? Text(viewModel.replies[index].reply.toString(),
-                                          softWrap: true)
-                                      : Padding(
-                                          padding: const EdgeInsets.only(right: 16),
-                                          child: Text(viewModel.replies[index].reply.toString(),
-                                              softWrap: true),
-                                        )
-                                ],
+                                ]),
                               ),
                             ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: viewModel.replies[index].userName ==
+                                      HttpBuildService.userName
+                                  ? PopupMenuButton<String>(
+                                      color: Colors.white,
+                                      icon: const Icon(Icons.more_horiz),
+                                      onSelected: (String result) async {
+                                        if (result == 'delete') {
+                                          await _confirmDeleteReply(
+                                              context, viewModel, index);
+                                        } else if (result == 'update') {
+                                          viewModel.replyController.text =
+                                              viewModel.replies[index].reply!;
+                                          await showModalUpdate(
+                                              context, viewModel, index);
+                                        }
+                                      },
+                                      itemBuilder: (BuildContext context) =>
+                                          <PopupMenuEntry<String>>[
+                                        const PopupMenuItem<String>(
+                                          value: 'update',
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.edit),
+                                              SizedBox(width: 5),
+                                              Text('Güncelle'),
+                                            ],
+                                          ),
+                                        ),
+                                        const PopupMenuItem<String>(
+                                          value: 'delete',
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.delete),
+                                              SizedBox(width: 5),
+                                              Text('Sil'),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Container(),
+                            )
                           ],
                         ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: viewModel.replies[index].userName ==
-                                  HttpBuildService.userName
-                              ? PopupMenuButton<String>(
-                                  icon: const Icon(Icons.more_vert),
-                                  onSelected: (String result) async {
-                                    if (result == 'delete') {
-                                      await _confirmDeleteReply(context, viewModel, index);
-                                    } else if (result == 'update') {
-                                      viewModel.replyController.text = viewModel.replies[index].reply!;
-                                      await showModalUpdate(context, viewModel, index);
-                                    }
-                                  },
-                                  itemBuilder: (BuildContext context) =>
-                                      <PopupMenuEntry<String>>[
-                                    const PopupMenuItem<String>(
-                                      value: 'update',
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.edit),
-                                          SizedBox(width: 5),
-                                          Text('Güncelle'),
-                                        ],
-                                      ),
-                                    ),
-                                    const PopupMenuItem<String>(
-                                      value: 'delete',
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.delete),
-                                          SizedBox(width: 5),
-                                          Text('Sil'),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Container(),
-                        ),
-                      ]),
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-          ),
-        ),
+                ),
+              ),
       ],
     );
   }
 
-  Widget _buildFloatingActionButton(BuildContext context, ReplyCommentViewModel viewModel) {
+  Widget _buildFloatingActionButton(
+      BuildContext context, ReplyCommentViewModel viewModel) {
     return FloatingActionButton(
       onPressed: () {
         showModalBottomSheet(
+          backgroundColor: Colors.white,
           isScrollControlled: true,
           context: context,
           builder: (BuildContext context) {
@@ -239,7 +281,8 @@ class ReplyCommentScreen extends StatelessWidget {
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         onPressed: () async {
-                          await viewModel.sendReply(viewModel.replyController.text);
+                          await viewModel
+                              .sendReply(viewModel.replyController.text);
                           Navigator.pop(context);
                         },
                         icon: const Icon(Icons.send),
@@ -256,7 +299,8 @@ class ReplyCommentScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _confirmDeleteReply(BuildContext context, ReplyCommentViewModel viewModel, int index) async {
+  Future<void> _confirmDeleteReply(
+      BuildContext context, ReplyCommentViewModel viewModel, int index) async {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -283,8 +327,10 @@ class ReplyCommentScreen extends StatelessWidget {
     );
   }
 
-  Future<void> showModalUpdate(BuildContext context, ReplyCommentViewModel viewModel, int index) {
+  Future<void> showModalUpdate(
+      BuildContext context, ReplyCommentViewModel viewModel, int index) {
     return showModalBottomSheet(
+      backgroundColor: Colors.white,
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
@@ -321,7 +367,9 @@ class ReplyCommentScreen extends StatelessWidget {
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     onPressed: () async {
-                      await viewModel.updateReply(viewModel.replies[index].replyId!, viewModel.replyController.text);
+                      await viewModel.updateReply(
+                          viewModel.replies[index].replyId!,
+                          viewModel.replyController.text);
                       Navigator.pop(context);
                     },
                     icon: const Icon(Icons.send),
