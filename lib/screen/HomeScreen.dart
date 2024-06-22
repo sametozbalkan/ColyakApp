@@ -3,8 +3,8 @@ import 'package:colyakapp/model/BolusJson.dart';
 import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:colyakapp/service/HttpBuild.dart';
 import 'package:colyakapp/screen/QuizScreen.dart';
-import 'package:colyakapp/viewmodel/BolusModel.dart';
 import 'package:colyakapp/viewmodel/HomeScreenViewModel.dart';
+import 'package:colyakapp/viewmodel/MealViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:colyakapp/screen/ReceiptDetailScreen.dart';
@@ -67,8 +67,8 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _buildActionsGrid(context, viewModel),
-                  _buildTop5Receipts(viewModel, context),
                   _buildMealSection(context, viewModel),
+                  _buildTop5Receipts(viewModel, context)
                 ],
               ),
             ),
@@ -166,9 +166,7 @@ class HomeScreen extends StatelessWidget {
                     builder: (context) => const BarcodeScanner(),
                   ),
                 ).then((onValue) {
-                  if (onValue.isNotEmpty) {
-                    viewModel.sendBarcode(context, onValue);
-                  }
+                  if (onValue != null) viewModel.sendBarcode(context, onValue);
                 });
               },
               child: const Card(
@@ -228,7 +226,7 @@ class HomeScreen extends StatelessWidget {
                     },
                   )
                 : const Center(
-                    child: Text("Yükleniyor..."),
+                    child: Text("Yükleniyor"),
                   ))
       ],
     );
@@ -325,6 +323,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildMealSection(BuildContext context, HomeViewModel viewModel) {
+    final foodListComplex = Provider.of<MealViewModel>(context, listen: false);
     return Column(
       children: [
         const Padding(
@@ -337,20 +336,9 @@ class HomeScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (context) => MealScreen(
-                        foodListComplex: viewModel.foodListComplex,
+                        foodListComplex: foodListComplex.foodListComplex,
                         barkodList: viewModel.barcodesMeal,
-                        receiptList: viewModel.receiptsMeal))).then((value) {
-              if (value != null &&
-                  !areListsEqual(
-                      value,
-                      Provider.of<BolusModel>(context, listen: false)
-                          .foodList)) {
-                Provider.of<BolusModel>(context, listen: false)
-                    .updateFoodList(value);
-                Provider.of<BolusModel>(context, listen: false).updateTotalCarb(
-                    value.fold(0, (sum, item) => sum + item.carbonhydrate!));
-              }
-            });
+                        receiptList: viewModel.receiptsMeal)));
           },
           child: const Card(
             child: Padding(

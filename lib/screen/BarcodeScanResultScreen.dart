@@ -177,7 +177,8 @@ class BarcodeScanResultScreen extends StatelessWidget {
         ),
         Text(
           value,
-          style: const TextStyle(fontSize: 18),
+          style: TextStyle(
+              fontSize: 18, color: value == "Var" ? Colors.red : Colors.green),
         ),
       ],
     );

@@ -3,7 +3,6 @@ import 'package:colyakapp/viewmodel/QuizDetailViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 class QuizDetailScreen extends StatelessWidget {
   final List<QuestionList> questionList;
   final String topicName;
@@ -101,36 +100,55 @@ class QuizDetailScreen extends StatelessWidget {
         .map((entry) {
       String imageUrl =
           "https://api.colyakdiyabet.com.tr/api/image/get/${entry.value.imageId}";
-      return Card(
-        child: Column(
-          children: [
-            if (entry.value.imageId != null) const SizedBox(height: 10),
-            if (entry.value.imageId != null && viewModel.imageBytes[imageUrl] != null)
-              Expanded(
-                child: AspectRatio(
-                  aspectRatio: 4 / 3,
-                  child: Image.memory(
-                    viewModel.imageBytes[imageUrl]!,
-                    fit: BoxFit.fill,
+      bool hasImage =
+          entry.value.imageId != null && viewModel.imageBytes[imageUrl] != null;
+
+      return GestureDetector(
+        onTap: viewModel.isProcessing
+            ? null
+            : () async {
+                viewModel.chooseAnswer(
+                    viewModel.currentQuestionIndex, entry.value.choice);
+                await viewModel.nextQuestion(
+                    viewModel.questionList[viewModel.currentQuestionIndex].id!,
+                    entry.value.choice!,
+                    context);
+              },
+        child: Card(
+          child: Column(
+            children: [
+              if (hasImage) const SizedBox(height: 10),
+              if (hasImage)
+                Expanded(
+                  child: AspectRatio(
+                    aspectRatio: 4 / 3,
+                    child: Image.memory(
+                      viewModel.imageBytes[imageUrl]!,
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 ),
+              CheckboxListTile(
+                value:
+                    viewModel.chosenAnswers[viewModel.currentQuestionIndex] ==
+                        entry.value.choice,
+                onChanged: viewModel.isProcessing
+                    ? null
+                    : (value) async {
+                        viewModel.chooseAnswer(
+                            viewModel.currentQuestionIndex, entry.value.choice);
+                        await viewModel.nextQuestion(
+                            viewModel
+                                .questionList[viewModel.currentQuestionIndex]
+                                .id!,
+                            entry.value.choice!,
+                            context);
+                      },
+                title: Text(entry.value.choice ?? ''),
+                controlAffinity: ListTileControlAffinity.leading,
               ),
-            CheckboxListTile(
-              value: viewModel.chosenAnswers[viewModel.currentQuestionIndex] ==
-                  entry.value.choice,
-              onChanged: viewModel.isProcessing
-                  ? null
-                  : (value) async {
-                      viewModel.chooseAnswer(viewModel.currentQuestionIndex, entry.value.choice);
-                      await viewModel.nextQuestion(
-                          viewModel.questionList[viewModel.currentQuestionIndex].id!,
-                          entry.value.choice!,
-                          context);
-                    },
-              title: Text(entry.value.choice ?? ''),
-              controlAffinity: ListTileControlAffinity.leading,
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }).toList();

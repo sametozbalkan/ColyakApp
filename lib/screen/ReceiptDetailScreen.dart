@@ -16,6 +16,7 @@ class ReceiptDetailScreen extends StatelessWidget {
     required this.receipt,
     required this.imageUrl,
     required this.isLiked,
+    
   });
 
   @override

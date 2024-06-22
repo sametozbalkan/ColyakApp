@@ -1,4 +1,3 @@
-import 'package:colyakapp/screen/BolusScreen.dart';
 import 'package:colyakapp/screen/HomeScreen.dart';
 import 'package:colyakapp/screen/ReceiptScreen.dart';
 import 'package:colyakapp/viewmodel/HomePageViewModel.dart';
@@ -21,7 +20,6 @@ class HomePage extends StatelessWidget {
               children: const [
                 HomeScreen(),
                 ReceiptScreen(),
-                BolusScreen(),
               ],
             ),
             bottomNavigationBar: BottomNavigationBar(
@@ -33,10 +31,6 @@ class HomePage extends StatelessWidget {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.restaurant),
                   label: 'Tarifler',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.medical_information),
-                  label: 'Bolus',
                 ),
               ],
               currentIndex: viewModel.selectedIndex,

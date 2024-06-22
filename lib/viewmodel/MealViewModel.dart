@@ -5,6 +5,7 @@ class MealViewModel extends ChangeNotifier {
   List<FoodListComplex> foodListComplex = [];
   List<FoodList> bolusFoodList = [];
   double totalCarb = 0;
+  bool hasManualCarbEntry = false;
 
   void initializeData(List<FoodListComplex> foodlist) {
     foodListComplex = foodlist;
@@ -36,6 +37,9 @@ class MealViewModel extends ChangeNotifier {
 
   void removeFood(FoodListComplex food) {
     foodListComplex.remove(food);
+    if (food.foodName == 'Ekstra Karbonhidrat') {
+      hasManualCarbEntry = false;
+    }
     updateTotalCarbAndBolusFoodList();
   }
 
@@ -53,5 +57,26 @@ class MealViewModel extends ChangeNotifier {
         removeFood(food);
       }
     }
+  }
+
+  void addManualCarb(double newCarb) {
+    FoodListComplex manualCarb = FoodListComplex(
+        foodType: "BARCODE",
+        foodId: 256,
+        foodName: 'Ekstra Karbonhidrat',
+        carbonhydrate: newCarb,
+        amount: 1,
+        type: 'Ekstra');
+    foodListComplex.add(manualCarb);
+    hasManualCarbEntry = true;
+    updateTotalCarbAndBolusFoodList();
+  }
+
+  void reset() {
+    foodListComplex = [];
+    bolusFoodList = [];
+    totalCarb = 0;
+    hasManualCarbEntry = false;
+    notifyListeners();
   }
 }

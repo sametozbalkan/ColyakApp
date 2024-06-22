@@ -1,5 +1,5 @@
 import 'package:colyakapp/others/ColyakIcons.dart';
-import 'package:colyakapp/viewmodel/BolusModel.dart';
+import 'package:colyakapp/viewmodel/BolusFoodListViewModel.dart';
 import 'package:colyakapp/viewmodel/BolusViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +13,7 @@ class BolusScreen extends StatelessWidget {
       create: (context) => BolusViewModel(),
       child: Consumer<BolusViewModel>(
         builder: (context, viewModel, child) {
-          final bolusModel = Provider.of<BolusModel>(context);
+          final bolusModel = Provider.of<BolusFoodListViewModel>(context);
           viewModel.karbonhidratMiktariController.text =
               bolusModel.totalCarb.toString();
           return Scaffold(
@@ -23,8 +23,9 @@ class BolusScreen extends StatelessWidget {
               builder: (context, isComplete, child) {
                 return isComplete
                     ? FloatingActionButton(
-                        onPressed: () =>
-                            viewModel.calculateAndSendBolus(context),
+                        onPressed: () {
+                          viewModel.calculateAndSendBolus(context);
+                        },
                         child: const Icon(Icons.send),
                       )
                     : Container();

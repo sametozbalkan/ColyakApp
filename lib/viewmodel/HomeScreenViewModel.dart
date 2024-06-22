@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:colyakapp/model/BolusJson.dart';
 import 'package:colyakapp/screen/BarcodeScanResultScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:colyakapp/model/ReceiptJson.dart';
@@ -11,7 +10,6 @@ import 'package:colyakapp/service/HttpBuild.dart';
 class HomeViewModel extends ChangeNotifier {
   List<ReceiptJson> receipts = [];
   Map<String, Uint8List?> imageBytesMap = {};
-  List<FoodListComplex> foodListComplex = [];
   List<ReceiptJson> receiptsMeal = [];
   List<BarcodeJson> barcodesMeal = [];
   Set<String> loadedImages = {};

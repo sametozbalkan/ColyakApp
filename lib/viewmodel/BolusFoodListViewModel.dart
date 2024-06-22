@@ -1,7 +1,7 @@
 import 'package:colyakapp/model/BolusJson.dart';
 import 'package:flutter/foundation.dart';
 
-class BolusModel with ChangeNotifier {
+class BolusFoodListViewModel with ChangeNotifier {
   double _totalCarb = 0;
   List<FoodListComplex> _foodList = [];
 
@@ -15,6 +15,12 @@ class BolusModel with ChangeNotifier {
 
   void updateFoodList(List<FoodListComplex> foodList) {
     _foodList = foodList;
+    notifyListeners();
+  }
+
+  void reset() {
+    _totalCarb = 0;
+    _foodList = [];
     notifyListeners();
   }
 }

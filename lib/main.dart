@@ -3,7 +3,8 @@ import 'package:colyakapp/service/HttpBuild.dart';
 import 'package:colyakapp/screen/LoginScreen.dart';
 import 'package:colyakapp/screen/PasswordResetScreen.dart';
 import 'package:colyakapp/screen/RegisterScreen.dart';
-import 'package:colyakapp/viewmodel/BolusModel.dart';
+import 'package:colyakapp/viewmodel/BolusFoodListViewModel.dart';
+import 'package:colyakapp/viewmodel/MealViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => BolusModel())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => BolusFoodListViewModel()),
+        ChangeNotifierProvider(create: (_) => MealViewModel())
+      ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
         routes: {

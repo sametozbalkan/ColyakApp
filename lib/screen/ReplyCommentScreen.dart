@@ -105,7 +105,7 @@ class ReplyCommentScreen extends StatelessWidget {
         viewModel.replies.isEmpty
             ? const Expanded(
                 child: Center(
-                  child: Text("Henüz Cevap Yok"),
+                  child: Text("Henüz Yanıt Yok"),
                 ),
               )
             : Expanded(

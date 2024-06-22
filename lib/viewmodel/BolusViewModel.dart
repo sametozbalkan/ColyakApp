@@ -1,4 +1,5 @@
-import 'package:colyakapp/viewmodel/BolusModel.dart';
+import 'package:colyakapp/viewmodel/BolusFoodListViewModel.dart';
+import 'package:colyakapp/viewmodel/MealViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:colyakapp/service/HttpBuild.dart';
@@ -6,11 +7,14 @@ import 'package:colyakapp/model/BolusJson.dart';
 
 class BolusViewModel extends ChangeNotifier {
   final TextEditingController kanSekeriController = TextEditingController();
-  final TextEditingController hedefKanSekeriController = TextEditingController();
-  final TextEditingController insulinKarbonhidratOraniController = TextEditingController();
+  final TextEditingController hedefKanSekeriController =
+      TextEditingController();
+  final TextEditingController insulinKarbonhidratOraniController =
+      TextEditingController();
   final TextEditingController idfController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
-  final TextEditingController karbonhidratMiktariController = TextEditingController();
+  final TextEditingController karbonhidratMiktariController =
+      TextEditingController();
 
   final ValueNotifier<bool> isFormComplete = ValueNotifier(false);
 
@@ -42,6 +46,7 @@ class BolusViewModel extends ChangeNotifier {
       if (response.statusCode == 201) {
         debugPrint("Başarılı");
       } else {
+        debugPrint(response.body);
         throw Exception('Rapor gönderilirken hata!');
       }
     } catch (e) {
@@ -60,7 +65,9 @@ class BolusViewModel extends ChangeNotifier {
   }
 
   void calculateAndSendBolus(BuildContext context) async {
-    final bolusModel = Provider.of<BolusModel>(context, listen: false);
+    final bolusModel =
+        Provider.of<BolusFoodListViewModel>(context, listen: false);
+    final mealViewModel = Provider.of<MealViewModel>(context, listen: false);
 
     if (karbonhidratMiktariController.text.isNotEmpty &&
         insulinKarbonhidratOraniController.text.isNotEmpty &&
@@ -70,8 +77,10 @@ class BolusViewModel extends ChangeNotifier {
       double? bloodSugar = tryParseDouble(kanSekeriController.text);
       double? targetBloodSugar = tryParseDouble(hedefKanSekeriController.text);
       double? insulinTolerateFactor = tryParseDouble(idfController.text);
-      double? totalCarbonhydrate = tryParseDouble(karbonhidratMiktariController.text);
-      double? insulinCarbonhydrateRatio = tryParseDouble(insulinKarbonhidratOraniController.text);
+      double? totalCarbonhydrate =
+          tryParseDouble(karbonhidratMiktariController.text);
+      double? insulinCarbonhydrateRatio =
+          tryParseDouble(insulinKarbonhidratOraniController.text);
 
       if (bloodSugar != null &&
           targetBloodSugar != null &&
@@ -83,17 +92,20 @@ class BolusViewModel extends ChangeNotifier {
             insulinTolerateFactor;
 
         BolusJson bolusDegerleri = BolusJson(
-          foodList: bolusModel.foodList.map((food) => FoodList(
-            foodType: food.foodType,
-            foodId: food.foodId,
-            carbonhydrate: food.carbonhydrate,
-          )).toList(),
+          foodList: bolusModel.foodList
+              .map((food) => FoodList(
+                    foodType: food.foodType,
+                    foodId: food.foodId,
+                    carbonhydrate: food.carbonhydrate,
+                  ))
+              .toList(),
           bolus: Bolus(
             bloodSugar: bloodSugar.round().toInt(),
             targetBloodSugar: targetBloodSugar.round().toInt(),
             insulinTolerateFactor: insulinTolerateFactor.round().toInt(),
             totalCarbonhydrate: totalCarbonhydrate.round().toInt(),
-            insulinCarbonhydrateRatio: insulinCarbonhydrateRatio.round().toInt(),
+            insulinCarbonhydrateRatio:
+                insulinCarbonhydrateRatio.round().toInt(),
             bolusValue: bolusValue.round().toInt(),
             eatingTime: getSelectedDateTime(),
           ),
@@ -102,6 +114,8 @@ class BolusViewModel extends ChangeNotifier {
         await sendBolus(context, bolusDegerleri);
         showBolusResult(context, bolusValue);
         clearFields();
+        bolusModel.reset();
+        mealViewModel.reset();
       }
     } else {
       showValidationError(context);

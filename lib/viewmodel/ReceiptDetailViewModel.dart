@@ -85,7 +85,7 @@ class ReceiptDetailViewModel extends ChangeNotifier {
     await commentAl(
         "api/replies/receipt/commentsWithReplyByReceiptId/", receiptId);
     _setLoading(false);
-    notifyListeners();
+    if (_isMounted) notifyListeners();
   }
 
   void _setLoading(bool value) {
