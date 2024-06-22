@@ -4,12 +4,21 @@ import 'package:colyakapp/model/BolusJson.dart';
 class MealViewModel extends ChangeNotifier {
   List<FoodListComplex> foodListComplex = [];
   List<FoodList> bolusFoodList = [];
-  double totalCarb = 0;
   bool hasManualCarbEntry = false;
+  double totalCarb = 0;
+  List<FoodListComplex> get foodList => foodListComplex;
 
   void initializeData(List<FoodListComplex> foodlist) {
     foodListComplex = foodlist;
     updateTotalCarbAndBolusFoodList();
+  }
+
+  void reset() {
+    totalCarb = 0;
+    foodListComplex = [];
+    bolusFoodList = [];
+    hasManualCarbEntry = false;
+    notifyListeners();
   }
 
   void addItemsToFoodList(List<FoodListComplex> items) {
@@ -25,14 +34,13 @@ class MealViewModel extends ChangeNotifier {
   }
 
   void updateBolusFoodList() {
-    bolusFoodList.clear();
-    for (var food in foodListComplex) {
-      bolusFoodList.add(FoodList(
+    bolusFoodList = foodListComplex.map((food) {
+      return FoodList(
         foodType: food.foodType,
         foodId: food.foodId,
         carbonhydrate: food.carbonhydrate,
-      ));
-    }
+      );
+    }).toList();
   }
 
   void removeFood(FoodListComplex food) {
@@ -62,7 +70,7 @@ class MealViewModel extends ChangeNotifier {
   void addManualCarb(double newCarb) {
     FoodListComplex manualCarb = FoodListComplex(
         foodType: "BARCODE",
-        foodId: 256,
+        foodId: null,
         foodName: 'Ekstra Karbonhidrat',
         carbonhydrate: newCarb,
         amount: 1,
@@ -70,13 +78,5 @@ class MealViewModel extends ChangeNotifier {
     foodListComplex.add(manualCarb);
     hasManualCarbEntry = true;
     updateTotalCarbAndBolusFoodList();
-  }
-
-  void reset() {
-    foodListComplex = [];
-    bolusFoodList = [];
-    totalCarb = 0;
-    hasManualCarbEntry = false;
-    notifyListeners();
   }
 }

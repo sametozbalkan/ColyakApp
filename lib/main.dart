@@ -3,7 +3,6 @@ import 'package:colyakapp/service/HttpBuild.dart';
 import 'package:colyakapp/screen/LoginScreen.dart';
 import 'package:colyakapp/screen/PasswordResetScreen.dart';
 import 'package:colyakapp/screen/RegisterScreen.dart';
-import 'package:colyakapp/viewmodel/BolusFoodListViewModel.dart';
 import 'package:colyakapp/viewmodel/MealViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -19,10 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => BolusFoodListViewModel()),
-        ChangeNotifierProvider(create: (_) => MealViewModel())
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => MealViewModel())],
       child: MaterialApp(
         navigatorKey: navigatorKey,
         routes: {
@@ -41,8 +37,8 @@ class MyApp extends StatelessWidget {
           dividerTheme: const DividerThemeData(color: Colors.grey),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Color(0xFFFF7A37)),
-              foregroundColor: MaterialStateProperty.all(Colors.white),
+              backgroundColor: WidgetStateProperty.all(const Color(0xFFFF7A37)),
+              foregroundColor: WidgetStateProperty.all(Colors.white),
             ),
           ),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
@@ -51,15 +47,14 @@ class MyApp extends StatelessWidget {
             unselectedItemColor: Colors.white54,
           ),
           appBarTheme: const AppBarTheme(
-            surfaceTintColor: Colors.white,
-            color: Colors.white,
-            titleTextStyle: TextStyle(
-              color: Colors.black,
-              fontSize: 22,
-              fontFamily: "Urbanist",
-            ),
-            centerTitle: true,
-          ),
+              surfaceTintColor: Colors.white,
+              color: Colors.white,
+              titleTextStyle: TextStyle(
+                color: Colors.black,
+                fontSize: 22,
+                fontFamily: "Urbanist",
+              ),
+              centerTitle: true),
           fontFamily: "Poppins",
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF7A37))
               .copyWith(background: const Color(0xFFFAFAFA)),

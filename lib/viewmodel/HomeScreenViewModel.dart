@@ -146,6 +146,7 @@ class HomeViewModel extends ChangeNotifier {
     TextEditingController barcodeController =
         TextEditingController(text: barcode);
     bool confirmed = await showModalBottomSheet<bool>(
+          backgroundColor: Colors.white,
           context: context,
           isScrollControlled: true,
           builder: (BuildContext context) {
@@ -236,7 +237,8 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> showProductNotFoundDialog(BuildContext context, String barcodeScanRes) async {
+  Future<void> showProductNotFoundDialog(
+      BuildContext context, String barcodeScanRes) async {
     await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -251,7 +253,9 @@ class HomeViewModel extends ChangeNotifier {
             TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  showSuggestionModal(context, isProductSuggestion: true, barcodeScanRes: barcodeScanRes);
+                  showSuggestionModal(context,
+                      isProductSuggestion: true,
+                      barcodeScanRes: barcodeScanRes);
                 },
                 child: const Text('Öner')),
           ],
@@ -264,6 +268,7 @@ class HomeViewModel extends ChangeNotifier {
       {bool isProductSuggestion = false, String barcodeScanRes = ""}) {
     TextEditingController suggestionController = TextEditingController();
     showModalBottomSheet(
+        backgroundColor: Colors.white,
         context: context,
         isScrollControlled: true,
         builder: (BuildContext context) {

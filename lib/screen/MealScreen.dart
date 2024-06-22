@@ -3,7 +3,6 @@ import 'package:colyakapp/model/BolusJson.dart';
 import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:colyakapp/screen/AddMealScreen.dart';
 import 'package:colyakapp/screen/BolusScreen.dart';
-import 'package:colyakapp/viewmodel/BolusFoodListViewModel.dart';
 import 'package:colyakapp/viewmodel/MealViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -45,12 +44,6 @@ class MealScreen extends StatelessWidget {
 
                     if (response != null && response is List<FoodListComplex>) {
                       viewModel.addItemsToFoodList(response);
-                      Provider.of<BolusFoodListViewModel>(context,
-                              listen: false)
-                          .updateTotalCarb(viewModel.totalCarb);
-                      Provider.of<BolusFoodListViewModel>(context,
-                              listen: false)
-                          .updateFoodList(viewModel.foodListComplex);
                     }
                   },
                   icon: const Icon(Icons.add),
@@ -84,9 +77,14 @@ class MealScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const BolusScreen(),
+                                builder: (context) =>
+                                    BolusScreen(totalCarb: viewModel.totalCarb),
                               ),
-                            );
+                            ).then((onValue) {
+                              viewModel.totalCarb == 0
+                                  ? viewModel.reset()
+                                  : null;
+                            });
                           },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
@@ -121,7 +119,7 @@ class MealScreen extends StatelessWidget {
                                     TextEditingController carbController =
                                         TextEditingController();
                                     return AlertDialog(
-                                      title: const Text('Karbonhidrat Miktarı'),
+                                      title: const Text('Karbonhidrat Ekle'),
                                       content: TextField(
                                         controller: carbController,
                                         keyboardType: TextInputType.number,
@@ -142,11 +140,6 @@ class MealScreen extends StatelessWidget {
                                                 carbController.text);
                                             if (newCarb != null) {
                                               viewModel.addManualCarb(newCarb);
-                                              Provider.of<BolusFoodListViewModel>(
-                                                      context,
-                                                      listen: false)
-                                                  .updateTotalCarb(
-                                                      viewModel.totalCarb);
                                             }
                                             Navigator.pop(context);
                                           },
@@ -183,16 +176,6 @@ class MealScreen extends StatelessWidget {
                                       direction: DismissDirection.startToEnd,
                                       onDismissed: (direction) {
                                         viewModel.removeFood(foodItem);
-                                        Provider.of<BolusFoodListViewModel>(
-                                                context,
-                                                listen: false)
-                                            .updateTotalCarb(
-                                                viewModel.totalCarb);
-                                        Provider.of<BolusFoodListViewModel>(
-                                                context,
-                                                listen: false)
-                                            .updateFoodList(
-                                                viewModel.foodListComplex);
                                       },
                                       background: Container(
                                         color: Colors.red,
@@ -216,29 +199,9 @@ class MealScreen extends StatelessWidget {
                                                 if (foodItem.amount! > 1) {
                                                   viewModel.updateCarb(
                                                       foodItem, -1);
-                                                  Provider.of<BolusFoodListViewModel>(
-                                                          context,
-                                                          listen: false)
-                                                      .updateTotalCarb(
-                                                          viewModel.totalCarb);
-                                                  Provider.of<BolusFoodListViewModel>(
-                                                          context,
-                                                          listen: false)
-                                                      .updateFoodList(viewModel
-                                                          .foodListComplex);
                                                 } else {
                                                   viewModel
                                                       .removeFood(foodItem);
-                                                  Provider.of<BolusFoodListViewModel>(
-                                                          context,
-                                                          listen: false)
-                                                      .updateTotalCarb(
-                                                          viewModel.totalCarb);
-                                                  Provider.of<BolusFoodListViewModel>(
-                                                          context,
-                                                          listen: false)
-                                                      .updateFoodList(viewModel
-                                                          .foodListComplex);
                                                 }
                                               },
                                             ),
@@ -247,16 +210,6 @@ class MealScreen extends StatelessWidget {
                                               onPressed: () {
                                                 viewModel.updateCarb(
                                                     foodItem, 1);
-                                                Provider.of<BolusFoodListViewModel>(
-                                                        context,
-                                                        listen: false)
-                                                    .updateTotalCarb(
-                                                        viewModel.totalCarb);
-                                                Provider.of<BolusFoodListViewModel>(
-                                                        context,
-                                                        listen: false)
-                                                    .updateFoodList(viewModel
-                                                        .foodListComplex);
                                               },
                                             ),
                                           ],

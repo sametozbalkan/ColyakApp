@@ -1,4 +1,3 @@
-import 'package:colyakapp/viewmodel/BolusFoodListViewModel.dart';
 import 'package:colyakapp/viewmodel/MealViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -65,8 +64,6 @@ class BolusViewModel extends ChangeNotifier {
   }
 
   void calculateAndSendBolus(BuildContext context) async {
-    final bolusModel =
-        Provider.of<BolusFoodListViewModel>(context, listen: false);
     final mealViewModel = Provider.of<MealViewModel>(context, listen: false);
 
     if (karbonhidratMiktariController.text.isNotEmpty &&
@@ -92,7 +89,7 @@ class BolusViewModel extends ChangeNotifier {
             insulinTolerateFactor;
 
         BolusJson bolusDegerleri = BolusJson(
-          foodList: bolusModel.foodList
+          foodList: mealViewModel.foodList
               .map((food) => FoodList(
                     foodType: food.foodType,
                     foodId: food.foodId,
@@ -114,7 +111,6 @@ class BolusViewModel extends ChangeNotifier {
         await sendBolus(context, bolusDegerleri);
         showBolusResult(context, bolusValue);
         clearFields();
-        bolusModel.reset();
         mealViewModel.reset();
       }
     } else {
@@ -124,41 +120,52 @@ class BolusViewModel extends ChangeNotifier {
 
   void showBolusResult(BuildContext context, double bolusValue) {
     showModalBottomSheet(
+      backgroundColor: Colors.white,
+      isDismissible: false,
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            left: 10,
-            right: 10,
-            top: 20,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Container(
-                width: 40,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey[400],
-                  borderRadius: BorderRadius.circular(10),
+        return WillPopScope(
+          onWillPop: () async {
+            Navigator.of(context)
+              ..pop()
+              ..pop()
+              ..pop();
+            return false;
+          },
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              left: 10,
+              right: 10,
+              top: 20,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  width: 40,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 10),
-                child: Text('Bolus Sonucu'),
-              ),
-              const Divider(),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'İnsülin Dozu: ${bolusValue.round().toInt()}',
-                  style: const TextStyle(fontSize: 24),
+                const Padding(
+                  padding: EdgeInsets.only(top: 10, bottom: 10),
+                  child: Text('Bolus Sonucu'),
                 ),
-              ),
-            ],
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'İnsülin Dozu: ${bolusValue.round().toInt()}',
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

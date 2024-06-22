@@ -1,11 +1,11 @@
 import 'package:colyakapp/others/ColyakIcons.dart';
-import 'package:colyakapp/viewmodel/BolusFoodListViewModel.dart';
 import 'package:colyakapp/viewmodel/BolusViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class BolusScreen extends StatelessWidget {
-  const BolusScreen({super.key});
+  final double totalCarb;
+  const BolusScreen({super.key, required this.totalCarb});
 
   @override
   Widget build(BuildContext context) {
@@ -13,9 +13,7 @@ class BolusScreen extends StatelessWidget {
       create: (context) => BolusViewModel(),
       child: Consumer<BolusViewModel>(
         builder: (context, viewModel, child) {
-          final bolusModel = Provider.of<BolusFoodListViewModel>(context);
-          viewModel.karbonhidratMiktariController.text =
-              bolusModel.totalCarb.toString();
+          viewModel.karbonhidratMiktariController.text = totalCarb.toString();
           return Scaffold(
             appBar: AppBar(title: const Text("Bolus Hesapla")),
             floatingActionButton: ValueListenableBuilder<bool>(
@@ -38,33 +36,29 @@ class BolusScreen extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      TimePickerCard(controller: viewModel.timeController),
-                      BolusCard(
-                          title: "Kan Şekeri",
-                          controller: viewModel.kanSekeriController,
-                          icon: ColyakIcons.sugar_blood,
-                          information: "Açlık kan şekeri"),
-                      BolusCard(
-                          title: "Hedef Kan Şekeri",
-                          controller: viewModel.hedefKanSekeriController,
-                          icon: Icons.track_changes_outlined,
-                          information: "Doktorun uygun gördüğü kan şekeri"),
-                      BolusCard(
-                          title: "Karbonhidrat Miktarı (g)",
-                          controller: viewModel.karbonhidratMiktariController,
-                          icon: ColyakIcons.carbohydrate,
-                          information: "Öğünde alınan karbonhidrat miktarı"),
-                      BolusCard(
-                          title: "İnsulin/Karbonhidrat Oranı",
-                          controller:
-                              viewModel.insulinKarbonhidratOraniController,
-                          icon: Icons.percent,
-                          information: "İnsulin/Karbonhidrat oranı"),
-                      BolusCard(
-                          title: "IDF (İnsulin Duyarlılık Faktörü)",
-                          controller: viewModel.idfController,
-                          icon: ColyakIcons.idf,
-                          information: "İnsulin Duyarlılık Faktörü"),
+                      timePickerCard(viewModel.timeController, context),
+                      bolusCard("Kan Şekeri", viewModel.kanSekeriController,
+                          ColyakIcons.sugar_blood, "Açlık kan şekeri"),
+                      bolusCard(
+                          "Hedef Kan Şekeri",
+                          viewModel.hedefKanSekeriController,
+                          Icons.track_changes_outlined,
+                          "Doktorun uygun gördüğü kan şekeri"),
+                      bolusCard(
+                          "Karbonhidrat Miktarı (g)",
+                          viewModel.karbonhidratMiktariController,
+                          ColyakIcons.carbohydrate,
+                          "Öğünde alınan karbonhidrat miktarı"),
+                      bolusCard(
+                          "İnsulin/Karbonhidrat Oranı",
+                          viewModel.insulinKarbonhidratOraniController,
+                          Icons.percent,
+                          "İnsulin/Karbonhidrat oranı"),
+                      bolusCard(
+                          "IDF (İnsulin Duyarlılık Faktörü)",
+                          viewModel.idfController,
+                          ColyakIcons.idf,
+                          "İnsulin Duyarlılık Faktörü"),
                     ],
                   ),
                 ),
@@ -75,15 +69,47 @@ class BolusScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-class TimePickerCard extends StatelessWidget {
-  final TextEditingController controller;
+  Widget bolusCard(String title, TextEditingController controller,
+      IconData icon, String information) {
+    return Card(
+      child: ListTile(
+        title: Padding(
+          padding: const EdgeInsets.all(5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                    fontSize: 16.0, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 5),
+              TextField(
+                controller: controller,
+                decoration: InputDecoration(
+                  hintText: title,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 12.0),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+        ),
+        leading: Icon(icon, size: 32),
+        subtitle: Center(
+          child: Text(information),
+        ),
+      ),
+    );
+  }
 
-  const TimePickerCard({super.key, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget timePickerCard(
+      TextEditingController controller, BuildContext context) {
     return Card(
       child: ListTile(
         title: Padding(
@@ -128,59 +154,6 @@ class TimePickerCard extends StatelessWidget {
         leading: const Icon(Icons.access_time, size: 32),
         subtitle: const Center(
           child: Text("Yemeği yediğin zaman"),
-        ),
-      ),
-    );
-  }
-}
-
-class BolusCard extends StatelessWidget {
-  final String title;
-  final TextEditingController controller;
-  final IconData icon;
-  final String information;
-
-  const BolusCard({
-    super.key,
-    required this.title,
-    required this.controller,
-    required this.icon,
-    required this.information,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        title: Padding(
-          padding: const EdgeInsets.all(5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                    fontSize: 16.0, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 5),
-              TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  hintText: title,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 12.0),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-        ),
-        leading: Icon(icon, size: 32),
-        subtitle: Center(
-          child: Text(information),
         ),
       ),
     );

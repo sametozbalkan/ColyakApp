@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:colyakapp/model/BolusJson.dart';
 import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:colyakapp/service/HttpBuild.dart';
 import 'package:colyakapp/screen/QuizScreen.dart';
@@ -308,18 +307,6 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  bool areListsEqual(List<FoodListComplex> list1, List<FoodListComplex> list2) {
-    if (list1.length != list2.length) {
-      return false;
-    }
-    for (int i = 0; i < list1.length; i++) {
-      if (list1[i] != list2[i]) {
-        return false;
-      }
-    }
-    return true;
   }
 
   Widget _buildMealSection(BuildContext context, HomeViewModel viewModel) {
