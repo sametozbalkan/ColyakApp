@@ -70,7 +70,7 @@ class MealViewModel extends ChangeNotifier {
   void addManualCarb(double newCarb) {
     FoodListComplex manualCarb = FoodListComplex(
         foodType: "BARCODE",
-        foodId: null,
+        foodId: 248,
         foodName: 'Ekstra Karbonhidrat',
         carbonhydrate: newCarb,
         amount: 1,
