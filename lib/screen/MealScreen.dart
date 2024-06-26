@@ -107,52 +107,51 @@ class MealScreen extends StatelessWidget {
                   Expanded(
                     child: Column(
                       children: [
-                        if (!viewModel.hasManualCarbEntry)
-                          ListTile(
-                            title: const Text('Ekstra Karbonhidrat Ekle'),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    TextEditingController carbController =
-                                        TextEditingController();
-                                    return AlertDialog(
-                                      title: const Text('Karbonhidrat Ekle'),
-                                      content: TextField(
-                                        controller: carbController,
-                                        keyboardType: TextInputType.number,
-                                        decoration: const InputDecoration(
-                                          hintText: 'g',
-                                        ),
+                        ListTile(
+                          title: const Text('Ekstra Karbonhidrat Ekle'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  TextEditingController carbController =
+                                      TextEditingController();
+                                  return AlertDialog(
+                                    title: const Text('Karbonhidrat Ekle'),
+                                    content: TextField(
+                                      controller: carbController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: const InputDecoration(
+                                        hintText: 'g',
                                       ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('İptal'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            double? newCarb = double.tryParse(
-                                                carbController.text);
-                                            if (newCarb != null) {
-                                              viewModel.addManualCarb(newCarb);
-                                            }
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Kaydet'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                            ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('İptal'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          double? newCarb = double.tryParse(
+                                              carbController.text);
+                                          if (newCarb != null) {
+                                            viewModel.addManualCarb(newCarb);
+                                          }
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('Kaydet'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
                           ),
-                        if (!viewModel.hasManualCarbEntry) const Divider(),
+                        ),
+                        const Divider(),
                         viewModel.foodListComplex.isEmpty
                             ? const Expanded(
                                 child: Center(

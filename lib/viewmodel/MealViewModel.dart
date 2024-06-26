@@ -4,7 +4,6 @@ import 'package:colyakapp/model/BolusJson.dart';
 class MealViewModel extends ChangeNotifier {
   List<FoodListComplex> foodListComplex = [];
   List<FoodList> bolusFoodList = [];
-  bool hasManualCarbEntry = false;
   double totalCarb = 0;
   List<FoodListComplex> get foodList => foodListComplex;
 
@@ -17,7 +16,6 @@ class MealViewModel extends ChangeNotifier {
     totalCarb = 0;
     foodListComplex = [];
     bolusFoodList = [];
-    hasManualCarbEntry = false;
     notifyListeners();
   }
 
@@ -45,9 +43,6 @@ class MealViewModel extends ChangeNotifier {
 
   void removeFood(FoodListComplex food) {
     foodListComplex.remove(food);
-    if (food.foodName == 'Ekstra Karbonhidrat') {
-      hasManualCarbEntry = false;
-    }
     updateTotalCarbAndBolusFoodList();
   }
 
@@ -76,7 +71,6 @@ class MealViewModel extends ChangeNotifier {
         amount: 1,
         type: 'Ekstra');
     foodListComplex.add(manualCarb);
-    hasManualCarbEntry = true;
     updateTotalCarbAndBolusFoodList();
   }
 }

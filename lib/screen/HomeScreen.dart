@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:colyakapp/screen/InfoScreen.dart';
 import 'package:colyakapp/model/ReceiptJson.dart';
 import 'package:colyakapp/service/HttpBuild.dart';
 import 'package:colyakapp/screen/QuizScreen.dart';
@@ -25,6 +26,19 @@ class HomeScreen extends StatelessWidget {
           return Scaffold(
             drawer: _buildDrawer(context),
             appBar: AppBar(
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.info_outline),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const InfoScreen(),
+                      ),
+                    );
+                  },
+                )
+              ],
               title: const Text("Çölyak Diyabet"),
               bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(52),

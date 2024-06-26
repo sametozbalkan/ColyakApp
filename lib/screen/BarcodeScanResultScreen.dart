@@ -50,11 +50,38 @@ class BarcodeScanResultScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        _buildInfoRow('Gluten: ',
-                            viewModel.barcode.glutenFree! ? 'Var' : 'Yok'),
+                        Row(
+                          children: [
+                            const Text(
+                              'Gluten: ',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              viewModel.barcode.glutenFree! ? 'Var' : 'Yok',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: viewModel.barcode.glutenFree!
+                                    ? Colors.red
+                                    : Colors.green,
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 8),
-                        _buildInfoRow(
-                            'Barkod: ', viewModel.barcode.code.toString()),
+                        Row(
+                          children: [
+                            const Text(
+                              'Barkod: ',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              viewModel.barcode.code.toString(),
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   ),
@@ -165,22 +192,6 @@ class BarcodeScanResultScreen extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-              fontSize: 18, color: value == "Var" ? Colors.red : Colors.green),
-        ),
-      ],
     );
   }
 }
