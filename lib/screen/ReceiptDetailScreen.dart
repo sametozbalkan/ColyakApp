@@ -337,7 +337,7 @@ class ReceiptDetailScreen extends StatelessWidget {
           value: viewModel,
           child: Padding(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 40,
               left: 10,
               right: 10,
               top: 20,
@@ -584,13 +584,11 @@ class ReceiptDetailScreen extends StatelessWidget {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 5, bottom: 5),
+                          padding: const EdgeInsets.all(5),
                           child: TextField(
                             controller: viewModel.commentController,
                             decoration: InputDecoration(
-                              border: const OutlineInputBorder(),
                               labelText: "Yorum yaz",
-                              prefixIcon: const Icon(Icons.comment),
                               suffixIcon: IconButton(
                                 onPressed: () async {
                                   if (viewModel.isUpdate) {

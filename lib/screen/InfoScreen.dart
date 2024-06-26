@@ -22,14 +22,9 @@ class InfoScreen extends StatelessWidget {
               pages: model.pages.map((page) {
                 return PageViewModel(
                   title: page.title,
-                  body: page.body,
-                  image: page.isNetworkImage
-                      ? Image.network(page.imageAsset!)
-                      : page.imageAsset != null
-                          ? Image.asset(page.imageAsset!)
-                          : null,
                   decoration: const PageDecoration(
-                    titleTextStyle: TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700),
+                    titleTextStyle:
+                        TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700),
                     bodyTextStyle: TextStyle(fontSize: 19.0),
                     bodyPadding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
                     pageColor: Colors.white,
@@ -41,6 +36,23 @@ class InfoScreen extends StatelessWidget {
                     imageFlex: page.fullScreen ? 3 : 6,
                     safeArea: page.fullScreen ? 100 : 80,
                   ),
+                  bodyWidget: Column(
+                    children: [
+                      SizedBox(
+                        child: page.isNetworkImage
+                            ? Image.network(page.imageAsset!)
+                            : page.imageAsset != null
+                                ? Image.asset(
+                                    page.imageAsset!,
+                                    width:
+                                        MediaQuery.of(context).size.width / 1.5,
+                                  )
+                                : null,
+                      ),
+                      Text(page.body,
+                          softWrap: true, textAlign: TextAlign.center)
+                    ],
+                  ),
                 );
               }).toList(),
               onDone: () => Navigator.of(context).pop(),
@@ -50,14 +62,16 @@ class InfoScreen extends StatelessWidget {
               nextFlex: 0,
               showBackButton: false,
               back: const Icon(Icons.arrow_back),
-              skip: const Text('Geri Dön', style: TextStyle(fontWeight: FontWeight.w600)),
+              skip: const Text('Geri Dön',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
               next: const Icon(Icons.arrow_forward),
-              done: const Text('Tamam', style: TextStyle(fontWeight: FontWeight.w600)),
+              done: const Text('Çık',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
               curve: Curves.fastLinearToSlowEaseIn,
-              controlsMargin: const EdgeInsets.all(16),
-              controlsPadding: const EdgeInsets.all(8.0),
+              controlsMargin: const EdgeInsets.only(bottom: 40, left: 10, right: 10),
+              controlsPadding: const EdgeInsets.all(5),
               dotsDecorator: const DotsDecorator(
-                size: Size(10.0, 10.0),
+                size: Size(7.0, 7.0),
                 color: Color(0xFFBDBDBD),
                 activeSize: Size(22.0, 10.0),
                 activeShape: RoundedRectangleBorder(

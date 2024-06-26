@@ -4,31 +4,64 @@ import 'package:flutter/material.dart';
 class PagesViewModel extends ChangeNotifier {
   final List<PageModel> _pages = [
     PageModel(
-      title: "31 Çeken Maymun",
-      body: "Kifoz",
-      imageAsset: "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTA5L3Jhd3BpeGVsX29mZmljZV8yOF9mZW1hbGVfbWluaW1hbF9yb2JvdF9mYWNlX29uX2RhcmtfYmFja2dyb3VuZF81ZDM3YjhlNy04MjRkLTQ0NWUtYjZjYy1hZmJkMDI3ZTE1NmYucG5n.png",
-      isNetworkImage: true,
+      title: "Uygulama Ana Ekranı",
+      body: "Uygulamaya giriş yapıldığında sizi karşılayacak olan ilk ekran.",
+      imageAsset: "assets/images/mainscreen.png",
     ),
     PageModel(
-      title: "Learn as you go",
-      body: "Download the Stockpile app and master the market with our mini-lesson.",
+      title: "Kolay Erişilebilir Menü",
+      body: "Ana ekranın sol üstünden menüye kolayca erişebilir ve yapmak istediklerinizi seçebilirsiniz.",
+      imageAsset: "assets/images/hamburger.png",
     ),
     PageModel(
-      title: "Kids and teens",
-      body: "Kids and teens can track their stocks 24/7 and place trades that you approve.",
+      title: "Öğün Listeni Oluştur",
+      body: "Öğün listeni oluşturarak bolus için karbonhidrat değerini kolayca belirleyebilirsin.",
+      imageAsset: "assets/images/mealscreen.png",
     ),
     PageModel(
-      title: "Full Screen Page",
-      body: "Pages can be full screen as well.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc id euismod lectus, non tempor felis. Nam rutrum rhoncus est ac venenatis.",
-      fullScreen: true,
+      title: "Yüzlerce Tarif ve Hazır Gıda",
+      body: "Bu listeden özgürce seçim yapabilir ve kolayca listene ekleyebilirsin.",
+      imageAsset: "assets/images/addmealscreen.png",
     ),
     PageModel(
-      title: "Another title page",
-      body: "Another beautiful body text for this example onboarding",
+      title: "Birbirinden Farklı Tarifler",
+      body: "Diyetisyeninin özenle hazırladığı tüm tariflere kolayca erişebilirsin ve favorileyebilirsin.",
+      imageAsset: "assets/images/receipts.png",
     ),
     PageModel(
-      title: "Title of last page - reversed",
-      body: "Click on to edit a post",
+      title: "Geniş Tarif Detayları",
+      body: "İstediğin tarifin malzemelerine, yapılışına ve besin değerlerine kolayca ulaşabilirsin.",
+      imageAsset: "assets/images/receiptdetails.png",
+    ),
+    PageModel(
+      title: "Özgürce Yorum Yap",
+      body: "İstediğin tarifin altına bu tarifle ilgili aklında ne geçerse yazabilirsin.",
+      imageAsset: "assets/images/commentscreen.png",
+    ),
+    PageModel(
+      title: "Yorumlar Altında Tartış",
+      body: "İstediğin yoruma cevap verebilir ve yorum sahibiyle tarif hakkında konuşabilirsin.",
+      imageAsset: "assets/images/replyscreen.png",
+    ),
+    PageModel(
+      title: "Bolus Hesaplayıcı",
+      body: "Öğün listeni oluşturduktan sonra alman gereken insulini buradan hesaplayabilirsin.",
+      imageAsset: "assets/images/bolus.png",
+    ),
+    PageModel(
+      title: "Bolus Raporların",
+      body: "Dilediğin tarih aralığındaki bolus raporlarını inceleyebilirsin.",
+      imageAsset: "assets/images/bolusreportdetails.png",
+    ),
+    PageModel(
+      title: "Faydalı Bilgiler",
+      body: "Buradan istediğin herhangi bir konuda bilgi alabilirsin.",
+      imageAsset: "assets/images/pdfscreen.png",
+    ),
+    PageModel(
+      title: "Eğitici ve Öğretici Quizler",
+      body: "Birbirinden farklı eğitici ve öğretici quizleri çözüp bilgilerini test edebilirsin.",
+      imageAsset: "assets/images/quiz.png",
     ),
   ];
 

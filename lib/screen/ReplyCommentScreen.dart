@@ -250,7 +250,7 @@ class ReplyCommentScreen extends StatelessWidget {
           builder: (BuildContext context) {
             return Padding(
               padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 40,
                 left: 10,
                 right: 10,
                 top: 20,
@@ -268,24 +268,25 @@ class ReplyCommentScreen extends StatelessWidget {
                     ),
                   ),
                   const Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                    padding: EdgeInsets.all(10),
                     child: Text('Yanıt Ekle', style: TextStyle(fontSize: 18)),
                   ),
                   const Divider(),
-                  TextField(
-                    maxLines: null,
-                    controller: viewModel.replyController,
-                    decoration: InputDecoration(
-                      labelText: "Yanıt yaz",
-                      prefixIcon: const Icon(Icons.comment),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        onPressed: () async {
-                          await viewModel
-                              .sendReply(viewModel.replyController.text);
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.send),
+                  Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: TextField(
+                      maxLines: null,
+                      controller: viewModel.replyController,
+                      decoration: InputDecoration(
+                        labelText: "Yanıt yaz",
+                        suffixIcon: IconButton(
+                          onPressed: () async {
+                            await viewModel
+                                .sendReply(viewModel.replyController.text);
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.send),
+                        ),
                       ),
                     ),
                   ),

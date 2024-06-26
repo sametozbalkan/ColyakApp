@@ -128,7 +128,7 @@ class HomeScreen extends StatelessWidget {
           ),
           const Padding(
             padding: EdgeInsets.all(16.0),
-            child: Text('© 2024 Çölyak Hastaları',
+            child: Text('© 2024 Çölyak Team',
                 style: TextStyle(fontSize: 12, color: Colors.black87)),
           ),
         ],

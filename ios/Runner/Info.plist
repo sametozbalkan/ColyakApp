@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Barkod taramak için uygulamaya izin vermelisiniz.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Galeriden fotoğraf seçmek için uygulamaya izin vermelisiniz.</string>
 </dict>
 </plist>
