@@ -1,93 +1,195 @@
-import 'package:colyakapp/viewmodel/PagesViewModel.dart';
+import 'package:colyakapp/model/PageData.dart';
+import 'package:colyakapp/viewmodel/InfoViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:introduction_screen/introduction_screen.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
 
+  static const List<PageData> pages = [
+    PageData(
+      title: "Uygulama Ana Ekranı",
+      description: "Uygulamaya giriş yapıldığında sizi karşılayacak olan ilk ekran.",
+      imageAsset: "assets/images/mainscreen.png",
+    ),
+    PageData(
+      title: "Kolay Erişilebilir Menü",
+      description: "Ana ekranın sol üstünden menüye kolayca erişebilir ve yapmak istediklerinizi seçebilirsiniz.",
+      imageAsset: "assets/images/hamburger.png",
+    ),
+    PageData(
+      title: "Öğün Listeni Oluştur",
+      description: "Öğün listeni oluşturarak bolus için karbonhidrat değerini kolayca belirleyebilirsin.",
+      imageAsset: "assets/images/mealscreen.png",
+    ),
+    PageData(
+      title: "Yüzlerce Yiyecek",
+      description: "Bu listeden özgürce seçim yapabilir ve kolayca listene ekleyebilirsin.",
+      imageAsset: "assets/images/addmealscreen.png",
+    ),
+    PageData(
+      title: "Birbirinden Farklı Tarifler",
+      description: "Diyetisyeninin özenle hazırladığı tüm tariflere kolayca erişebilirsin ve favorileyebilirsin.",
+      imageAsset: "assets/images/receipts.png",
+    ),
+    PageData(
+      title: "Geniş Tarif Detayları",
+      description: "İstediğin tarifin malzemelerine, yapılışına ve besin değerlerine kolayca ulaşabilirsin.",
+      imageAsset: "assets/images/receiptdetails.png",
+    ),
+    PageData(
+      title: "Özgürce Yorum Yap",
+      description: "İstediğin tarifin altına bu tarifle ilgili aklında ne geçerse yazabilirsin.",
+      imageAsset: "assets/images/commentscreen.png",
+    ),
+    PageData(
+      title: "Yorumlar Altında Tartış",
+      description: "İstediğin yoruma cevap verebilir ve yorum sahibiyle tarif hakkında konuşabilirsin.",
+      imageAsset: "assets/images/replyscreen.png",
+    ),
+    PageData(
+      title: "Bolus Hesaplayıcı",
+      description: "Öğün listeni oluşturduktan sonra alman gereken insulini buradan hesapla.",
+      imageAsset: "assets/images/bolus.png",
+    ),
+    PageData(
+      title: "Bolus Raporların",
+      description: "Dilediğin tarih aralığındaki bolus raporlarını inceleyebilirsin.",
+      imageAsset: "assets/images/bolusreportdetails.png",
+    ),
+    PageData(
+      title: "Faydalı Bilgiler",
+      description: "Buradan istediğin herhangi bir konuda bilgi alabilirsin.",
+      imageAsset: "assets/images/pdfscreen.png",
+    ),
+    PageData(
+      title: "Eğitici Quizler",
+      description: "Birbirinden farklı eğitici ve öğretici quizleri çözüp bilgilerini test edebilirsin.",
+      imageAsset: "assets/images/quiz.png",
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<PagesViewModel>(
-      create: (context) => PagesViewModel(),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Bilgi Ekranı"),
-        ),
-        body: Consumer<PagesViewModel>(
-          builder: (context, model, child) {
-            return IntroductionScreen(
-              globalBackgroundColor: Colors.white,
-              allowImplicitScrolling: true,
-              pages: model.pages.map((page) {
-                return PageViewModel(
-                  title: page.title,
-                  decoration: const PageDecoration(
-                    titleTextStyle:
-                        TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700),
-                    bodyTextStyle: TextStyle(fontSize: 19.0),
-                    bodyPadding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-                    pageColor: Colors.white,
-                    imagePadding: EdgeInsets.zero,
-                  ).copyWith(
-                    contentMargin: const EdgeInsets.symmetric(horizontal: 16),
-                    fullScreen: page.fullScreen,
-                    bodyFlex: page.fullScreen ? 2 : 6,
-                    imageFlex: page.fullScreen ? 3 : 6,
-                    safeArea: page.fullScreen ? 100 : 80,
-                  ),
-                  bodyWidget: Column(
-                    children: [
-                      SizedBox(
-                        child: page.isNetworkImage
-                            ? Image.network(page.imageAsset!)
-                            : page.imageAsset != null
-                                ? Image.asset(
-                                    page.imageAsset!,
-                                    width:
-                                        MediaQuery.of(context).size.width / 1.5,
-                                  )
-                                : null,
+    return ChangeNotifierProvider(
+      create: (_) => InfoViewModel(),
+      child: Consumer<InfoViewModel>(
+        builder: (context, viewModel, child) {
+          return Scaffold(
+            body: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFFFF7A37),
+                    Color.fromARGB(255, 255, 137, 78)
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: PageView.builder(
+                        controller: viewModel.pageController,
+                        onPageChanged: viewModel.onPageChanged,
+                        itemCount: pages.length,
+                        itemBuilder: (context, index) {
+                          return _buildPage(pages[index], context);
+                        },
                       ),
-                      Text(page.body,
-                          softWrap: true, textAlign: TextAlign.center)
-                    ],
-                  ),
-                );
-              }).toList(),
-              onDone: () => Navigator.of(context).pop(),
-              onSkip: () => Navigator.of(context).pop(),
-              showSkipButton: true,
-              skipOrBackFlex: 0,
-              nextFlex: 0,
-              showBackButton: false,
-              back: const Icon(Icons.arrow_back),
-              skip: const Text('Geri Dön',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
-              next: const Icon(Icons.arrow_forward),
-              done: const Text('Çık',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
-              curve: Curves.fastLinearToSlowEaseIn,
-              controlsMargin: const EdgeInsets.only(bottom: 40, left: 10, right: 10),
-              controlsPadding: const EdgeInsets.all(5),
-              dotsDecorator: const DotsDecorator(
-                size: Size(7.0, 7.0),
-                color: Color(0xFFBDBDBD),
-                activeSize: Size(22.0, 10.0),
-                activeShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 40),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildBackButton(context, viewModel),
+                          ...List.generate(pages.length, (index) {
+                            return _buildIndicator(
+                                index == viewModel.currentPage);
+                          }),
+                          _buildForwardButton(context, viewModel)
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              dotsContainerDecorator: const ShapeDecoration(
-                color: Colors.black87,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                ),
-              ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildPage(PageData pageData, BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Text(pageData.title,
+            style: const TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            softWrap: true,
+            textAlign: TextAlign.center),
+        const SizedBox(height: 20),
+        Text(
+          pageData.description,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Image.asset(
+          pageData.imageAsset,
+          width: MediaQuery.of(context).size.width / 1.5,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIndicator(bool isActive) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 4.0),
+      height: 8.0,
+      width: isActive ? 16.0 : 12.0,
+      decoration: BoxDecoration(
+        color: isActive ? Colors.white : Colors.grey,
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+      ),
+    );
+  }
+
+  Widget _buildBackButton(BuildContext context, InfoViewModel viewModel) {
+    if (viewModel.currentPage == 0) {
+      return Container(width: 48);
+    }
+    return IconButton(
+      onPressed: () {
+        viewModel.goToPage(context, viewModel.currentPage - 1);
+      },
+      icon: const Icon(Icons.arrow_back, color: Colors.white),
+    );
+  }
+
+  Widget _buildForwardButton(BuildContext context, InfoViewModel viewModel) {
+    return IconButton(
+      onPressed: () {
+        viewModel.goToPage(context, viewModel.currentPage + 1);
+      },
+      icon: viewModel.currentPage == pages.length - 1
+          ? const Icon(Icons.exit_to_app, color: Colors.white)
+          : const Icon(Icons.arrow_forward, color: Colors.white),
     );
   }
 }

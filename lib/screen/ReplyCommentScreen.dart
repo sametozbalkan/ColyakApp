@@ -250,7 +250,7 @@ class ReplyCommentScreen extends StatelessWidget {
           builder: (BuildContext context) {
             return Padding(
               padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom + 40,
+                bottom: MediaQuery.of(context).viewInsets.bottom,
                 left: 10,
                 right: 10,
                 top: 20,

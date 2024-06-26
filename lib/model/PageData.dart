@@ -1,0 +1,11 @@
+class PageData {
+  final String title;
+  final String description;
+  final String imageAsset;
+
+  const PageData({
+    required this.title,
+    required this.description,
+    required this.imageAsset,
+  });
+}
