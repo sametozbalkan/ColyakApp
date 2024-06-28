@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:colyakapp/screen/PasswordResetScreen.dart';
 import 'package:colyakapp/screen/VerifyMailScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +14,24 @@ class LoginViewModel extends ChangeNotifier {
 
   LoginViewModel() {
     deleteTokens();
+  }
+
+  void showResetPassword(BuildContext context) {
+    showModalBottomSheet(
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              left: 10,
+              right: 10,
+              top: 20,
+            ),
+            child: const PasswordResetScreen());
+      },
+    );
   }
 
   Future<void> login(BuildContext context) async {

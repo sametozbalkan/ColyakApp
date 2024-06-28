@@ -8,11 +8,10 @@ class PasswordResetViewModel extends ChangeNotifier {
   Future<void> forgotPassword(BuildContext context, String email) async {
     isLoading = true;
     notifyListeners();
-
     try {
       final response = await HttpBuildService.sendRequest(
           'POST', 'api/users/verify/x0/',
-          body: {'email': email});
+          extra: email);
 
       isLoading = false;
       notifyListeners();
@@ -24,22 +23,13 @@ class PasswordResetViewModel extends ChangeNotifier {
             duration: Duration(seconds: 2),
           ),
         );
-        Navigator.of(context).pushNamedAndRemoveUntil(
-            "/loginscreen", (Route<dynamic> route) => false);
+        Navigator.of(context).pop();
       } else if (response.statusCode == 404) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email formatı yanlış veya bulunamadı!'),
-            duration: Duration(seconds: 1),
-          ),
-        );
+        showToast(context, 'Email formatı yanlış veya bulunamadı!');
+      } else if (response.statusCode == 500) {
+        showToast(context, 'Girilen email kayıtlı değil!');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Hata: ${response.statusCode}'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
+        showToast(context, 'Hata: ${response.statusCode}');
       }
     } catch (e) {
       isLoading = false;
@@ -61,5 +51,37 @@ class PasswordResetViewModel extends ChangeNotifier {
   void dispose() {
     emailController.dispose();
     super.dispose();
+  }
+
+  void showToast(BuildContext context, String message) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 20.0,
+        left: MediaQuery.of(context).size.width * 0.1,
+        width: MediaQuery.of(context).size.width * 0.8,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+              color: Colors.black,
+            ),
+            child: Text(
+              message,
+              style: const TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+    Future.delayed(const Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
   }
 }

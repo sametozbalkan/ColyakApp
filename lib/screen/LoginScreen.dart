@@ -75,7 +75,7 @@ class LoginScreen extends StatelessWidget {
                       children: [
                         TextButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, "/forgotpassword");
+                            viewModel.showResetPassword(context);
                           },
                           child: const Text("Şifrenizi mi unuttunuz?"),
                         ),
